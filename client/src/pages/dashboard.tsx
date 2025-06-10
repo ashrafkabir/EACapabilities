@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [currentView, setCurrentView] = useState<ViewType>('network');
   const [selectedEntity, setSelectedEntity] = useState<EntityReference | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchType, setSearchType] = useState<'capabilities' | 'applications' | 'components'>('capabilities');
+
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     capabilities: true,
@@ -49,7 +49,6 @@ export default function Dashboard() {
             selectedCapability={selectedCapability}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
-            searchType={searchType}
             filters={filters}
           />
         );
@@ -84,8 +83,6 @@ export default function Dashboard() {
         onCapabilitySelect={handleCapabilitySelect}
         onSearchChange={setSearchTerm}
         searchTerm={searchTerm}
-        searchType={searchType}
-        onSearchTypeChange={setSearchType}
         filters={filters}
         onFiltersChange={setFilters}
         selectedCapability={selectedCapability}

@@ -20,8 +20,6 @@ interface SidebarProps {
   };
   onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
-  onSearchTypeChange?: (type: 'capabilities' | 'applications' | 'components') => void;
-  searchType?: 'capabilities' | 'applications' | 'components';
 }
 
 interface CapabilityNode extends BusinessCapability {
@@ -49,9 +47,7 @@ export default function Sidebar({
   searchTerm,
   filters,
   onFiltersChange,
-  selectedCapability,
-  onSearchTypeChange,
-  searchType = 'capabilities'
+  selectedCapability
 }: SidebarProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
@@ -167,31 +163,10 @@ export default function Sidebar({
 
       {/* Search and Filters */}
       <div className="p-4 border-b border-border space-y-4">
-        {/* Search Type Selector */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Search Type</label>
-          <Select value={searchType} onValueChange={onSearchTypeChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select search type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="capabilities">Capabilities & Applications</SelectItem>
-              <SelectItem value="applications">Applications Only</SelectItem>
-              <SelectItem value="components">IT Components Only</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         <div className="relative">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder={
-              searchType === 'components' 
-                ? "Search IT components only..." 
-                : searchType === 'applications'
-                ? "Search applications only..."
-                : "Search capabilities and applications..."
-            }
+            placeholder="Search capabilities, applications, and components..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"

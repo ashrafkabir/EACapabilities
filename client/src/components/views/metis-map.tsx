@@ -7,7 +7,6 @@ import type { BusinessCapability, Application, Initiative, DataObject, Interface
 interface MetisMapProps {
   selectedCapability: string | null;
   searchTerm: string;
-  searchType?: 'capabilities' | 'applications' | 'components';
   onEntitySelect: (entity: EntityReference) => void;
   filters: {
     capabilities: boolean;
@@ -22,7 +21,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, searchTerm, searchType = 'capabilities', onEntitySelect, filters }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect, filters }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -138,9 +137,13 @@ export default function MetisMap({ selectedCapability, searchTerm, searchType = 
 
   const capabilitiesToShow = getCapabilitiesToShow();
   
-  // Find capabilities that match the search criteria based on search type
+  // Find capabilities that match the search criteria based on active filters
   const allMatchingCapabilities = searchTerm ? (() => {
-    if (searchType === 'components') {
+    // Determine search scope based on filters
+    const searchComponents = filters.components && !filters.capabilities && !filters.applications;
+    const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components;
+    
+    if (searchComponents) {
       // IT Component search: find components that match, then find applications using them, then find capabilities
       const matchingComponents = itComponents.filter(comp =>
         comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -167,7 +170,7 @@ export default function MetisMap({ selectedCapability, searchTerm, searchType = 
           );
         });
       });
-    } else if (searchType === 'applications') {
+    } else if (searchApplicationsOnly) {
       // Application-only search - find capabilities that have matching applications
       const matchingApps = applications.filter(app =>
         app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -187,7 +190,7 @@ export default function MetisMap({ selectedCapability, searchTerm, searchType = 
         });
       });
     } else {
-      // Default capabilities & applications search (unchanged original behavior)
+      // Default or multi-scope search: capabilities & applications
       return allCapabilities.filter(cap => {
         const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
