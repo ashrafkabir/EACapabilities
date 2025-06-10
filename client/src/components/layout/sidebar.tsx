@@ -17,7 +17,6 @@ interface SidebarProps {
     applications: boolean;
     components: boolean;
     interfaces: boolean;
-    capabilityLevel: string;
   };
   onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
@@ -174,24 +173,6 @@ export default function Sidebar({
           />
         </div>
 
-        {/* Capability Level Filter */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Capability Level</label>
-          <Select
-            value={filters.capabilityLevel}
-            onValueChange={(value) => handleFilterChange('capabilityLevel', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select level" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Levels</SelectItem>
-              <SelectItem value="1">Level 1</SelectItem>
-              <SelectItem value="2">Level 2</SelectItem>
-              <SelectItem value="3">Level 3</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
 
 
         <div className="space-y-2">

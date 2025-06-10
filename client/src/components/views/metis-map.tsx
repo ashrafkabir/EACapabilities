@@ -1,8 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
-import type { BusinessCapability, Application, Initiative } from "@shared/schema";
+import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 
 interface MetisMapProps {
   selectedCapability: string | null;
@@ -13,7 +13,6 @@ interface MetisMapProps {
     applications: boolean;
     components: boolean;
     interfaces: boolean;
-    capabilityLevel: string;
   };
 }
 
@@ -29,6 +28,8 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     metric: 'none',
     showColors: false
   });
+  const [expandedCapability, setExpandedCapability] = useState<BusinessCapability | null>(null);
+  const [expandedApplication, setExpandedApplication] = useState<Application | null>(null);
 
   const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
@@ -150,16 +151,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     return matchesCapabilityName || matchesApplicationName;
   }) : null;
 
-  // Apply capability level filter (controls display level)
-  useEffect(() => {
-    if (filters.capabilityLevel !== 'all') {
-      const targetLevel = parseInt(filters.capabilityLevel);
-      if (targetLevel !== currentLevel) {
-        setCurrentLevel(targetLevel);
-        setSelectedParent(null); // Reset parent when changing levels via filter
-      }
-    }
-  }, [filters.capabilityLevel, currentLevel]);
+
 
   // If searching, find the capabilities that should be shown at the current display level
   const filteredCapabilities = searchTerm && allMatchingCapabilities ? 
