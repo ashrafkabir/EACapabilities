@@ -30,10 +30,18 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   });
   const [expandedCapability, setExpandedCapability] = useState<BusinessCapability | null>(null);
   const [expandedApplication, setExpandedApplication] = useState<Application | null>(null);
+  const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
 
   const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
   });
+
+  const handleITComponentClick = (componentName: string) => {
+    setSelectedITComponent(componentName);
+    // Clear other selections when filtering by IT component
+    setExpandedCapability(null);
+    setExpandedApplication(null);
+  };
 
   // Sync with sidebar selection
   useEffect(() => {
@@ -463,8 +471,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       </div>
 
       {/* Columnar grid layout */}
-      <div className="grid grid-cols-3 gap-6 auto-rows-min">
-        {filteredCapabilities.map((capability) => {
+      {!selectedITComponent && (
+        <div className="grid grid-cols-3 gap-6 auto-rows-min">
+          {filteredCapabilities.map((capability) => {
           // Get related applications for heatmap calculation
           const relatedApps = applications.filter(app => {
             if (!app.businessCapabilities) return false;
@@ -623,7 +632,20 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                         if (componentsUsedByCapability.length > 0) {
                           return (
                             <div className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
-                              Uses {componentsUsedByCapability.length} IT component{componentsUsedByCapability.length > 1 ? 's' : ''}: {componentsUsedByCapability.slice(0, 2).map(comp => comp.name).join(', ')}
+                              Uses {componentsUsedByCapability.length} IT component{componentsUsedByCapability.length > 1 ? 's' : ''}: {componentsUsedByCapability.slice(0, 2).map((comp, idx) => (
+                                <span key={comp.id}>
+                                  {idx > 0 && ', '}
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleITComponentClick(comp.name);
+                                    }}
+                                    className="underline hover:bg-purple-200 dark:hover:bg-purple-800 px-1 rounded transition-colors"
+                                  >
+                                    {comp.name}
+                                  </button>
+                                </span>
+                              ))}
                               {componentsUsedByCapability.length > 2 && ` +${componentsUsedByCapability.length - 2} more`}
                             </div>
                           );
@@ -729,12 +751,86 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
-      {filteredCapabilities.length === 0 && (
+      {filteredCapabilities.length === 0 && !selectedITComponent && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600">
             {searchTerm ? `No capabilities found matching "${searchTerm}"` : 'No capabilities available at this level'}
+          </div>
+        </div>
+      )}
+
+      {/* IT Component Filtered Applications View */}
+      {selectedITComponent && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedITComponent(null)}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Capabilities
+              </button>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Applications using: {selectedITComponent}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {(() => {
+              // Find the IT component
+              const component = itComponents.find(comp => comp.name === selectedITComponent);
+              if (!component) return <div className="text-gray-500 dark:text-gray-400">IT component not found.</div>;
+
+              // Find applications that use this component
+              const applicationsUsingComponent = applications.filter(app => {
+                return component.applications && component.applications.toLowerCase().includes(app.name.toLowerCase());
+              });
+
+              if (applicationsUsingComponent.length === 0) {
+                return <div className="text-gray-500 dark:text-gray-400">No applications found using this IT component.</div>;
+              }
+
+              return applicationsUsingComponent.map((app) => {
+                const colors = heatmapFilters.showColors ? getHeatmapColor([app]) : getDefaultLevelColor(null);
+                
+                return (
+                  <div
+                    key={app.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${colors.bg} ${colors.border}`}
+                    onClick={() => setExpandedApplication(app)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-lg ${colors.color}`}>
+                          {app.displayName || app.name}
+                        </h3>
+                        {app.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                            {app.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Show business capabilities this app supports */}
+                    {app.businessCapabilities && (
+                      <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                        <span className="font-medium">Supports capabilities:</span> {app.businessCapabilities.split(';').slice(0, 3).map(cap => cap.trim().replace(/^~/, '')).join(', ')}
+                        {app.businessCapabilities.split(';').length > 3 && ` +${app.businessCapabilities.split(';').length - 3} more`}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
           </div>
         </div>
       )}
