@@ -1,0 +1,449 @@
+Business Capability in LeanIX,Hierarchy,Mapped  Level 1 Capability,mapped to Lifesciences Capabilities Level 3
+Accounting,Accounting,Finance,Finance / Accounting and Financial Close
+Accounts Payable,Accounting / Accounts Payable,Finance,Finance / Accounting and Financial Close / Accounts Payable
+Financial Accounting,Accounting / Financial Accounting,Finance,Finance / Accounting and Financial Close
+Fixed Assets and PP&E,Accounting / Fixed Assets and PP&E,Finance,Finance / Accounting and Financial Close / Asset Accounting
+Inventory Costing,Accounting / Inventory Costing,Finance,Finance / Accounting and Financial Close / Inventory Accounting
+Lease Management,Accounting / Lease Management,Finance,Finance / Real Estate Management / Financial Lease Management
+Management Accounting,Accounting / Management Accounting,Finance,Finance / Accounting and Financial Close / Management Accounting
+Management Reporting,Accounting / Management Reporting,Finance,Finance / Accounting and Financial Close / Financial Reporting
+Revenue Management,Accounting / Revenue Management,Finance,Finance / Accounting and Financial Close / Revenue Accounting
+Travel & Expense Management,Accounting / Travel & Expense Management,Finance,Finance / Travel Management / Travel and Expense Management
+Benefits Management,Benefits Management,Human Resources,Human Resources / Benefits Management
+Employee Assistance Programs (EAP),Benefits Management / Employee Assistance Programs (EAP),Human Resources,Human Resources / Benefits Management / Employee Assistance
+Flexible Spending Accounts (FSA) Administration,Benefits Management / Flexible Spending Accounts (FSA) Administration,Human Resources,Human Resources / Benefits Management / Flexible Spending
+Health Insurance Administration,Benefits Management / Health Insurance Administration,Human Resources,Human Resources / Benefits Management / Health Insurance
+Life and Disability Insurance Administration,Benefits Management / Life and Disability Insurance Administration,Human Resources,Human Resources / Benefits Management / Life Insurance
+Retirement Plans Administration,Benefits Management / Retirement Plans Administration,Human Resources,Human Resources / Benefits Management / Retirement Plans
+Business Architecture,Business Architecture,Enterprise Strategy,Enterprise Strategy / Business Architecture
+Candidate Screening,Candidate Screening,Human Resources,Human Resources / Talent Acquisition / Candidate Assessment
+Capital Expenditure Requests,Capital Expenditure Requests,Finance,Finance / Corporate Finance / Capital Investment
+Collaborations & Touchpoints,Collaborations & Touchpoints,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Business Collaborations,Collaborations & Touchpoints / Business Collaborations,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Data & Systems Collaborations,Collaborations & Touchpoints / Data & Systems Collaborations,Enterprise Strategy,Enterprise Strategy / Information Management
+Document Collaborations,Collaborations & Touchpoints / Document Collaborations,Enterprise Strategy,Enterprise Strategy / Information Management
+Governance Collaborations,Collaborations & Touchpoints / Governance Collaborations,Enterprise Strategy,Enterprise Strategy / Corporate Governance
+Process Collaborations,Collaborations & Touchpoints / Process Collaborations,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Regulations Collaborations,Collaborations & Touchpoints / Regulations Collaborations,Enterprise Strategy,Enterprise Strategy / Corporate Governance
+Transactional Collaborations,Collaborations & Touchpoints / Transactional Collaborations,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Compensation Management,Compensation Management,Human Resources,Human Resources / Compensation Management
+Bonus and Incentive Management,Compensation Management / Bonus and Incentive Management,Human Resources,Human Resources / Compensation Management / Incentive Plans
+Equity Compensation,Compensation Management / Equity Compensation,Human Resources,Human Resources / Compensation Management / Equity Plans
+Executive Compensation,Compensation Management / Executive Compensation,Human Resources,Human Resources / Compensation Management / Executive Pay
+Salary and Wage Administration,Compensation Management / Salary and Wage Administration,Human Resources,Human Resources / Compensation Management / Salary Administration
+Total Rewards Strategy,Compensation Management / Total Rewards Strategy,Human Resources,Human Resources / Compensation Management / Total Rewards
+Consolidations and External Reporting,Consolidations and External Reporting,Finance,Finance / Accounting and Financial Close / Financial Consolidation
+Financial Statement Consolidation,Consolidations and External Reporting / Financial Statement Consolidation,Finance,Finance / Accounting and Financial Close / Financial Consolidation
+Regulatory Reporting,Consolidations and External Reporting / Regulatory Reporting,Finance,Finance / Accounting and Financial Close / Regulatory Reporting
+Segment Reporting,Consolidations and External Reporting / Segment Reporting,Finance,Finance / Accounting and Financial Close / Financial Reporting
+Statutory Reporting,Consolidations and External Reporting / Statutory Reporting,Finance,Finance / Accounting and Financial Close / Statutory Reporting
+Core HR,Core HR,Human Resources,Human Resources / Core HR
+Employee Data Management,Core HR / Employee Data Management,Human Resources,Human Resources / Core HR / HR Master Data Management
+Employee Relations,Core HR / Employee Relations,Human Resources,Human Resources / Core HR / Employee Relations
+Global Mobility,Core HR / Global Mobility,Human Resources,Human Resources / Core HR / Global Mobility
+Organizational Structure Management,Core HR / Organizational Structure Management,Human Resources,Human Resources / Core HR / Organizational Management
+Database,Database,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Develop the business resilience strategy,Develop the business resilience strategy,Enterprise Strategy,Enterprise Strategy / Business Continuity Management
+Enable Business Transactions,Enable Business Transactions,Enterprise Strategy,Enterprise Strategy / Business Process Management
+eSignature,eSignature,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Financial Planning & Analytics,Financial Planning & Analytics,Finance,Finance / Financial Planning and Analysis
+Budgeting and Forecasting,Financial Planning & Analytics / Budgeting and Forecasting,Finance,Finance / Financial Planning and Analysis / Financial Budgeting
+Cost Center Planning,Financial Planning & Analytics / Cost Center Planning,Finance,Finance / Financial Planning and Analysis / Cost Center Accounting
+Financial Analysis,Financial Planning & Analytics / Financial Analysis,Finance,Finance / Financial Planning and Analysis / Financial Analysis
+Long Range Planning,Financial Planning & Analytics / Long Range Planning,Finance,Finance / Financial Planning and Analysis / Financial Planning
+Profitability Analysis,Financial Planning & Analytics / Profitability Analysis,Finance,Finance / Financial Planning and Analysis / Profitability Analysis
+Working Capital Analysis,Financial Planning & Analytics / Working Capital Analysis,Finance,Finance / Financial Planning and Analysis / Working Capital Management
+Foundational Capabilities,Foundational Capabilities,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Business Process Management,Foundational Capabilities / Business Process Management,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Document Management,Foundational Capabilities / Document Management,Enterprise Strategy,Enterprise Strategy / Information Management
+Enterprise Content Management,Foundational Capabilities / Enterprise Content Management,Enterprise Strategy,Enterprise Strategy / Information Management
+Master Data Management,Foundational Capabilities / Master Data Management,Enterprise Strategy,Enterprise Strategy / Information Management
+Technology Enablement,Foundational Capabilities / Technology Enablement,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Workflow Management,Foundational Capabilities / Workflow Management,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Headcount Planning,Headcount Planning,Human Resources,Human Resources / Workforce Planning and Analytics
+Hosting,Hosting,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+HR Operations Management,HR Operations Management,Human Resources,Human Resources / Core HR
+HR Case Management,HR Operations Management / HR Case Management,Human Resources,Human Resources / Core HR / HR Service Delivery
+HR Compliance,HR Operations Management / HR Compliance,Human Resources,Human Resources / Core HR / HR Compliance
+HR Document Management,HR Operations Management / HR Document Management,Human Resources,Human Resources / Core HR / HR Information Management
+HR Policies and Procedures,HR Operations Management / HR Policies and Procedures,Human Resources,Human Resources / Core HR / HR Policies
+Indirect Procurement,Indirect Procurement,Sourcing and Procurement,Sourcing and Procurement / Operational Procurement
+Integration,Integration,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Internal Audit,Internal Audit,"Governance, Risk and Compliance","Governance, Risk and Compliance / Audit Management"
+Audit Planning and Execution,Internal Audit / Audit Planning and Execution,"Governance, Risk and Compliance","Governance, Risk and Compliance / Audit Management / Audit Planning"
+Internal Controls Testing,Internal Audit / Internal Controls Testing,"Governance, Risk and Compliance","Governance, Risk and Compliance / Audit Management / Controls Testing"
+Risk Assessment,Internal Audit / Risk Assessment,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Risk Assessment"
+IOPS Enterprise Support,IOPS Enterprise Support,Manufacturing,Manufacturing / Manufacturing IT
+Application Support,IOPS Enterprise Support / Application Support,Manufacturing,Manufacturing / Manufacturing IT
+Enterprise Reporting,IOPS Enterprise Support / Enterprise Reporting,Manufacturing,Manufacturing / Manufacturing IT
+Help Desk,IOPS Enterprise Support / Help Desk,Manufacturing,Manufacturing / Manufacturing IT
+Infrastructure Management,IOPS Enterprise Support / Infrastructure Management,Manufacturing,Manufacturing / Manufacturing IT
+IT Operations Management,IOPS Enterprise Support / IT Operations Management,Manufacturing,Manufacturing / Manufacturing IT
+IOPS Plant Management,IOPS Plant Management,Manufacturing,Manufacturing / Plant Operations
+Batch Management,IOPS Plant Management / Batch Management,Manufacturing,Manufacturing / Plant Operations / Batch Processing
+Facilities Management,IOPS Plant Management / Facilities Management,Manufacturing,Manufacturing / Plant Operations / Plant Maintenance
+Maintenance Management,IOPS Plant Management / Maintenance Management,Manufacturing,Manufacturing / Plant Operations / Plant Maintenance
+Plant Operations,IOPS Plant Management / Plant Operations,Manufacturing,Manufacturing / Plant Operations
+Production Planning,IOPS Plant Management / Production Planning,Manufacturing,Manufacturing / Production Planning and Execution
+Resource Scheduling,IOPS Plant Management / Resource Scheduling,Manufacturing,Manufacturing / Production Planning and Execution
+IOPS Product Development,IOPS Product Development,Manufacturing,Manufacturing / Product Development
+Change Control,IOPS Product Development / Change Control,Manufacturing,Manufacturing / Product Development / Change Management
+Design Control,IOPS Product Development / Design Control,Manufacturing,Manufacturing / Product Development / Design Management
+Document Control,IOPS Product Development / Document Control,Manufacturing,Manufacturing / Product Development / Document Management
+Formula Management,IOPS Product Development / Formula Management,Manufacturing,Manufacturing / Product Development / Formula Management
+Packaging Development,IOPS Product Development / Packaging Development,Manufacturing,Manufacturing / Product Development / Packaging Development
+Process Development,IOPS Product Development / Process Development,Manufacturing,Manufacturing / Product Development / Process Development
+Product Specification Management,IOPS Product Development / Product Specification Management,Manufacturing,Manufacturing / Product Development / Specification Management
+Technology Transfer,IOPS Product Development / Technology Transfer,Manufacturing,Manufacturing / Product Development / Technology Transfer
+IOPS Product Manufacturing,IOPS Product Manufacturing,Manufacturing,Manufacturing / Production Planning and Execution
+Dispensing,IOPS Product Manufacturing / Dispensing,Manufacturing,Manufacturing / Production Planning and Execution
+Formulation,IOPS Product Manufacturing / Formulation,Manufacturing,Manufacturing / Production Planning and Execution
+Packaging,IOPS Product Manufacturing / Packaging,Manufacturing,Manufacturing / Production Planning and Execution
+Primary Manufacturing,IOPS Product Manufacturing / Primary Manufacturing,Manufacturing,Manufacturing / Production Planning and Execution
+Secondary Manufacturing,IOPS Product Manufacturing / Secondary Manufacturing,Manufacturing,Manufacturing / Production Planning and Execution
+IOPS Quality Assurance,IOPS Quality Assurance,Manufacturing,Manufacturing / Quality Management
+Analytical Method Validation,IOPS Quality Assurance / Analytical Method Validation,Manufacturing,Manufacturing / Quality Management / Method Validation
+Calibration Management,IOPS Quality Assurance / Calibration Management,Manufacturing,Manufacturing / Quality Management / Calibration Management
+Cleaning Validation,IOPS Quality Assurance / Cleaning Validation,Manufacturing,Manufacturing / Quality Management / Validation Management
+Computer System Validation,IOPS Quality Assurance / Computer System Validation,Manufacturing,Manufacturing / Quality Management / Validation Management
+Equipment Qualification,IOPS Quality Assurance / Equipment Qualification,Manufacturing,Manufacturing / Quality Management / Qualification Management
+Facility Validation,IOPS Quality Assurance / Facility Validation,Manufacturing,Manufacturing / Quality Management / Validation Management
+Process Validation,IOPS Quality Assurance / Process Validation,Manufacturing,Manufacturing / Quality Management / Validation Management
+Quality Risk Management,IOPS Quality Assurance / Quality Risk Management,Manufacturing,Manufacturing / Quality Management / Quality Risk Management
+Validation Documentation,IOPS Quality Assurance / Validation Documentation,Manufacturing,Manufacturing / Quality Management / Validation Management
+IOPS Quality Control,IOPS Quality Control,Manufacturing,Manufacturing / Quality Management
+Analytical Testing,IOPS Quality Control / Analytical Testing,Manufacturing,Manufacturing / Quality Management / Testing Management
+Environmental Monitoring,IOPS Quality Control / Environmental Monitoring,Manufacturing,Manufacturing / Quality Management / Testing Management
+In-Process Testing,IOPS Quality Control / In-Process Testing,Manufacturing,Manufacturing / Quality Management / Testing Management
+Laboratory Information Management,IOPS Quality Control / Laboratory Information Management,Manufacturing,Manufacturing / Quality Management / Laboratory Management
+Microbiological Testing,IOPS Quality Control / Microbiological Testing,Manufacturing,Manufacturing / Quality Management / Testing Management
+Raw Material Testing,IOPS Quality Control / Raw Material Testing,Manufacturing,Manufacturing / Quality Management / Testing Management
+Sample Management,IOPS Quality Control / Sample Management,Manufacturing,Manufacturing / Quality Management / Sample Management
+Stability Testing,IOPS Quality Control / Stability Testing,Manufacturing,Manufacturing / Quality Management / Testing Management
+IOPS Supply Chain Management,IOPS Supply Chain Management,Manufacturing,Manufacturing / Production Planning and Execution
+Distribution Management,IOPS Supply Chain Management / Distribution Management,Manufacturing,Manufacturing / Production Planning and Execution
+Inventory Management,IOPS Supply Chain Management / Inventory Management,Manufacturing,Manufacturing / Inventory and Warehouse Management
+Manufacturing Planning,IOPS Supply Chain Management / Manufacturing Planning,Manufacturing,Manufacturing / Production Planning and Execution
+Material Requirements Planning,IOPS Supply Chain Management / Material Requirements Planning,Manufacturing,Manufacturing / Production Planning and Execution
+Production Scheduling,IOPS Supply Chain Management / Production Scheduling,Manufacturing,Manufacturing / Production Planning and Execution
+Warehouse Management,IOPS Supply Chain Management / Warehouse Management,Manufacturing,Manufacturing / Inventory and Warehouse Management
+IT Enterprise Architecture,IT Enterprise Architecture,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Application Architecture,IT Enterprise Architecture / Application Architecture,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Data Architecture,IT Enterprise Architecture / Data Architecture,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Infrastructure Architecture,IT Enterprise Architecture / Infrastructure Architecture,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Integration Architecture,IT Enterprise Architecture / Integration Architecture,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Legal Research,Legal Research,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management"
+Legal Technology Support,Legal Technology Support,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management"
+Contract Lifecycle Management,Legal Technology Support / Contract Lifecycle Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Contract Management"
+eDiscovery,Legal Technology Support / eDiscovery,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / eDiscovery"
+Legal Document Management,Legal Technology Support / Legal Document Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Document Management"
+Legal Knowledge Management,Legal Technology Support / Legal Knowledge Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Knowledge Management"
+Legal Matter Management,Legal Technology Support / Legal Matter Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Matter Management"
+Maintain and Enhance Ethics & Compliance,Maintain and Enhance Ethics & Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance"
+Code of Conduct Management,Maintain and Enhance Ethics & Compliance / Code of Conduct Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Ethics Management"
+Compliance Monitoring,Maintain and Enhance Ethics & Compliance / Compliance Monitoring,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Compliance Management"
+Compliance Training,Maintain and Enhance Ethics & Compliance / Compliance Training,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Compliance Management"
+Ethics Hotline Management,Maintain and Enhance Ethics & Compliance / Ethics Hotline Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Ethics Management"
+Policy Management,Maintain and Enhance Ethics & Compliance / Policy Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Policy Management"
+Manage Corporate Governance & Services,Manage Corporate Governance & Services,"Governance, Risk and Compliance","Governance, Risk and Compliance / Corporate Governance"
+Board Management,Manage Corporate Governance & Services / Board Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Corporate Governance / Board Management"
+Corporate Entity Management,Manage Corporate Governance & Services / Corporate Entity Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Corporate Governance / Entity Management"
+Corporate Secretary,Manage Corporate Governance & Services / Corporate Secretary,"Governance, Risk and Compliance","Governance, Risk and Compliance / Corporate Governance / Board Management"
+Investor Relations,Manage Corporate Governance & Services / Investor Relations,"Governance, Risk and Compliance","Governance, Risk and Compliance / Corporate Governance / Investor Relations"
+Shareholder Services,Manage Corporate Governance & Services / Shareholder Services,"Governance, Risk and Compliance","Governance, Risk and Compliance / Corporate Governance / Investor Relations"
+Manage Corporate Security,Manage Corporate Security,"Governance, Risk and Compliance","Governance, Risk and Compliance / Information Security"
+Access Control,Manage Corporate Security / Access Control,"Governance, Risk and Compliance","Governance, Risk and Compliance / Information Security / Access Management"
+Crisis Management,Manage Corporate Security / Crisis Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Crisis Management"
+Information Security,Manage Corporate Security / Information Security,"Governance, Risk and Compliance","Governance, Risk and Compliance / Information Security"
+Physical Security,Manage Corporate Security / Physical Security,"Governance, Risk and Compliance","Governance, Risk and Compliance / Information Security / Physical Security"
+Security Operations,Manage Corporate Security / Security Operations,"Governance, Risk and Compliance","Governance, Risk and Compliance / Information Security / Security Operations"
+Threat Intelligence,Manage Corporate Security / Threat Intelligence,"Governance, Risk and Compliance","Governance, Risk and Compliance / Information Security / Threat Management"
+Manage Data Privacy,Manage Data Privacy,"Governance, Risk and Compliance","Governance, Risk and Compliance / Data Protection"
+Data Privacy Compliance,Manage Data Privacy / Data Privacy Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Data Protection / Privacy Compliance"
+Data Privacy Impact Assessment,Manage Data Privacy / Data Privacy Impact Assessment,"Governance, Risk and Compliance","Governance, Risk and Compliance / Data Protection / Privacy Impact Assessment"
+Data Subject Rights Management,Manage Data Privacy / Data Subject Rights Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Data Protection / Data Subject Rights"
+Privacy by Design,Manage Data Privacy / Privacy by Design,"Governance, Risk and Compliance","Governance, Risk and Compliance / Data Protection / Privacy by Design"
+Privacy Notice Management,Manage Data Privacy / Privacy Notice Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Data Protection / Privacy Notice Management"
+"Manage Enterprise Risk, Compliance, Remediation, and Resiliency","Manage Enterprise Risk, Compliance, Remediation, and Resiliency","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance"
+Business Continuity Management,"Manage Enterprise Risk, Compliance, Remediation, and Resiliency / Business Continuity Management","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Business Continuity"
+Compliance Management,"Manage Enterprise Risk, Compliance, Remediation, and Resiliency / Compliance Management","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Compliance Management"
+Disaster Recovery,"Manage Enterprise Risk, Compliance, Remediation, and Resiliency / Disaster Recovery","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Disaster Recovery"
+Enterprise Risk Management,"Manage Enterprise Risk, Compliance, Remediation, and Resiliency / Enterprise Risk Management","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Risk Management"
+IT Risk Management,"Manage Enterprise Risk, Compliance, Remediation, and Resiliency / IT Risk Management","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / IT Risk Management"
+Operational Risk Management,"Manage Enterprise Risk, Compliance, Remediation, and Resiliency / Operational Risk Management","Governance, Risk and Compliance","Governance, Risk and Compliance / Enterprise Risk and Compliance / Operational Risk"
+Manage Government & Industry Relationships,Manage Government & Industry Relationships,"Governance, Risk and Compliance","Governance, Risk and Compliance / Regulatory Affairs"
+Government Affairs,Manage Government & Industry Relationships / Government Affairs,"Governance, Risk and Compliance","Governance, Risk and Compliance / Regulatory Affairs / Government Affairs"
+Industry Association Management,Manage Government & Industry Relationships / Industry Association Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Regulatory Affairs / Industry Associations"
+Lobbying,Manage Government & Industry Relationships / Lobbying,"Governance, Risk and Compliance","Governance, Risk and Compliance / Regulatory Affairs / Government Affairs"
+Political Action Committee Management,Manage Government & Industry Relationships / Political Action Committee Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Regulatory Affairs / Government Affairs"
+Regulatory Affairs,Manage Government & Industry Relationships / Regulatory Affairs,"Governance, Risk and Compliance","Governance, Risk and Compliance / Regulatory Affairs"
+Manage IOPS Legal Matters,Manage IOPS Legal Matters,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management"
+Environmental Compliance,Manage IOPS Legal Matters / Environmental Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Environmental Compliance"
+Health and Safety Compliance,Manage IOPS Legal Matters / Health and Safety Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Health and Safety"
+Manufacturing Compliance,Manage IOPS Legal Matters / Manufacturing Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Manufacturing Compliance"
+Regulatory Compliance,Manage IOPS Legal Matters / Regulatory Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Regulatory Compliance"
+Manage Labor & Employment,Manage Labor & Employment,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management"
+Employment Law Compliance,Manage Labor & Employment / Employment Law Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Employment Law"
+Labor Relations,Manage Labor & Employment / Labor Relations,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Labor Relations"
+Union Management,Manage Labor & Employment / Union Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Labor Relations"
+Workplace Safety,Manage Labor & Employment / Workplace Safety,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Health and Safety"
+Manage Law Pharma Operations,Manage Law Pharma Operations,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management"
+Clinical Trial Agreements,Manage Law Pharma Operations / Clinical Trial Agreements,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Contract Management"
+Healthcare Compliance,Manage Law Pharma Operations / Healthcare Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Healthcare Compliance"
+Life Sciences Regulatory Affairs,Manage Law Pharma Operations / Life Sciences Regulatory Affairs,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Regulatory Compliance"
+Pharmaceutical Compliance,Manage Law Pharma Operations / Pharmaceutical Compliance,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Regulatory Compliance"
+Manage Litigations,Manage Litigations,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management"
+Case Management,Manage Litigations / Case Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Matter Management"
+Claims Management,Manage Litigations / Claims Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Claims Management"
+Dispute Resolution,Manage Litigations / Dispute Resolution,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Dispute Resolution"
+eDiscovery and Document Review,Manage Litigations / eDiscovery and Document Review,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / eDiscovery"
+Litigation Hold Management,Manage Litigations / Litigation Hold Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Litigation Management"
+Outside Counsel Management,Manage Litigations / Outside Counsel Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Legal Management / Outside Counsel"
+Manage Records,Manage Records,"Governance, Risk and Compliance","Governance, Risk and Compliance / Records Management"
+Electronic Records Management,Manage Records / Electronic Records Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Records Management / Electronic Records"
+Physical Records Management,Manage Records / Physical Records Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Records Management / Physical Records"
+Records Disposition,Manage Records / Records Disposition,"Governance, Risk and Compliance","Governance, Risk and Compliance / Records Management / Records Disposition"
+Records Retention,Manage Records / Records Retention,"Governance, Risk and Compliance","Governance, Risk and Compliance / Records Management / Records Retention"
+Payroll,Payroll,Human Resources,Human Resources / Payroll Management
+Garnishment Management,Payroll / Garnishment Management,Human Resources,Human Resources / Payroll Management / Garnishment Management
+Payroll Processing,Payroll / Payroll Processing,Human Resources,Human Resources / Payroll Management / Payroll Processing
+Payroll Reporting,Payroll / Payroll Reporting,Human Resources,Human Resources / Payroll Management / Payroll Reporting
+Tax Filing,Payroll / Tax Filing,Human Resources,Human Resources / Payroll Management / Tax Filing
+Time and Attendance,Payroll / Time and Attendance,Human Resources,Human Resources / Time and Attendance Management
+People Analytics and Reporting,People Analytics and Reporting,Human Resources,Human Resources / Workforce Planning and Analytics
+Headcount Reporting,People Analytics and Reporting / Headcount Reporting,Human Resources,Human Resources / Workforce Planning and Analytics / Headcount Reporting
+HR Dashboards,People Analytics and Reporting / HR Dashboards,Human Resources,Human Resources / Workforce Planning and Analytics / HR Reporting
+HR Metrics,People Analytics and Reporting / HR Metrics,Human Resources,Human Resources / Workforce Planning and Analytics / HR Metrics
+Workforce Analytics,People Analytics and Reporting / Workforce Analytics,Human Resources,Human Resources / Workforce Planning and Analytics / Workforce Analytics
+Power Management,Power Management,Enterprise Strategy,Enterprise Strategy / IT Architecture Management
+Protect Intellectual Property,Protect Intellectual Property,"Governance, Risk and Compliance","Governance, Risk and Compliance / Intellectual Property Management"
+IP Licensing,Protect Intellectual Property / IP Licensing,"Governance, Risk and Compliance","Governance, Risk and Compliance / Intellectual Property Management / IP Licensing"
+IP Portfolio Management,Protect Intellectual Property / IP Portfolio Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Intellectual Property Management / IP Portfolio"
+Patent Management,Protect Intellectual Property / Patent Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Intellectual Property Management / Patent Management"
+Trademark Management,Protect Intellectual Property / Trademark Management,"Governance, Risk and Compliance","Governance, Risk and Compliance / Intellectual Property Management / Trademark Management"
+Purchasing,Purchasing,Sourcing and Procurement,Sourcing and Procurement / Operational Procurement
+Purchase Order Management,Purchasing / Purchase Order Management,Sourcing and Procurement,Sourcing and Procurement / Operational Procurement / Purchase Order Processing
+Requisition Management,Purchasing / Requisition Management,Sourcing and Procurement,Sourcing and Procurement / Operational Procurement / Purchase Requisition
+Real Estate & Facilities Management,Real Estate & Facilities Management,Asset Management,Asset Management / Asset Lifecycle Delivery
+Building Maintenance,Real Estate & Facilities Management / Building Maintenance,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Maintenance
+Construction Management,Real Estate & Facilities Management / Construction Management,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Construction
+Facilities Operations,Real Estate & Facilities Management / Facilities Operations,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Operation
+Lease Administration,Real Estate & Facilities Management / Lease Administration,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Acquisition
+Real Estate Acquisition,Real Estate & Facilities Management / Real Estate Acquisition,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Acquisition
+Real Estate Disposition,Real Estate & Facilities Management / Real Estate Disposition,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Disposal
+Space Planning and Management,Real Estate & Facilities Management / Space Planning and Management,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Planning
+Utilities Management,Real Estate & Facilities Management / Utilities Management,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Operation
+Workplace Services,Real Estate & Facilities Management / Workplace Services,Asset Management,Asset Management / Asset Lifecycle Delivery / Asset Operation
+Sourcing,Sourcing,Sourcing and Procurement,Sourcing and Procurement / Procurement Strategy
+Summarize,Summarize,Enterprise Strategy,Enterprise Strategy / Information Management
+Talent Acquisition,Talent Acquisition,Human Resources,Human Resources / Talent Acquisition
+Candidate Experience,Talent Acquisition / Candidate Experience,Human Resources,Human Resources / Talent Acquisition / Candidate Experience
+Campus Recruiting,Talent Acquisition / Campus Recruiting,Human Resources,Human Resources / Talent Acquisition / Recruitment Marketing
+Executive Search,Talent Acquisition / Executive Search,Human Resources,Human Resources / Talent Acquisition / Recruiting
+Job Posting Management,Talent Acquisition / Job Posting Management,Human Resources,Human Resources / Talent Acquisition / Recruitment Marketing
+Recruitment Marketing,Talent Acquisition / Recruitment Marketing,Human Resources,Human Resources / Talent Acquisition / Recruitment Marketing
+Talent Sourcing,Talent Acquisition / Talent Sourcing,Human Resources,Human Resources / Talent Acquisition / Recruiting
+Talent Development,Talent Development,Human Resources,Human Resources / Talent Development
+Career Development,Talent Development / Career Development,Human Resources,Human Resources / Talent Development / Career Development
+Leadership Development,Talent Development / Leadership Development,Human Resources,Human Resources / Talent Development / Leadership Development
+Learning Management,Talent Development / Learning Management,Human Resources,Human Resources / Talent Development / Learning Management
+Performance Management,Talent Development / Performance Management,Human Resources,Human Resources / Talent Development / Performance Management
+Succession Planning,Talent Development / Succession Planning,Human Resources,Human Resources / Talent Development / Succession Planning
+Tax,Tax,Finance,Finance / Tax Management
+Corporate Tax,Tax / Corporate Tax,Finance,Finance / Tax Management / Corporate Income Tax
+Global Tax,Tax / Global Tax,Finance,Finance / Tax Management / Tax Reporting
+Indirect Tax,Tax / Indirect Tax,Finance,Finance / Tax Management / Indirect Tax
+International Tax,Tax / International Tax,Finance,Finance / Tax Management / Corporate Income Tax
+Property Tax,Tax / Property Tax,Finance,Finance / Tax Management / Property Tax
+Tax Compliance,Tax / Tax Compliance,Finance,Finance / Tax Management / Tax Compliance
+Tax Planning,Tax / Tax Planning,Finance,Finance / Tax Management / Tax Planning
+Transfer Pricing,Tax / Transfer Pricing,Finance,Finance / Tax Management / Transfer Pricing
+Touchpoints & Collaborations,Touchpoints & Collaborations,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Transactional Touchpoints,Touchpoints & Collaborations / Transactional Touchpoints,Enterprise Strategy,Enterprise Strategy / Business Process Management
+Treasury Management,Treasury Management,Finance,Finance / Treasury Management
+Bank Relationship Management,Treasury Management / Bank Relationship Management,Finance,Finance / Treasury Management / Bank Account Management
+Cash Management,Treasury Management / Cash Management,Finance,Finance / Treasury Management / Cash Management
+Debt Management,Treasury Management / Debt Management,Finance,Finance / Treasury Management / Debt and Investment Management
+Foreign Exchange Management,Treasury Management / Foreign Exchange Management,Finance,Finance / Treasury Management / Foreign Exchange Management
+Investment Management,Treasury Management / Investment Management,Finance,Finance / Treasury Management / Debt and Investment Management
+Liquidity Management,Treasury Management / Liquidity Management,Finance,Finance / Treasury Management / Cash Management
+Vendor Management,Vendor Management,Sourcing and Procurement,Sourcing and Procurement / Supplier Management
+Vendor Onboarding,Vendor Onboarding,Sourcing and Procurement,Sourcing and Procurement / Supplier Management
+~Biostatistics and Data Management (BDM),~Biostatistics and Data Management (BDM),R&D and Engineering,R&D and Engineering / Clinical Research
+Adaptive Design,~Biostatistics and Data Management (BDM) / Adaptive Design,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+BDM Aggregate PV Reporting,~Biostatistics and Data Management (BDM) / BDM Aggregate PV Reporting,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+BDM Audit Management,~Biostatistics and Data Management (BDM) / BDM Audit Management,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+BDM Compliance Management,~Biostatistics and Data Management (BDM) / BDM Compliance Management,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+BDM Education and Learning,~Biostatistics and Data Management (BDM) / BDM Education and Learning,R&D and Engineering,R&D and Engineering / Clinical Research / Training
+BDM Evidence Generation Support,~Biostatistics and Data Management (BDM) / BDM Evidence Generation Support,R&D and Engineering,R&D and Engineering / Clinical Research / Evidence Generation
+BDM Global Standards,~Biostatistics and Data Management (BDM) / BDM Global Standards,R&D and Engineering,R&D and Engineering / Clinical Research / Standards
+BDM Outsourcing Management,~Biostatistics and Data Management (BDM) / BDM Outsourcing Management,R&D and Engineering,R&D and Engineering / Clinical Research / Outsourcing
+BDM PV Signal Detection,~Biostatistics and Data Management (BDM) / BDM PV Signal Detection,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Signal Detection
+BDM Quality Management,~Biostatistics and Data Management (BDM) / BDM Quality Management,R&D and Engineering,R&D and Engineering / Clinical Research / Quality Management
+BDM Resource Management,~Biostatistics and Data Management (BDM) / BDM Resource Management,R&D and Engineering,R&D and Engineering / Clinical Research / Resource Management
+Biostatistics Consultancy,~Biostatistics and Data Management (BDM) / Biostatistics Consultancy,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Input into Clinical Development Plan,~Biostatistics and Data Management (BDM) / Biostatistics Input into Clinical Development Plan,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Input into Protocol Development,~Biostatistics and Data Management (BDM) / Biostatistics Input into Protocol Development,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Input into Regulatory Submission,~Biostatistics and Data Management (BDM) / Biostatistics Input into Regulatory Submission,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Input into SAP,~Biostatistics and Data Management (BDM) / Biostatistics Input into SAP,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics PK Reporting,~Biostatistics and Data Management (BDM) / Biostatistics PK Reporting,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Programming and Reporting,~Biostatistics and Data Management (BDM) / Biostatistics Programming and Reporting,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Sample Size Calculation,~Biostatistics and Data Management (BDM) / Biostatistics Sample Size Calculation,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Biostatistics Support for Protocol Amendments,~Biostatistics and Data Management (BDM) / Biostatistics Support for Protocol Amendments,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Clinical Data Base Design,~Biostatistics and Data Management (BDM) / Clinical Data Base Design,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Cleaning,~Biostatistics and Data Management (BDM) / Clinical Data Cleaning,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Documentation,~Biostatistics and Data Management (BDM) / Clinical Data Documentation,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Integration,~Biostatistics and Data Management (BDM) / Clinical Data Integration,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Processing,~Biostatistics and Data Management (BDM) / Clinical Data Processing,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Quality Control,~Biostatistics and Data Management (BDM) / Clinical Data Quality Control,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Reconciliation,~Biostatistics and Data Management (BDM) / Clinical Data Reconciliation,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Review,~Biostatistics and Data Management (BDM) / Clinical Data Review,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Standardization,~Biostatistics and Data Management (BDM) / Clinical Data Standardization,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Transformation,~Biostatistics and Data Management (BDM) / Clinical Data Transformation,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Data Visualization,~Biostatistics and Data Management (BDM) / Clinical Data Visualization,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Database Lock,~Biostatistics and Data Management (BDM) / Clinical Database Lock,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Database Validation,~Biostatistics and Data Management (BDM) / Clinical Database Validation,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Clinical Listings and Tables,~Biostatistics and Data Management (BDM) / Clinical Listings and Tables,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Clinical Statistical Analysis,~Biostatistics and Data Management (BDM) / Clinical Statistical Analysis,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Clinical Trial Randomization,~Biostatistics and Data Management (BDM) / Clinical Trial Randomization,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Clinical Trial Unblinding,~Biostatistics and Data Management (BDM) / Clinical Trial Unblinding,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Data Analysis Plan Development,~Biostatistics and Data Management (BDM) / Data Analysis Plan Development,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Data Management Plan Development,~Biostatistics and Data Management (BDM) / Data Management Plan Development,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+DMC Support,~Biostatistics and Data Management (BDM) / DMC Support,R&D and Engineering,R&D and Engineering / Clinical Research / Committee Management
+Exploratory Data Analysis,~Biostatistics and Data Management (BDM) / Exploratory Data Analysis,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Interim Analysis,~Biostatistics and Data Management (BDM) / Interim Analysis,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Medical Coding,~Biostatistics and Data Management (BDM) / Medical Coding,R&D and Engineering,R&D and Engineering / Clinical Research / Data Management
+Post-hoc Analysis,~Biostatistics and Data Management (BDM) / Post-hoc Analysis,R&D and Engineering,R&D and Engineering / Clinical Research / Biostatistics
+Real World Data Analysis,~Biostatistics and Data Management (BDM) / Real World Data Analysis,R&D and Engineering,R&D and Engineering / Clinical Research / Real World Evidence
+Study Data Standards,~Biostatistics and Data Management (BDM) / Study Data Standards,R&D and Engineering,R&D and Engineering / Clinical Research / Standards
+~Development Operations & Portfolio Management (DO & PM),~Development Operations & Portfolio Management (DO & PM),Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+DO PM Clinical Development,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Materials Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Materials Management,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Operations Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Operations Management,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Quality Assurance,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Quality Assurance,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Research,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Research,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Design,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Design,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Execution,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Execution,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Monitoring,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Monitoring,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Oversight,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Oversight,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Planning,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Planning,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Protocol Development,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Protocol Development,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Clinical Trial Site Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Clinical Trial Site Management,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Investigator Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Investigator Management,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Patient Recruitment,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Patient Recruitment,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Patient Retention,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Patient Retention,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Protocol Amendment Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Protocol Amendment Management,Portfolio and Project Management,Portfolio and Project Management / Project Management
+Protocol Deviation Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Clinical Development / Protocol Deviation Management,Portfolio and Project Management,Portfolio and Project Management / Project Management
+DO PM Portfolio Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Analysis,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Analysis,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Decision-Making Support,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Decision-Making Support,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Optimization,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Optimization,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Planning,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Planning,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Prioritization,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Prioritization,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Reporting,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Reporting,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Resource Allocation,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Resource Allocation,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Portfolio Risk Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Portfolio Risk Management,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+Strategic Portfolio Management,~Development Operations & Portfolio Management (DO & PM) / DO PM Portfolio Management / Strategic Portfolio Management,Portfolio and Project Management,Portfolio and Project Management / Portfolio Management
+~Early Clinical Development (ECD),~Early Clinical Development (ECD),R&D and Engineering,R&D and Engineering / Clinical Development
+ECD Administration and Logistics,~Early Clinical Development (ECD) / ECD Administration and Logistics,R&D and Engineering,R&D and Engineering / Clinical Development / Clinical Operations
+ECD Clinical Development,~Early Clinical Development (ECD) / ECD Clinical Development,R&D and Engineering,R&D and Engineering / Clinical Development
+ECD Clinical Operations,~Early Clinical Development (ECD) / ECD Clinical Operations,R&D and Engineering,R&D and Engineering / Clinical Development / Clinical Operations
+ECD Clinical Pharmacology,~Early Clinical Development (ECD) / ECD Clinical Pharmacology,R&D and Engineering,R&D and Engineering / Clinical Development / Clinical Pharmacology
+ECD First in Human Studies,~Early Clinical Development (ECD) / ECD First in Human Studies,R&D and Engineering,R&D and Engineering / Clinical Development / Early Phase Studies
+ECD Phase 1 Studies,~Early Clinical Development (ECD) / ECD Phase 1 Studies,R&D and Engineering,R&D and Engineering / Clinical Development / Early Phase Studies
+ECD Phase 2a Studies,~Early Clinical Development (ECD) / ECD Phase 2a Studies,R&D and Engineering,R&D and Engineering / Clinical Development / Mid Phase Studies
+ECD Pre-clinical Research,~Early Clinical Development (ECD) / ECD Pre-clinical Research,R&D and Engineering,R&D and Engineering / Research / Preclinical Development
+ECD Protocol Development,~Early Clinical Development (ECD) / ECD Protocol Development,R&D and Engineering,R&D and Engineering / Clinical Development / Protocol Development
+ECD Study Management,~Early Clinical Development (ECD) / ECD Study Management,R&D and Engineering,R&D and Engineering / Clinical Development / Study Management
+ECD Translational Medicine,~Early Clinical Development (ECD) / ECD Translational Medicine,R&D and Engineering,R&D and Engineering / Research / Translational Medicine
+Exploratory Development,~Early Clinical Development (ECD) / Exploratory Development,R&D and Engineering,R&D and Engineering / Clinical Development / Early Phase Studies
+Human Pharmacology,~Early Clinical Development (ECD) / Human Pharmacology,R&D and Engineering,R&D and Engineering / Clinical Development / Clinical Pharmacology
+Investigational New Drug (IND) Application,~Early Clinical Development (ECD) / Investigational New Drug (IND) Application,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Submissions
+Pharmacodynamics,~Early Clinical Development (ECD) / Pharmacodynamics,R&D and Engineering,R&D and Engineering / Clinical Development / Clinical Pharmacology
+Pharmacokinetics,~Early Clinical Development (ECD) / Pharmacokinetics,R&D and Engineering,R&D and Engineering / Clinical Development / Clinical Pharmacology
+Proof of Concept Studies,~Early Clinical Development (ECD) / Proof of Concept Studies,R&D and Engineering,R&D and Engineering / Clinical Development / Early Phase Studies
+~GD Quality Operations (GDQ),~GD Quality Operations (GDQ),R&D and Engineering,R&D and Engineering / Quality Management
+GDQ Audit Management,~GD Quality Operations (GDQ) / GDQ Audit Management,R&D and Engineering,R&D and Engineering / Quality Management / Audit Management
+GDQ Batch Record Review,~GD Quality Operations (GDQ) / GDQ Batch Record Review,R&D and Engineering,R&D and Engineering / Quality Management / Documentation Management
+GDQ Compliance Management,~GD Quality Operations (GDQ) / GDQ Compliance Management,R&D and Engineering,R&D and Engineering / Quality Management / Compliance Management
+GDQ Document Control,~GD Quality Operations (GDQ) / GDQ Document Control,R&D and Engineering,R&D and Engineering / Quality Management / Documentation Management
+GDQ Good Clinical Practice (GCP),~GD Quality Operations (GDQ) / GDQ Good Clinical Practice (GCP),R&D and Engineering,R&D and Engineering / Quality Management / GCP Management
+GDQ Good Laboratory Practice (GLP),~GD Quality Operations (GDQ) / GDQ Good Laboratory Practice (GLP),R&D and Engineering,R&D and Engineering / Quality Management / GLP Management
+GDQ Good Manufacturing Practice (GMP),~GD Quality Operations (GDQ) / GDQ Good Manufacturing Practice (GMP),R&D and Engineering,R&D and Engineering / Quality Management / GMP Management
+GDQ Good Pharmacovigilance Practice (GVP),~GD Quality Operations (GDQ) / GDQ Good Pharmacovigilance Practice (GVP),R&D and Engineering,R&D and Engineering / Quality Management / GVP Management
+GDQ Inspection Management,~GD Quality Operations (GDQ) / GDQ Inspection Management,R&D and Engineering,R&D and Engineering / Quality Management / Inspection Management
+GDQ Lab Operations,~GD Quality Operations (GDQ) / GDQ Lab Operations,R&D and Engineering,R&D and Engineering / Quality Management / Laboratory Management
+GDQ Quality Assurance,~GD Quality Operations (GDQ) / GDQ Quality Assurance,R&D and Engineering,R&D and Engineering / Quality Management / Quality Assurance
+GDQ Quality Control,~GD Quality Operations (GDQ) / GDQ Quality Control,R&D and Engineering,R&D and Engineering / Quality Management / Quality Control
+GDQ Quality Management System,~GD Quality Operations (GDQ) / GDQ Quality Management System,R&D and Engineering,R&D and Engineering / Quality Management / Quality Management System
+GDQ Quality Risk Management,~GD Quality Operations (GDQ) / GDQ Quality Risk Management,R&D and Engineering,R&D and Engineering / Quality Management / Quality Risk Management
+GDQ Regulatory Compliance,~GD Quality Operations (GDQ) / GDQ Regulatory Compliance,R&D and Engineering,R&D and Engineering / Quality Management / Compliance Management
+GDQ Training Management,~GD Quality Operations (GDQ) / GDQ Training Management,R&D and Engineering,R&D and Engineering / Quality Management / Training Management
+GDQ Validation Management,~GD Quality Operations (GDQ) / GDQ Validation Management,R&D and Engineering,R&D and Engineering / Quality Management / Validation Management
+~Global Medical Affairs (GMA),~Global Medical Affairs (GMA),R&D and Engineering,R&D and Engineering / Medical Affairs
+GMA Advisory Board Management,~Global Medical Affairs (GMA) / GMA Advisory Board Management,R&D and Engineering,R&D and Engineering / Medical Affairs / Advisory Boards
+GMA Clinical Development Support,~Global Medical Affairs (GMA) / GMA Clinical Development Support,R&D and Engineering,R&D and Engineering / Medical Affairs / Clinical Support
+GMA Continuing Medical Education,~Global Medical Affairs (GMA) / GMA Continuing Medical Education,R&D and Engineering,R&D and Engineering / Medical Affairs / Medical Education
+GMA Healthcare Professional Engagement,~Global Medical Affairs (GMA) / GMA Healthcare Professional Engagement,R&D and Engineering,R&D and Engineering / Medical Affairs / KOL Management
+GMA Health Economics and Outcomes Research,~Global Medical Affairs (GMA) / GMA Health Economics and Outcomes Research,R&D and Engineering,R&D and Engineering / Medical Affairs / Health Economics
+GMA Key Opinion Leader Management,~Global Medical Affairs (GMA) / GMA Key Opinion Leader Management,R&D and Engineering,R&D and Engineering / Medical Affairs / KOL Management
+GMA Literature Review,~Global Medical Affairs (GMA) / GMA Literature Review,R&D and Engineering,R&D and Engineering / Medical Affairs / Scientific Communication
+GMA Market Access Support,~Global Medical Affairs (GMA) / GMA Market Access Support,R&D and Engineering,R&D and Engineering / Medical Affairs / Market Access
+GMA Medical Communications,~Global Medical Affairs (GMA) / GMA Medical Communications,R&D and Engineering,R&D and Engineering / Medical Affairs / Medical Communication
+GMA Medical Education,~Global Medical Affairs (GMA) / GMA Medical Education,R&D and Engineering,R&D and Engineering / Medical Affairs / Medical Education
+GMA Medical Information,~Global Medical Affairs (GMA) / GMA Medical Information,R&D and Engineering,R&D and Engineering / Medical Affairs / Medical Information
+GMA Medical Strategy,~Global Medical Affairs (GMA) / GMA Medical Strategy,R&D and Engineering,R&D and Engineering / Medical Affairs / Medical Strategy
+GMA Medical Writing,~Global Medical Affairs (GMA) / GMA Medical Writing,R&D and Engineering,R&D and Engineering / Medical Affairs / Medical Writing
+GMA Publications Management,~Global Medical Affairs (GMA) / GMA Publications Management,R&D and Engineering,R&D and Engineering / Medical Affairs / Publication Management
+GMA Real World Evidence,~Global Medical Affairs (GMA) / GMA Real World Evidence,R&D and Engineering,R&D and Engineering / Medical Affairs / Real World Evidence
+GMA Scientific Communications,~Global Medical Affairs (GMA) / GMA Scientific Communications,R&D and Engineering,R&D and Engineering / Medical Affairs / Scientific Communication
+GMA Scientific Exchange,~Global Medical Affairs (GMA) / GMA Scientific Exchange,R&D and Engineering,R&D and Engineering / Medical Affairs / Scientific Exchange
+GMA Thought Leader Engagement,~Global Medical Affairs (GMA) / GMA Thought Leader Engagement,R&D and Engineering,R&D and Engineering / Medical Affairs / KOL Management
+~Global Patient Safety (GPS),~Global Patient Safety (GPS),R&D and Engineering,R&D and Engineering / Pharmacovigilance
+GPS Adverse Event Processing,~Global Patient Safety (GPS) / GPS Adverse Event Processing,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Adverse Event Management
+GPS Aggregate Reporting,~Global Patient Safety (GPS) / GPS Aggregate Reporting,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Aggregate Reporting
+GPS Benefit-Risk Assessment,~Global Patient Safety (GPS) / GPS Benefit-Risk Assessment,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Risk Management
+GPS Case Management,~Global Patient Safety (GPS) / GPS Case Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Case Management
+GPS Case Processing,~Global Patient Safety (GPS) / GPS Case Processing,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Case Processing
+GPS Compliance Management,~Global Patient Safety (GPS) / GPS Compliance Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Compliance Management
+GPS Data Management,~Global Patient Safety (GPS) / GPS Data Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Data Management
+GPS Drug Safety Surveillance,~Global Patient Safety (GPS) / GPS Drug Safety Surveillance,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Safety Surveillance
+GPS Literature Monitoring,~Global Patient Safety (GPS) / GPS Literature Monitoring,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Literature Monitoring
+GPS Medical Assessment,~Global Patient Safety (GPS) / GPS Medical Assessment,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Medical Assessment
+GPS Medical Review,~Global Patient Safety (GPS) / GPS Medical Review,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Medical Review
+GPS Patient Support Programs,~Global Patient Safety (GPS) / GPS Patient Support Programs,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Patient Programs
+GPS Pharmacovigilance Planning,~Global Patient Safety (GPS) / GPS Pharmacovigilance Planning,R&D and Engineering,R&D and Engineering / Pharmacovigilance / PV Planning
+GPS Pharmacovigilance System Management,~Global Patient Safety (GPS) / GPS Pharmacovigilance System Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / PV System Management
+GPS Post-Marketing Surveillance,~Global Patient Safety (GPS) / GPS Post-Marketing Surveillance,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Post-Marketing Surveillance
+GPS Pregnancy Surveillance,~Global Patient Safety (GPS) / GPS Pregnancy Surveillance,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Special Surveillance
+GPS Quality Management,~Global Patient Safety (GPS) / GPS Quality Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Quality Management
+GPS Regulatory Reporting,~Global Patient Safety (GPS) / GPS Regulatory Reporting,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Regulatory Reporting
+GPS Risk Management,~Global Patient Safety (GPS) / GPS Risk Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Risk Management
+GPS Signal Detection,~Global Patient Safety (GPS) / GPS Signal Detection,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Signal Detection
+GPS Signal Evaluation,~Global Patient Safety (GPS) / GPS Signal Evaluation,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Signal Management
+GPS Signal Validation,~Global Patient Safety (GPS) / GPS Signal Validation,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Signal Management
+GPS Special Situation Reports,~Global Patient Safety (GPS) / GPS Special Situation Reports,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Special Reporting
+GPS Training Management,~Global Patient Safety (GPS) / GPS Training Management,R&D and Engineering,R&D and Engineering / Pharmacovigilance / Training Management
+~Regulatory,~Regulatory,R&D and Engineering,R&D and Engineering / Regulatory Management
+Advertising and Promotion Review,~Regulatory / Advertising and Promotion Review,R&D and Engineering,R&D and Engineering / Regulatory Management / Promotional Review
+"Chemistry, Manufacturing and Controls (CMC)","~Regulatory / Chemistry, Manufacturing and Controls (CMC)",R&D and Engineering,R&D and Engineering / Regulatory Management / CMC
+Clinical Trial Applications,~Regulatory / Clinical Trial Applications,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Submissions
+Compassionate Use Programs,~Regulatory / Compassionate Use Programs,R&D and Engineering,R&D and Engineering / Regulatory Management / Expanded Access
+Global Regulatory Strategy,~Regulatory / Global Regulatory Strategy,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Strategy
+Health Authority Interactions,~Regulatory / Health Authority Interactions,R&D and Engineering,R&D and Engineering / Regulatory Management / Health Authority Management
+Labeling Management,~Regulatory / Labeling Management,R&D and Engineering,R&D and Engineering / Regulatory Management / Labeling Management
+Marketing Authorization Applications,~Regulatory / Marketing Authorization Applications,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Submissions
+Marketing Authorization Maintenance,~Regulatory / Marketing Authorization Maintenance,R&D and Engineering,R&D and Engineering / Regulatory Management / License Maintenance
+Orphan Drug Designation,~Regulatory / Orphan Drug Designation,R&D and Engineering,R&D and Engineering / Regulatory Management / Special Designations
+Pediatric Investigation Plans,~Regulatory / Pediatric Investigation Plans,R&D and Engineering,R&D and Engineering / Regulatory Management / Pediatric Studies
+Post-Approval Commitments,~Regulatory / Post-Approval Commitments,R&D and Engineering,R&D and Engineering / Regulatory Management / Post-Approval Management
+Regulatory Agency Meetings,~Regulatory / Regulatory Agency Meetings,R&D and Engineering,R&D and Engineering / Regulatory Management / Health Authority Management
+Regulatory Compliance,~Regulatory / Regulatory Compliance,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Compliance
+Regulatory Document Management,~Regulatory / Regulatory Document Management,R&D and Engineering,R&D and Engineering / Regulatory Management / Document Management
+Regulatory Information Management,~Regulatory / Regulatory Information Management,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Information
+Regulatory Intelligence,~Regulatory / Regulatory Intelligence,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Intelligence
+Regulatory Submissions,~Regulatory / Regulatory Submissions,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Submissions
+Regulatory Writing,~Regulatory / Regulatory Writing,R&D and Engineering,R&D and Engineering / Regulatory Management / Regulatory Writing
+Scientific Advice,~Regulatory / Scientific Advice,R&D and Engineering,R&D and Engineering / Regulatory Management / Health Authority Management
+Variation Management,~Regulatory / Variation Management,R&D and Engineering,R&D and Engineering / Regulatory Management / Post-Approval Management
+```,,,

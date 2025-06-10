@@ -1,0 +1,218 @@
+﻿id,type,name,displayName,relToChild,relProviderToITComponent,relProviderToProject,tags:GD IT Teams,tags:Owned By,tags:Owning Function,tags:Business Domain,tags:Main Area,tags:Business Unit,tags:LX PS WiP,tags:Region,tags:Other tags
+ID,Type,Name,Display Name,Children,IT Components,Initiatives,GD IT Teams,Owned By,Owning Function,Business Domain,Main Area,Business Unit,LX PS WiP,Region,Other tags
+44e34694-ffdc-451a-a29c-3481685c5674,Provider,3CLogic,3CLogic,,3CLogic Hosting,,,,,,,,,,G&A IT
+dc33d37c-7c72-42a7-be3c-0851edc58d2c,Provider,Accenture,Accenture,,,,,,,,,,,,
+4c0409d0-38e0-4ffb-8cc3-a04dd52683f4,Provider,Achievers,Achievers,,Achievers Achievers SaaS Hosting,,,,,,,,,,G&A IT
+6ee11da4-dd2b-48fa-b750-7b09e5701b01,Provider,Adobe,Adobe,,Adobe Acrobat 9.x;Adobe Captivate;Adobe InDesign,,,,,,,,,,G&A IT
+e18f4340-5c2f-4c10-a926-5f0f9deceef4,Provider,Aetna,Aetna,,Aetna Aetna Application Hosting;Aetna Aetna SaaS Hosting,,,,,,,,,,G&A IT
+250f95a9-43b0-41ee-adee-108703c8aca6,Provider,Alation,Alation,,,,,,,,,,,,
+b211e834-f704-4c2b-95bc-b1452a9d6a63,Provider,Alphabet,Alphabet,Alphabet / Google,,,,,,,,,,,
+5e280ba3-d920-48d3-9674-b921cad4073d,Provider,Google,Alphabet / Google,Alphabet / Google / GCP,Alphabet / Google Analytics SaaS Hosting;Alphabet / Google Apigee API Management;Alphabet / Google Flutter 3.22.x;Alphabet / Google Google Analytics,,,,,,,,,,
+11aedbb2-06e0-4772-8c05-de9017baa344,Provider,GCP,Alphabet / Google / GCP,,,,,,,,,,,,
+0be9749a-9373-4fd4-84e2-ff3063282eb7,Provider,Amazon.com,Amazon.com,Amazon.com / AWS,,,,,,,,,,,G&A IT
+3e874cac-384f-4aaa-825c-3478a2130745,Provider,AWS,Amazon.com / AWS,,Amazon.com / AWS Amazon RDS for Oracle;Amazon.com / AWS Amazon Redshift SaaS Hosting;Amazon.com / AWS Amazon S3;Amazon.com / AWS EC2;Amazon.com / AWS ElastiCache for Redis;Amazon.com / AWS Lambda;Amazon.com / AWS Transfer for SFTP,,,,,,,,,,G&A IT
+23027e21-4de1-4829-bf90-65c1ac24ae02,Provider,AON,AON,,AON AON Application Hosting,,,,,,,,,,G&A IT
+04f600c1-4fa0-4b24-b273-5170f5f1b7a2,Provider,Apache Software Foundation,Apache Software Foundation,,Apache Software Foundation Hive 3.x,,,,,,,,,,
+4d53be8f-f1fd-4e42-a917-3be876665fa8,Provider,Appian,Appian,,Appian Appian,,,,,,,,,,
+b4c3727e-7e7a-4b08-b0c2-933b2ed323a0,Provider,Argo Project,Argo Project,,Argo Project Argo CD 2.9.x,,,,,,,,,,
+c14f769b-3a56-41eb-bb8f-403142df7451,Provider,Articulate,Articulate,,Articulate Articulate Application Hosting,,,,,,,,,,G&A IT
+2645febe-23d9-4e82-a0b2-954cbfeb9e47,Provider,Articulate Global,Articulate Global,,Articulate Global Articulate SaaS Hosting,,,,,,,,,,
+74092e93-1375-48d2-b1bc-36328ff16704,Provider,Atlassian,Atlassian,,Atlassian Atlassian Confluence SaaS Hosting;Atlassian Bitbucket Server 8.14.x;Atlassian Bitbucket Server 8.6.x;Atlassian Jira;Atlassian Jira Service Desk,,,,,,,,,,
+d3b2ddb1-647c-4627-8fcb-e10f13a302e9,Provider,Avature,Avature,,Avature Application Hosting,Career Site Replacement,,,,,,,,,G&A IT
+7cb9b4c1-9270-4be7-a820-d80e785918d0,Provider,Avoma,Avoma,,Avoma Avoma,,,,,,,,,,
+d992e458-2224-43e5-858f-b7dbb5d68cd9,Provider,Axway,Axway,,,,,,,,,,,,
+d1fb0342-c236-4aa1-8942-b2fdf29352ba,Provider,Bank of America,Bank of America,,Bank of America Hosting,,,,,,,,,,G&A IT
+98c86316-905c-4551-8a84-68c6e266ab3a,Provider,Beamery,Beamery,,Beamery Beamery SaaS Hosting,,,,,,,,,,
+cb0cca24-3b75-4083-a70a-0a2dffd5ba19,Provider,Beeline,Beeline,,Beeline Application Hosting;Beeline Beeline SaaS Hosting;Beeline RaaS,,,,,,,,,,G&A IT
+dfbf69d7-aa73-4c63-9d1a-b1c3b57c10fd,Provider,BenefitSolver,BenefitSolver,,BenefitSolver Application Hosting,,,,,,,,,,G&A IT
+dcc2ef8c-758d-41fc-9472-95c1879c1589,Provider,Bioclinica (Clario),Bioclinica (Clario),,,,,,,,,,,,
+8f964103-d717-4773-8551-717ba2f18c8c,Provider,BioIT,BioIT,,,,,,,,,,,,
+023583af-608f-4db8-9ba3-4e7f2032287d,Provider,BioRender,BioRender,,BioRender BioRender SaaS Hosting,,,,,,,,,,
+3cf0563f-1d2f-468e-9cac-5fc6b6a1d750,Provider,Boomi,Boomi,,Boomi Boomi Integration,,,,,,,,,,
+3b549197-7e32-4f26-8e5a-e1c6544fb2e2,Provider,Box,Box,,,,,,,,,,,,
+b63629db-d6d0-4dc0-bffa-d1b2f16876dc,Provider,BrassRing,BrassRing,,BrassRing BrassRing Application Hosting,,,,,,,,,,G&A IT
+9c76002b-5501-4247-b3dd-5ed06eea6484,Provider,Bright Horizon,Bright Horizon,,Bright Horizon Bright Horizon Application Hosting,,,,,,,,,,G&A IT
+6c8bea03-2b5e-4650-86f5-a5b7c3f5f8fe,Provider,Broadcom,Broadcom,Broadcom / NortonLifeLock,,,,,,,,,,,
+adfaef05-2c20-4163-803b-7da0dbbebe7c,Provider,NortonLifeLock,Broadcom / NortonLifeLock,,Broadcom / NortonLifeLock LifeLock SaaS Hosting,,,,,,,,,,
+da8a71e3-7eda-4e83-9dc2-477cd676f045,Provider,Broadspire,Broadspire,,Broadspire Broadspire Application Hosting,,,,,,,,,,G&A IT
+23b8c930-c33a-424d-9a19-d622c1e7e653,Provider,BSI,BSI,,,,,,,,,,,,
+1f8a9f6a-40b1-4d98-8de3-be2468c4873b,Provider,BTS,BTS,,BTS Hosting,,,,,,,,,,G&A IT
+ad76ebb6-d305-4613-8ef4-9bbf08e7dc24,Provider,Calyx,Calyx,,,,,,,,,,,,
+207bb0e2-a8ca-4dec-b236-25108c63db75,Provider,Calyx Software / Envision Pharma,Calyx Software / Envision Pharma,,,,,,,,,,,,
+5639aedf-eec9-4f98-a2dd-3791f6ccb912,Provider,Candex,Candex,,Candex Application Hosting,,,,,,,,,,G&A IT
+941137dd-c9f4-4105-beeb-1f8e0e24c704,Provider,CareerBuilder,CareerBuilder,,CareerBuilder CareerBuilder Application Hosting,,,,,,,,,,G&A IT
+2097673c-fe71-4950-b683-d6067988307e,Provider,CDPHP,CDPHP,,CDPHP CDPHP Application Hosting,,,,,,,,,,G&A IT
+1ced900f-d586-4a97-a48f-3aaa55ab4975,Provider,Chronicle Graphics,Chronicle Graphics,,,,,,,,,,,,
+90b6ddb1-253a-45c0-811f-7e2859162649,Provider,Cigna,Cigna,,Cigna Cigna Application Hosting,,,,,,,,,,G&A IT
+b780a455-af4d-46f6-83cd-1f29ef0c019a,Provider,Clario,Clario,,,,,,,,,,,,
+24fc4dbc-9ed6-4f59-a44a-c18db4c481e1,Provider,Clarivate,Clarivate,,,,,,,,,,,,
+33aa9bba-8b5a-4f20-89e1-c2005babf875,Provider,Clarivate Analytics,Clarivate Analytics,,,,,,,,,,,,
+58621e11-c169-44c8-9026-13ab7b23e6f9,Provider,Clinical trial supply management,Clinical trial supply management,,,,,,,,,,,,
+c027f873-d729-470d-a578-ce59e73a4c18,Provider,CluePoints S.A.,CluePoints S.A.,,,,,,,,,,,,
+52e30a0a-63a1-46a7-9268-3897336795b2,Provider,Concur,Concur,,Concur Hosting,,,,,,,,,,G&A IT
+abb0bfdb-1d1e-4f3f-8c8f-49b0943d0721,Provider,Corepay,Corepay,,Corepay Hosting,,,,,,,,,,G&A IT
+ddc26622-0677-433a-b8b4-9d3a7072ca39,Provider,Cytel,Cytel,,Cytel Go-No-Go,,,,,,,,,,
+e2235ade-9c49-4ab4-8491-75c06c4fdeeb,Provider,D Wise Technologies Inc.,D Wise Technologies Inc.,,,,,,,,,,,,
+ba3aab15-24bb-4534-b81d-c9654875ca7c,Provider,Dash Solutions,Dash Solutions,,,,,,,,,,,,
+094deb98-06aa-437f-81f1-8f8b123b6951,Provider,Dassault Systèmes,Dassault Systèmes,,,,,,,,,,,,
+b08e164d-9d5f-4788-b4a9-65944a78ade0,Provider,Dataiku,Dataiku,,,,,,,,,,,,
+39286997-b8e5-4406-b1dc-732cd7eecc22,Provider,Decare Dental,Decare Dental,,Decare Dental Decare Dental Application Hosting,,,,,,,,,,G&A IT
+13cda0dd-c334-4649-b24a-8dd230cdaad9,Provider,Dell,Dell,,,,,,,,,,,,
+a1643920-3b66-4d63-b8c6-898423a76eb9,Provider,Dell Technologies,Dell Technologies,Dell Technologies / Boomi,,,,,,,,,,,G&A IT
+6c5e648f-b1c2-49b9-addb-73f0948211a1,Provider,Boomi,Dell Technologies / Boomi,,,,,,,,,,,,
+8d56851e-6358-4b6b-b5c9-fd1a428a9e1a,Provider,Deloitte,Deloitte,,,,,,,,,,,,
+c8b94e6c-3fdd-4292-bd07-21c8a3d2b28e,Provider,Delta Dental,Delta Dental,,Delta Dental Delta Dental Application Hosting,,,,,,,,,,G&A IT
+e4cd00da-ac32-47e9-be89-af7ca9587ecc,Provider,DirectEmployers,DirectEmployers,,DirectEmployers DirectEmployers Application Hosting,,,,,,,,,,G&A IT
+b2468bda-31f9-40e0-bd05-caafc45feed1,Provider,"DocsCorp, LLC","DocsCorp, LLC",,,,,,,,,,,,
+4b2b5321-0d91-4145-bca8-6625de184c49,Provider,Dotmatics,Dotmatics,,Dotmatics Dotmatics SaaS Hosting,,,,,,,,,,
+7da22fe3-a8e8-4bc3-9456-2851a4265e36,Provider,Dr. Evidence,Dr. Evidence,,,,,,,,,,,,
+651685e8-9b42-4b43-b536-80ac8cdc3ef5,Provider,Dropbox,Dropbox,,,,,,,,,,,,
+28876afb-5771-4339-bdf5-09a4edae11d3,Provider,Druva,Druva,,Druva Druva SaaS Hosting,,,,,,,,,,
+188366d9-43c8-4d26-add0-be313eb444b6,Provider,DXC Technology,DXC Technology,,,,,,,,,,,,
+7d29fc67-b43c-4bb4-be0f-cdfacae01890,Provider,EdAssist,EdAssist,,EdAssist Application Hosting,,,,,,,,,,G&A IT
+a0307bbb-69d4-411d-a799-5ec6430a8c9a,Provider,Empower Finance,Empower Finance,,Empower Finance Empower SaaS Hosting,,,,,,,,,,
+a69e9345-4f29-4a17-83bb-599f490b1bdd,Provider,Endpoint Clinical,Endpoint Clinical,,,,,,,,,,,,
+640b1c1f-bb8f-4046-8232-6ee617d83ad0,Provider,Envision Pharma,Envision Pharma,,Envision Pharma iEnvision,,,,,,,,,,
+e8fc6794-3eef-4425-bc8a-186d2fb19b99,Provider,ePRO system,ePRO system,,,,,,,,,,,,
+d542b284-86a0-418a-99b9-b8334925cbbe,Provider,Eversana,Eversana,,,,,,,,,,,,
+5bf4cc89-e93f-4831-87fb-85aa5924215c,Provider,Fidelity,Fidelity,,Fidelity Fidelity Application Hosting,,,,,,,,,,G&A IT
+e6cb64d5-f09d-474a-a616-608b77ce8c62,Provider,Fidelity Investments,Fidelity Investments,,Fidelity Investments Fidelity PSW SaaS Hosting,,,,,,,,,,
+974cdd34-45f0-4686-8849-10efd312c135,Provider,Figma,Figma,,Figma Figma SaaS Hosting,,,,,,,,,,
+c679403c-515b-42ff-a616-283c47a35042,Provider,Glassdoor,Glassdoor,,Glassdoor Glassdoor Application Hosting;Glassdoor Glassdoor SaaS Hosting,,,,,,,,,,G&A IT
+257ee88e-0629-44b4-8bc8-31e0862088e7,Provider,Glint,Glint,,Glint Glint Application Hosting,,,,,,,,,,G&A IT
+57bcdd64-d7c0-4d4e-8688-595a870300cb,Provider,GoAnimate,GoAnimate,,GoAnimate Vyond SaaS Hosting,,,,,,,,,,
+07a054d6-2b2e-42ed-a984-80dc4f8427ab,Provider,Grafana Labs,Grafana Labs,,Grafana Labs Grafana 9.5.x,,,,,,,,,,
+e0c94f11-39f2-4717-8c29-503f6db5a27e,Provider,HA Portals,HA Portals,,,,,,,,,,,,
+e0c0f77e-5def-4415-a5e6-5a443df208bc,Provider,Hartford,Hartford,,Hartford Hartford Application Hosting,,,,,,,,,,G&A IT
+59d7a7b6-c1fe-49a4-9c54-1fd41d1c2f33,Provider,Health Advocate,Health Advocate,,Health Advocate Health Advocate Application Hosting,,,,,,,,,,G&A IT
+45d073d6-c96c-49ac-90dd-d7b4034b0c5c,Provider,HireEZ,HireEZ,,HireEZ HireEZ Application Hosting,,,,,,,,,,G&A IT
+54a66793-3154-42ae-a232-d5d88b64e8ca,Provider,HireRight,HireRight,,HireRight HireRight Application Hosting;HireRight HireRight SaaS Hosting,,,,,,,,,,G&A IT
+0134527d-7783-43bb-aee7-edea65f45224,Provider,HireTeamMate,HireTeamMate,,HireTeamMate hireEZ SaaS Hosting,,,,,,,,,,
+df3e0d83-04f4-47a4-80aa-1b0f3d21ca42,Provider,HireVue,HireVue,HireVue / Modern Hire,,,,,,,,,,,
+77f8c99b-ca7c-41c9-b8db-2837feb5dadd,Provider,Modern Hire,HireVue / Modern Hire,,HireVue / Modern Hire Modern Hire SaaS Hosting,,,,,,,,,,
+c599e15b-8779-470f-b048-3e95b0721fe0,Provider,HMAA,HMAA,,HMAA HMAA Application Hosting,,,,,,,,,,G&A IT
+50d1e44f-fab1-4e82-93ab-c32866f5d481,Provider,Hunter Warfield,Hunter Warfield,,Hunter Warfield Hunter Warfield Application Hosting,,,,,,,,,,G&A IT
+4f02587f-2f97-494f-8dbb-441fcba03e3b,Provider,Hyland,Hyland,,Hyland Hyland Application Hosting;Hyland Onbase Mobile App;Hyland Unity Client,,,,,,,,,,G&A IT
+c0c3f57f-2452-4004-b1dc-40c94155d7cb,Provider,Hyland Software,Hyland Software,,Hyland Software Hyland OnBase SaaS Hosting,,,,,,,,,,
+f11d367b-e6f6-4a9a-b5c1-d6916d375099,Provider,iCertis,iCertis,,,,,,,,,,,,
+df703f5a-821e-48a1-bc75-d48dba3d9218,Provider,Ideagen,Ideagen,,,,,,,,,,,,
+702a1c83-c86c-402b-a16c-5a8153896aa7,Provider,In-house,In-house,,,,,,,,,,,,
+d7e91753-44ac-497d-9843-06b6d1e2f765,Provider,Indeed,Indeed,,Indeed Indeed Application Hosting,,,,,,,,,,G&A IT
+20f527d4-a975-43e8-9d3f-8e84695f967c,Provider,Indeed.com,Indeed.com,,Indeed.com Indeed SaaS Hosting,,,,,,,,,,
+bbf1750a-fc3c-4a74-ab63-611d8eada305,Provider,Inductive Automation,Inductive Automation,,,,,,,,,,,,
+f507c4f6-118f-45f9-98ee-d0a95ae08d96,Provider,Infodesk,Infodesk,,,,,,,,,,,,
+995186c9-6e4b-4551-bc79-51a0785b9876,Provider,Informatica,Informatica,,Informatica Informatica Master Data Management;Informatica Informatica SaaS Hosting;Informatica Informatica Secure Agent,,,,,,,,,,
+630ce9f0-60cc-4ead-96cd-ad73de8fd6cd,Provider,Internal,Internal,,,,,,,,,,,,
+362da86e-d942-4640-a0aa-565155f03eaa,Provider,Intrinsic Clinical Systems,Intrinsic Clinical Systems,,,,,,,,,,,,
+3fbcbb2d-fa52-496a-868b-0303fbade6c6,Provider,Invesco,Invesco,,Invesco Invesco Application Hosting,,,,,,,,,,G&A IT
+cba2abd7-c525-48bf-a5c0-f64c8b3e0b5f,Provider,Invicro,Invicro,,,,,,,,,,,,
+8debae8c-7724-4984-9941-c13999ecc1f5,Provider,IQVIA,IQVIA,,,,,,,,,,,,
+19040f97-1557-4ef9-9f0f-1e94652d7340,Provider,IQVIA (DrugDev),IQVIA (DrugDev),,,,,,,,,,,,
+cbf86e47-d2fa-4393-926a-fcd9a6e3d3b2,Provider,Isilon Systems,Isilon Systems,,,,,,,,,,,,
+5554d746-3318-454a-a36a-887cdb5e1c69,Provider,JP Morgan Chase,JP Morgan Chase,,JP Morgan Chase Hosting,,,,,,,,,,G&A IT
+dc3f0473-0f8a-46df-92b2-2a5078e0d094,Provider,Kahoot,Kahoot,,Kahoot Kahoot,,,,,,,,,,
+95a4669e-4708-4acf-aa07-3753ec5b2b0e,Provider,Kinaxis,Kinaxis,,Kinaxis Kinaxis RapidResponse,,,,,,,,,,
+7d3ac553-07bf-4ae9-aa3a-5d2fa2534df3,Provider,Komodo Health,Komodo Health,,,,,,,,,,,,
+dc58428e-b5cd-43c1-875c-ae4b8777a79d,Provider,Legal Club of America,Legal Club of America,,Legal Club of America Legal Club of America Application Hosting,,,,,,,,,,G&A IT
+cfe73c28-7933-4c3e-955b-3f033e32a18e,Provider,Lexis Nexis,Lexis Nexis,,,,,,,,,,,,
+db6c56cd-4f0f-4c70-9863-732a0d94c563,Provider,Liberty Mutual,Liberty Mutual,,Liberty Mutual Liberty Mutual Application Hosting,,,,,,,,,,G&A IT
+e9135826-2498-4dab-aff1-23bc12c7a023,Provider,LinkedIn,LinkedIn,,LinkedIn LinkedIn Application Hosting,,,,,,,,,,G&A IT
+3190a90c-a73d-44d9-8f29-8b87a5281a03,Provider,Linux Foundation,Linux Foundation,Linux Foundation / CD Foundation,,,,,,,,,,,
+7bc62782-6c7a-4eef-bfab-e8589af9e608,Provider,CD Foundation,Linux Foundation / CD Foundation,,Linux Foundation / CD Foundation Jenkins 2.448,,,,,,,,,,
+de077f2e-72d5-4035-bc86-30d4a0c0d1a0,Provider,LORENZ Life Sciences Group,LORENZ Life Sciences Group,,,,,,,,,,,,
+82267cef-cf6b-4f9a-8b01-3332add736c9,Provider,Manhattan Associates,Manhattan Associates,,Manhattan Associates Manhattan Associates Warehouse Management,,,,,,,,,,
+be757ac3-c026-4c19-80df-f2956f01c7cf,Provider,Medidata,Medidata,,,,,,,,,,,,
+3771ea12-a239-4881-a63a-b81cf799ec71,Provider,MedPro,MedPro,,MedPro Hosting,,,,,,,,,,
+207cd755-50fc-466c-adc6-4ade4c53735b,Provider,Mercer,Mercer,,Mercer Mercer Application Hosting,,,,,,,,,,G&A IT
+f227a566-f2ef-4bb1-97a5-84ed9b15d49f,Provider,Meta,Meta,,Meta React 16.0.x,,,,,,,,,,
+510690f9-3af9-4b2b-a9b0-5b8ae7f9b712,Provider,MetLife Legal Plans,MetLife Legal Plans,,MetLife Legal Plans MetLife Application Hosting,,,,,,,,,,G&A IT
+a21e96fe-0ce2-4cf8-97da-3250e93788ef,Provider,Microsoft,Microsoft,Microsoft / LinkedIn,Microsoft Microsoft Azure (Non REGN);Microsoft Microsoft Excel SaaS Hosting;Microsoft Microsoft Viva Glint SaaS Hosting;Microsoft Office Excel Standard 2016;Microsoft OneNote SaaS Hosting;Microsoft Project Online Desktop Client SaaS Hosting;Microsoft SQL Server 2016;Microsoft SQL Server SaaS Hosting;Microsoft Windows Server 2016,,,,,,,,,,G&A IT
+6d2eaa70-eee9-40f6-80b1-b5e7901fa510,Provider,LinkedIn,Microsoft / LinkedIn,,Microsoft / LinkedIn Learning SaaS Hosting;Microsoft / LinkedIn Recruiter SaaS Hosting,,,,,,,,,,
+0d06f6ba-e214-4eb7-9a7c-74640e4c20df,Provider,"Microsoft, UMT360, Fluent Pro","Microsoft, UMT360, Fluent Pro",,,,,,,,,,,,
+80eec6ca-e7d9-4976-9408-94ee68e900e0,Provider,MIM,MIM,,,,,,,,,,,,
+786f2000-2290-4bab-9475-1c8321695964,Provider,Missing,Missing,,,,,,,,,,,,
+3f7839e4-12de-47c8-9a77-1f0af5dcf47c,Provider,Modern Hire,Modern Hire,,Modern Hire Modern Hire Application Hosting,,,,,,,,,,G&A IT
+f46f5902-52b8-4f53-8ebe-33247b428de2,Provider,Momentive,Momentive,,Momentive Momentive Application Hosting,,,,,,,,,,G&A IT
+b516c99f-52d9-4bf2-83d6-dfe740296373,Provider,MyFamilyCare,MyFamilyCare,,MyFamilyCare MyFamilyCare Application Hosting,,,,,,,,,,G&A IT
+ef5ab316-2f46-4782-99ad-5a1b52631aa8,Provider,N-Side,N-Side,,,,,,,,,,,,
+7fbb75a5-b423-4e1b-bb61-96b2d8f42f19,Provider,N/A,N/A,,,,,,,,,,,,
+ebe86459-e33f-49a8-8ef8-788970a7d472,Provider,NA,NA,,,,,,,,,,,,
+4adb16ce-367e-4db3-a979-9da318e285fc,Provider,Nationwide,Nationwide,,Nationwide Nationwide Application Hosting,,,,,,,,,,G&A IT
+3c41e123-d47c-4c68-bc75-aea42281d37e,Provider,Nexus,Nexus,,,,,,,,,,,,
+90d6fe35-5d56-4a0a-8085-4bf135ccb507,Provider,Norstella,Norstella,,,,,,,,,,,,
+26f24399-7882-4d98-adb9-7aa2308822b2,Provider,Norton,Norton,,Norton Norton Application Hosting,,,,,,,,,,G&A IT
+8580f138-c10c-4f28-84a0-b99fa8ff481f,Provider,Okta,Okta,,Okta SSO,,,,,,,,,,G&A IT
+668f6a58-bf04-4204-933e-01460b56831e,Provider,OneTrust,OneTrust,,OneTrust Cookie Consent SaaS Hosting;OneTrust OneTrust,,,,,,,,,,
+f0513b40-2dae-4a8e-8858-edc2c1d38f2b,Provider,Optum,Optum,,Optum Optum Application Hosting,,,,,,,,,,G&A IT
+92a1e37e-c93f-493c-ad04-e406d95801cc,Provider,Oracle,Oracle,,Oracle Concurrent Program;Oracle Data Integrator Enterprise 11g;Oracle Data Integrator Enterprise 12cR2 12.2.1;Oracle Database;Oracle JDBC Driver 21c.x;Oracle SOA Suite 12.1.x,,,,,,,,,,G&A IT
+cccba921-abf9-473d-8839-ba69cfd23412,Provider,Pana,Pana,,Pana Pana Application Hosting,,,,,,,,,,G&A IT
+040eaae6-c6b5-4ddd-9bfb-4ea8eab145ad,Provider,Panopto,Panopto,,,,,,,,,,,,
+0b156d98-74b7-4fa3-a989-89b97bdb1eac,Provider,Parexel Informatics,Parexel Informatics,,,,,,,,,,,,
+d0f14415-4981-4acb-b1fa-809c23b13fd2,Provider,Payscale,Payscale,,Payscale Application Hosting,,,,,,,,,,G&A IT
+99ebd4a6-373e-4d33-b361-c447f6fdee0a,Provider,Pendo.io,Pendo.io,,Pendo.io Pendo.io SaaS Hosting,,,,,,,,,,
+44252547-7b61-4b20-99b1-06fbda446b0a,Provider,Peoplefluent,Peoplefluent,,Peoplefluent OCB,,,,,,,,,,G&A IT
+c753589f-ee91-48e6-878d-c773889b0db2,Provider,Perceptive Informatics,Perceptive Informatics,,,,,,,,,,,,
+0fee3b7f-363b-44d0-95b5-0ed6d73a0f3d,Provider,PerkinElmer Informatics,PerkinElmer Informatics,,,,,,,,,,,,
+15a9d5e7-7518-4401-8c0b-09de05359072,Provider,Phenom,Phenom,,Phenom Phenom Application Hosting,,,,,,,,,,G&A IT
+a9df6703-bb5f-42ab-a92c-7236e1b1ae25,Provider,Ping Federate,Ping Federate,,Ping Federate SSO,,,,,,,,,,G&A IT
+cbb5bd75-64aa-474e-8d8b-f5d1f6150cfb,Provider,Ping One,Ping One,,Ping One SSO,,,,,,,,,,G&A IT
+74912230-29d5-4ac8-b80b-2cdcb29aa5c4,Provider,Pinnacle21,Pinnacle21,,,,,,,,,,,,
+0d9a5a2d-09ca-4cd0-ae9e-f56f26eb8a56,Provider,Planview,Planview,,Planview Changepoint PPM;Planview Changepoint SPM,,,,,,,,,,
+bf89fdca-3bb6-46fd-b93d-237eeaceb5fe,Provider,Preclarus,Preclarus,,,,,,,,,,,,
+02dc7880-9c29-4b30-9888-eeacf71b89e5,Provider,ProSymmetry,ProSymmetry,,ProSymmetry Tempus Resource SaaS Hosting,,,,,,,,,,
+b45d4dc1-c509-4756-8cee-cf642835fb15,Provider,ProUnlimited,ProUnlimited,,ProUnlimited ProUnlimited Application Hosting,,,,,,,,,,G&A IT
+ed41d237-63d8-4620-9ab7-7ee8462830bf,Provider,Qlik,Qlik,,,,,,,,,,,,
+12b9685f-a2f7-4635-93ae-32588823eb45,Provider,Quicko Technosoft Labs,Quicko Technosoft Labs,,Quicko Technosoft Labs whatfix SaaS Hosting,,,,,,,,,,
+4b852e24-52a6-40d3-8ffb-1a000a1e104a,Provider,R,R,,,,,,,,,,,,
+add64f85-cf85-4cfd-9c3f-37a4d39183ab,Provider,R Foundation,R Foundation,,R Foundation R Software 3.6,,,,,,,,,,
+48f854df-545d-45cc-ae6e-30fd87afc128,Provider,RafterOne (Docmation),RafterOne (Docmation),,RafterOne (Docmation) Mediverse Mobile App,,,,,,,,,,
+ea27e1a8-8616-43ee-bc74-05c106ce7485,Provider,Redica Systems,Redica Systems,,,,,,,,,,,,
+f600deb9-2e6c-445a-be63-4e1afa84a497,Provider,RegionalHelpWanted,RegionalHelpWanted,,RegionalHelpWanted RegionalHelpWanted Application Hosting,,,,,,,,,,G&A IT
+f46bc3a3-ca47-4105-a7cc-c85270810a84,Provider,Reval,Reval,,Reval Hosting,,,,,,,,,,G&A IT
+d538b354-d6c1-4f07-900a-c58ad9351204,Provider,Rockwell Automation,Rockwell Automation,,Rockwell Automation FactoryTalk AssetCentre Server 8.0,,,,,,,,,,
+a2399e57-cf7b-47c2-9bdd-a4a211523972,Provider,RxLogix,RxLogix,,,,,,,,,,,,
+c5fc5a50-b225-4856-97e1-563614cb0b21,Provider,Saama,Saama,,,,,,,,,,,,
+22814729-245b-4c1d-9f24-336568b96e59,Provider,Saama Technologies,Saama Technologies,,,,,,,,,,,,
+ae4d749c-2339-4531-ac70-acf323288146,Provider,Salesforce,Salesforce,,,,,,,,,,,,
+515db686-6e8b-4b3b-8137-fa63200c2741,Provider,SAPIO,SAPIO,,,,,,,,,,,,
+7dc6b58f-0856-455a-968f-20e1ccbdae5f,Provider,SAS Institute Inc.,SAS Institute Inc.,,,,,,,,,,,,
+f4129d46-3ad4-46c9-a505-23c56b0df0fa,Provider,Schlafender Hase GmbH,Schlafender Hase GmbH,,,,,,,,,,,,
+9957a7c6-dbd9-4370-9af0-3d10be0b515e,Provider,Sedgwick,Sedgwick,,Sedgwick ViaOne SaaS Hosting,,,,,,,,,,
+867620ee-7484-4250-9add-faec893c27ea,Provider,Serengeti,Serengeti,,Serengeti Hosting,,,,,,,,,,G&A IT
+5e1bd9d5-5cc3-4c02-a414-f8495772bc5e,Provider,ServiceNow,ServiceNow,,ServiceNow Application Hosting;ServiceNow ServiceNow ITSM,,,,,,,,,,G&A IT
+c5e1ec85-3059-4654-8e80-c75b482bccc2,Provider,Share Point Regulatory,Share Point Regulatory,,,,,,,,,,,,
+63a3bf92-36b1-4210-a270-dac761fd87b2,Provider,Shared Services Regulatory,Shared Services Regulatory,,,,,,,,,,,,
+d2e32110-0229-42ce-8fa1-2c62e29e66b4,Provider,Signant Health,Signant Health,,,,,,,,,,,,
+00bdabaf-ec19-44fa-9c63-b4ac20bb4c8a,Provider,SkillSurvey,SkillSurvey,,SkillSurvey SkillSurvey Application Hosting,,,,,,,,,,G&A IT
+8fbf4863-6711-4235-aa43-74d57ca91cc0,Provider,SmartSheet,SmartSheet,,,,,,,,,,,,
+a876a016-32f1-402c-a094-c0cdbb93cc61,Provider,SonarSource,SonarSource,,SonarSource SonarQube 9.9.x,,,,,,,,,,
+4dbc2914-b025-4f7b-bef1-8ba6f13d75cf,Provider,SP Solution,SP Solution,,,,,,,,,,,,
+b7f8ba0e-65e8-4574-83eb-c87b947a07a5,Provider,Sparc,Sparc,,Sparc Sparc Application Hosting,,,,,,,,,,G&A IT
+f8aab999-f820-4fde-b1f0-e7d3eed34cdd,Provider,Statsols,Statsols,,,,,,,,,,,,
+8074511c-3a96-42c0-93a0-8394672d5304,Provider,Sumtotal,Sumtotal,,Sumtotal Application Hosting,,,,,,,,,,G&A IT
+c0e39c09-1573-4f56-a8ce-a1e084519d1a,Provider,Tableau (Salesforce),Tableau (Salesforce),,,,,,,,,,,,
+13d2a291-214f-4481-9a59-7245deb50ea3,Provider,Talend,Talend,,,,,,,,,,,,
+8e7e9d66-50aa-4ec6-ba48-cc1ab2e2eba9,Provider,Tealbook,Tealbook,,Tealbook Tealbook SaaS Hosting,,,,,,,,,,
+4433b64d-41c3-437d-8105-5bc61c3ccc63,Provider,Textio,Textio,,Textio Chrome Extension;Textio Outlook Plugin;Textio Textio Application Hosting;Textio Textio SaaS Hosting,,,,,,,,,,G&A IT
+fdc3c572-ecd1-4d7a-b5ec-8f5a30662f85,Provider,The Access Group,The Access Group,,The Access Group Access Workspace SaaS Hosting,,,,,,,,,,
+cba38231-0d16-4114-93c8-675cd7543365,Provider,Thermo Scientific,Thermo Scientific,,,,,,,,,,,,
+69d24bea-68ba-4330-b089-783d24dab193,Provider,Trellix,Trellix,Trellix / McAfee,,,,,,,,,,,
+78a2ca09-5527-4d49-9ade-831e8d3c48d8,Provider,McAfee,Trellix / McAfee,,Trellix / McAfee McAfee+ SaaS Hosting,,,,,,,,,,
+f69bab7c-4ca2-443f-8cf5-c754e3a1b25a,Provider,TrialGrid,TrialGrid,,,,,,,,,,,,
+58b94e14-4b4e-4b64-9838-ca8f3d5fff88,Provider,TrialScope,TrialScope,,,,,,,,,,,,
+287939b5-2546-4c76-954b-3ba0cdbce747,Provider,TriRiga,TriRiga,,TriRiga Hosting,,,,,,,,,,G&A IT
+e54b00ce-3d66-49bf-937b-086aa6643e04,Provider,Tungsten Automation,Tungsten Automation,,Tungsten Automation Capture 11.0.x;Tungsten Automation Transformation Modules 6.3.x,,,,,,,,,,G&A IT
+d282283d-5a1f-40c8-a187-3fbff44a7890,Provider,ValGenesis Inc.,ValGenesis Inc.,,,,,,,,,,,,
+27b65476-579e-487a-8f5f-3c95dd054a4b,Provider,Veeva,Veeva,,,,,,,,,,,,
+a129dd4d-ee99-4721-972a-1e1f74268079,Provider,Veeva Systems Inc.,Veeva Systems Inc.,,,,,,,,,,,,
+2d7bb85f-79e2-425a-b47e-9e6a2d57e84a,Provider,VHI,VHI,,VHI VHI Application Hosting,,,,,,,,,,G&A IT
+26856757-78a0-4249-9182-2e4d2a3ae03d,Provider,Vimeo,Vimeo,,Vimeo Vimeo SaaS Hosting,,,,,,,,,,
+4be173b6-c3fc-4312-a45e-d1e282c3aa2d,Provider,Vivli,Vivli,,,,,,,,,,,,
+a4d56c10-4d4e-403a-850f-79770826c02f,Provider,VMWare,VMWare,,VMWare TARORGPUBAPP01P,,,,,,,,,,G&A IT
+30593d43-125b-4e6f-85dc-058d89346545,Provider,VSP Vision,VSP Vision,,VSP Vision VSP Vision Application Hosting,,,,,,,,,,G&A IT
+3e73d98e-b033-4c47-af8b-0112998cd55d,Provider,WageWorks,WageWorks,,WageWorks WageWorks Application Hosting,,,,,,,,,,G&A IT
+c3b0e108-0e9e-4668-86bb-762c4793d0ed,Provider,Waters Corporation,Waters Corporation,,,,,,,,,,,,
+e70b8ec9-59fa-409b-82da-854b394e2d64,Provider,WCG Clinical,WCG Clinical,,,,,,,,,,,,
+d1ce3a7e-49b2-4956-9494-11a127b07532,Provider,Weichert,Weichert,,Weichert Application Hosting,,,,,,,,,,G&A IT
+dadcab35-aa32-4f99-995a-c75ecbf1afc6,Provider,Workday,Workday,,Workday Application Hosting;Workday Core Connector - Worker;Workday Document Transformation;Workday EIB;Workday Help SaaS Hosting;Workday PICOF;Workday RaaS;Workday Studio;Workday Web Service,,,,,,,,,,G&A IT
+d10ef460-3d31-4723-bd12-d2b39ff5a494,Provider,Yprime,Yprime,,,,,,,,,,,,

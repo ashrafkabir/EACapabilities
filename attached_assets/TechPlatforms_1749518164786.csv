@@ -1,0 +1,59 @@
+﻿id,type,name,displayName,description:Description,level:Level,status:Status,lxState
+ID,Type,Name,Display Name,Description,Level,Status,Quality Seal
+7db3580c-91ec-43ec-be45-b8cbbfd8a5df,TechPlatform,Acquia DAM,Acquia DAM,,,,APPROVED
+9ef4b0ef-7e11-4b9c-bde9-05bf44fa09e0,TechPlatform,Appian,Appian,,,,APPROVED
+5b436c4c-fe9c-4e6b-8d64-b46a9089e91b,TechPlatform,Appian Cloud,Appian Cloud,,,,APPROVED
+73ee7d26-f43c-4e27-81ff-1cde6594febc,TechPlatform,APS,APS,,,,APPROVED
+e92fc24a-2a88-44db-9058-7f239fd935d2,TechPlatform,Articulate,Articulate,,,,APPROVED
+dd0d9186-fa6b-4f67-8e08-b3e8011e8438,TechPlatform,AWS Cloud,AWS Cloud,,,,APPROVED
+4c0ab315-89d9-4adb-a30a-735f6f8fccd3,TechPlatform,Azure Cloud,Azure Cloud,,,,APPROVED
+5e8f056b-7e6f-4949-b1f9-c8a4c629700b,TechPlatform,Azure Open AI,Azure Open AI,,,,APPROVED
+5338d0ed-49a4-4276-bc2d-d8146d184995,TechPlatform,Boomi,Boomi,,,,APPROVED
+d7a3dcff-2dc6-49cf-831d-3164ee7f6a60,TechPlatform,Box,Box,,,,APPROVED
+52701987-3235-4913-ad7d-33a4433e07e8,TechPlatform,Document Management,Document Management,,,,APPROVED
+a291a5e5-10e4-4920-811d-64753d547114,TechPlatform,ELN,ELN,,,,APPROVED
+1532f4e2-9861-4430-b94f-74aff57c7b70,TechPlatform,Empower,Empower,,,,APPROVED
+7ff4acf3-e050-44da-b4fd-3ecd3601e606,TechPlatform,Filemaker,Filemaker,,,,APPROVED
+a45a5896-ac60-43c4-8218-ebc1bf9275b5,TechPlatform,GDS Big Data Initiative,GDS Big Data Initiative,,,,APPROVED
+fcbe75b0-1065-464b-b57f-fe911a4b07df,TechPlatform,Google Cloud,Google Cloud,,,,APPROVED
+28b686f5-933a-4e41-9c52-89988be70b24,TechPlatform,Historian,Historian,,,,APPROVED
+a6589673-b89d-46d5-8402-c50c084e848c,TechPlatform,Ideagen,Ideagen,,,,APPROVED
+d5f6caee-1a7d-4b3b-befa-63a3636a2b90,TechPlatform,Informatica,Informatica,,,,APPROVED
+a87a7b3a-9b30-4ce1-890c-cc2422e9e021,TechPlatform,Jira,Jira,,,,APPROVED
+3c22b60f-0869-41b9-826b-8a85dcafc216,TechPlatform,Lab Data Management,Lab Data Management,,,,APPROVED
+d15f8587-1208-4054-b687-73c5ee43e6ec,TechPlatform,Lab Systems,Lab Systems,,,,APPROVED
+0d35c17d-6f7c-41bd-9ad4-082cf5a361df,TechPlatform,LeanIX,LeanIX,,,,APPROVED
+d0912b04-a185-4fb2-91ac-cfc26f0cc199,TechPlatform,Matlab,Matlab,,,,APPROVED
+e5a37bd2-7578-47d1-ac1e-c1358e1aeda0,TechPlatform,Medidata,Medidata,,,,APPROVED
+d6bd733e-2593-4e5f-bf8f-ebf037894fac,TechPlatform,MES,MES,,,,APPROVED
+d6ac7d54-0f11-4419-9725-54843ca40ef2,TechPlatform,Metabio,Metabio,,,,APPROVED
+7aea23c5-9c70-461f-95b0-e19735ab2c01,TechPlatform,Microsoft Office 365,Microsoft Office 365,,,,APPROVED
+4161129b-eeb9-4eb0-9e4b-6f6637342d14,TechPlatform,Microsoft Power Platform,Microsoft Power Platform,,,,APPROVED
+9e632e30-18a5-413d-aaa8-24038c550b0d,TechPlatform,Oracle Health Sciences,Oracle Health Sciences,,,,APPROVED
+a89dc252-6b2b-454a-9251-5d70fc3a5ea4,TechPlatform,PA16 OT Stack,PA16 OT Stack,,,,APPROVED
+2f158633-5d0f-4b70-bbeb-c76aa8b67dfe,TechPlatform,Planview AdaptiveWork,Planview AdaptiveWork,,,,APPROVED
+6c9fb8c6-4c87-43eb-be85-c81a69b30501,TechPlatform,PleaseReview,PleaseReview,,,,APPROVED
+2b81a4f1-7068-4dd2-8c4e-4b1ba13ea80f,TechPlatform,Proofpoint,Proofpoint,,,,APPROVED
+b9d45975-fbde-4175-806d-9050e67c6678,TechPlatform,Qlik,Qlik,,,,APPROVED
+962dd96e-d12f-48fc-b703-41b89595abf7,TechPlatform,QMS,QMS,,,,APPROVED
+cab4433d-c150-40d5-a51a-76bbf137dda2,TechPlatform,Redica,Redica,,,,APPROVED
+d2189f75-dd3f-40a6-8dd8-bbaf4cc9f2aa,TechPlatform,Regeneron Web Services - Digital Platform for App Development,Regeneron Web Services - Digital Platform for App Development,,,,APPROVED
+c4f79669-e02e-4e3b-9ca6-6dc1305229f2,TechPlatform,Salesforce,Salesforce,,,,APPROVED
+2bcae3ec-0a97-4217-b601-5b43e396771a,TechPlatform,Salesforce Experience Cloud,Salesforce Experience Cloud,,,,APPROVED
+b96d5b02-3f8d-4f5f-8576-41134c44c705,TechPlatform,SAP,SAP,,,,APPROVED
+f5e82144-8f2b-4a06-8ae3-bf26aa8c14be,TechPlatform,SAPIO LIMS,SAPIO LIMS,,,,APPROVED
+739bd520-9ea2-49c5-a01e-04611b8399d4,TechPlatform,SAS Viya,SAS Viya,,,,APPROVED
+53097e22-6992-48ed-aed5-ab234e860b12,TechPlatform,ServiceNow,ServiceNow,,,,APPROVED
+8102d645-6e4b-4de0-ae41-3522002c98c9,TechPlatform,Sharepoint,Sharepoint,,,,APPROVED
+b9f542a6-1c75-4333-bdbd-d741c68cb583,TechPlatform,Training,Training,,,,APPROVED
+219c6e07-3025-40d7-9735-4f221fbd52fc,TechPlatform,UiPath,UiPath,,,,APPROVED
+dc255d30-2362-403b-acfc-9bc09ccf1b2c,TechPlatform,ValGenesis,ValGenesis,,,,APPROVED
+ba51e650-ee71-44d0-b9ec-dcee2ec4144a,TechPlatform,Veeva Clinical Vault,Veeva Clinical Vault,,,,APPROVED
+902e38e8-36ff-40d3-a8ad-df2754ace5d6,TechPlatform,Veeva Commercial Vault,Veeva Commercial Vault,,,,APPROVED
+14b017bb-5ff6-448d-affc-8e257dcec1cf,TechPlatform,Veeva CRM,Veeva CRM,,,,APPROVED
+4b172a5d-a64c-4ce8-93ec-8a9326134ee0,TechPlatform,Veeva MedComms,Veeva MedComms,,,,APPROVED
+d745d97b-5b30-4840-a536-6e42a40c1eee,TechPlatform,Veeva Quality Vault,Veeva Quality Vault,,,,APPROVED
+4d74787d-6bc2-4954-8d53-a706a1b4553c,TechPlatform,Veeva Regulatory Vault,Veeva Regulatory Vault,,,,APPROVED
+c0553e82-16f3-41be-9020-abb2da9030df,TechPlatform,Veeva Safety Vault,Veeva Safety Vault,,,,APPROVED
+4dcf1017-625c-40c8-8dc5-1663d3284243,TechPlatform,Vendor Platform,Vendor Platform,,,,APPROVED
+9007171a-a2f0-47bc-a586-a13395a4e295,TechPlatform,Yprime,Yprime,,,,APPROVED
