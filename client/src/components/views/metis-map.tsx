@@ -639,19 +639,41 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     // Export currently displayed capabilities
     const capabilityHeaders = [
       'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
-      'level2Capability', 'level3Capability', 'parentId'
+      'level2Capability', 'level3Capability', 'parentId', 'relatedApplicationsCount',
+      'relatedApplications', 'childCapabilities', 'hasSubCapabilities'
     ];
     const displayedCapabilities = filteredCapabilities || capabilitiesToShow;
-    const capabilityData = displayedCapabilities.map(cap => ({
-      name: cap.name,
-      displayName: cap.displayName || '',
-      hierarchy: cap.hierarchy || '',
-      level: cap.level || '',
-      level1Capability: cap.level1Capability || '',
-      level2Capability: cap.level2Capability || '',
-      level3Capability: cap.level3Capability || '',
-      parentId: cap.parentId || ''
-    }));
+    const capabilityData = displayedCapabilities.map(cap => {
+      // Get related applications for this capability
+      const capabilityApplications = applications.filter(app => {
+        if (!app.businessCapabilities) return false;
+        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+        return appCapabilities.some(appCap => 
+          cap.name === appCap || 
+          cap.name.includes(appCap) || 
+          appCap.includes(cap.name) ||
+          appCap.includes(cap.hierarchy || '')
+        );
+      });
+
+      // Get child capabilities
+      const childCapabilities = allCapabilities.filter(child => child.parentId === cap.id);
+      
+      return {
+        name: cap.name,
+        displayName: cap.displayName || '',
+        hierarchy: cap.hierarchy || '',
+        level: cap.level || '',
+        level1Capability: cap.level1Capability || '',
+        level2Capability: cap.level2Capability || '',
+        level3Capability: cap.level3Capability || '',
+        parentId: cap.parentId || '',
+        relatedApplicationsCount: capabilityApplications.length,
+        relatedApplications: capabilityApplications.map(app => app.name).join('; '),
+        childCapabilities: childCapabilities.map(child => child.name).join('; '),
+        hasSubCapabilities: childCapabilities.length > 0 ? 'Yes' : 'No'
+      };
+    });
     
     const capabilityCSV = convertToCSV(capabilityData, capabilityHeaders);
     downloadCSV(capabilityCSV, `capabilities_level_${currentLevel}_${timestamp}.csv`);
@@ -673,19 +695,48 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     if (relatedApplications.length > 0) {
       const applicationHeaders = [
         'name', 'displayName', 'businessCapabilities', 'description', 'vendor',
-        'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus'
+        'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus',
+        'relatedITComponents', 'relatedInterfaces', 'relatedDataObjects', 'usedByInitiatives'
       ];
-      const applicationData = relatedApplications.map(app => ({
-        name: app.name,
-        displayName: app.displayName || '',
-        businessCapabilities: app.businessCapabilities || '',
-        description: app.description || '',
-        vendor: app.vendor || '',
-        technicalSuitability: app.technicalSuitability || '',
-        functionalFit: app.functionalFit || '',
-        businessDomain: app.businessDomain || '',
-        maturityStatus: app.maturityStatus || ''
-      }));
+      const applicationData = relatedApplications.map(app => {
+        // Get related IT components
+        const relatedComponents = itComponents.filter(comp => 
+          comp.applications && comp.applications.includes(app.name)
+        ).map(comp => comp.name).join('; ');
+
+        // Get related interfaces (where app is source or target)
+        const relatedInterfacesList = interfaces.filter(intf => 
+          intf.sourceApplication === app.name || intf.targetApplication === app.name
+        ).map(intf => `${intf.name} (${intf.sourceApplication} -> ${intf.targetApplication})`).join('; ');
+
+        // Get related data objects from interfaces
+        const relatedDataObjectsList = interfaces
+          .filter(intf => intf.sourceApplication === app.name || intf.targetApplication === app.name)
+          .map(intf => intf.dataObjects)
+          .filter(Boolean)
+          .join('; ');
+
+        // Get initiatives that use this application
+        const usedByInitiativesList = initiatives.filter(init => 
+          init.applications && init.applications.includes(app.name)
+        ).map(init => init.name).join('; ');
+
+        return {
+          name: app.name,
+          displayName: app.displayName || '',
+          businessCapabilities: app.businessCapabilities || '',
+          description: app.description || '',
+          vendor: app.vendor || '',
+          technicalSuitability: app.technicalSuitability || '',
+          functionalFit: app.functionalFit || '',
+          businessDomain: app.businessDomain || '',
+          maturityStatus: app.maturityStatus || '',
+          relatedITComponents: relatedComponents,
+          relatedInterfaces: relatedInterfacesList,
+          relatedDataObjects: relatedDataObjectsList,
+          usedByInitiatives: usedByInitiativesList
+        };
+      });
       
       const applicationCSV = convertToCSV(applicationData, applicationHeaders);
       downloadCSV(applicationCSV, `applications_${timestamp}.csv`);
@@ -695,16 +746,46 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     if (selectedITComponent) {
       const relatedComponents = itComponents.filter(comp => comp.name === selectedITComponent);
       if (relatedComponents.length > 0) {
-        const componentHeaders = ['name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications'];
-        const componentData = relatedComponents.map(comp => ({
-          name: comp.name,
-          displayName: comp.displayName || '',
-          category: comp.category || '',
-          vendor: comp.vendor || '',
-          version: comp.version || '',
-          status: comp.status || '',
-          applications: comp.applications || ''
-        }));
+        const componentHeaders = [
+          'name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications',
+          'relatedApplicationsList', 'relatedCapabilities', 'usedByInitiatives'
+        ];
+        const componentData = relatedComponents.map(comp => {
+          // Get related applications
+          const componentApplications = comp.applications ? comp.applications.split(';').map(app => app.trim()) : [];
+          const relatedApps = applications.filter(app => componentApplications.includes(app.name));
+          
+          // Get related capabilities through applications
+          const relatedCapabilities = new Set();
+          relatedApps.forEach(app => {
+            if (app.businessCapabilities) {
+              app.businessCapabilities.split(';').forEach(cap => {
+                relatedCapabilities.add(cap.trim().replace(/^~/, ''));
+              });
+            }
+          });
+
+          // Get initiatives that use this component
+          const usedByInitiativesList = initiatives.filter(init => {
+            if (!init.applications) return false;
+            return componentApplications.some(appName => 
+              init.applications && init.applications.includes(appName)
+            );
+          }).map(init => init.name).join('; ');
+
+          return {
+            name: comp.name,
+            displayName: comp.displayName || '',
+            category: comp.category || '',
+            vendor: comp.vendor || '',
+            version: comp.version || '',
+            status: comp.status || '',
+            applications: comp.applications || '',
+            relatedApplicationsList: relatedApps.map(app => `${app.name} (${app.vendor || 'Unknown'})`).join('; '),
+            relatedCapabilities: Array.from(relatedCapabilities).join('; '),
+            usedByInitiatives: usedByInitiativesList
+          };
+        });
         
         const componentCSV = convertToCSV(componentData, componentHeaders);
         downloadCSV(componentCSV, `filtered_it_component_${timestamp}.csv`);
@@ -716,17 +797,45 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       if (relatedInterfaces.length > 0) {
         const interfaceHeaders = [
           'name', 'sourceApplication', 'targetApplication', 'dataFlow', 
-          'frequency', 'dataObjects', 'status'
+          'frequency', 'dataObjects', 'status', 'sourceApplicationDetails',
+          'targetApplicationDetails', 'relatedCapabilities', 'relatedDataObjectDetails'
         ];
-        const interfaceData = relatedInterfaces.map(intf => ({
-          name: intf.name,
-          sourceApplication: intf.sourceApplication || '',
-          targetApplication: intf.targetApplication || '',
-          dataFlow: intf.dataFlow || '',
-          frequency: intf.frequency || '',
-          dataObjects: intf.dataObjects || '',
-          status: intf.status || ''
-        }));
+        const interfaceData = relatedInterfaces.map(intf => {
+          // Get source and target application details
+          const sourceApp = applications.find(app => app.name === intf.sourceApplication);
+          const targetApp = applications.find(app => app.name === intf.targetApplication);
+          
+          // Get related capabilities from both applications
+          const relatedCapabilities = new Set();
+          [sourceApp, targetApp].forEach(app => {
+            if (app && app.businessCapabilities) {
+              app.businessCapabilities.split(';').forEach(cap => {
+                relatedCapabilities.add(cap.trim().replace(/^~/, ''));
+              });
+            }
+          });
+
+          // Get data object details
+          const dataObjectNames = intf.dataObjects ? intf.dataObjects.split(';').map(obj => obj.trim()) : [];
+          const relatedDataObjectDetails = dataObjects
+            .filter(obj => dataObjectNames.includes(obj.name))
+            .map(obj => `${obj.name} (${obj.displayName || 'No display name'})`)
+            .join('; ');
+
+          return {
+            name: intf.name,
+            sourceApplication: intf.sourceApplication || '',
+            targetApplication: intf.targetApplication || '',
+            dataFlow: intf.dataFlow || '',
+            frequency: intf.frequency || '',
+            dataObjects: intf.dataObjects || '',
+            status: intf.status || '',
+            sourceApplicationDetails: sourceApp ? `${sourceApp.name} - ${sourceApp.vendor || 'Unknown vendor'} (${sourceApp.businessDomain || 'Unknown domain'})` : '',
+            targetApplicationDetails: targetApp ? `${targetApp.name} - ${targetApp.vendor || 'Unknown vendor'} (${targetApp.businessDomain || 'Unknown domain'})` : '',
+            relatedCapabilities: Array.from(relatedCapabilities).join('; '),
+            relatedDataObjectDetails: relatedDataObjectDetails
+          };
+        });
         
         const interfaceCSV = convertToCSV(interfaceData, interfaceHeaders);
         downloadCSV(interfaceCSV, `filtered_interface_${timestamp}.csv`);
@@ -736,11 +845,59 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     if (selectedDataObject) {
       const relatedDataObjects = dataObjects.filter(obj => obj.name === selectedDataObject);
       if (relatedDataObjects.length > 0) {
-        const dataObjectHeaders = ['name', 'displayName'];
-        const dataObjectData = relatedDataObjects.map(obj => ({
-          name: obj.name,
-          displayName: obj.displayName || ''
-        }));
+        const dataObjectHeaders = [
+          'name', 'displayName', 'relatedInterfaces', 'relatedApplications', 
+          'sourceApplications', 'targetApplications', 'relatedCapabilities', 'usageFrequency'
+        ];
+        const dataObjectData = relatedDataObjects.map(obj => {
+          // Get interfaces that use this data object
+          const relatedInterfacesList = interfaces.filter(intf => 
+            intf.dataObjects && intf.dataObjects.includes(obj.name)
+          );
+
+          // Get source and target applications from interfaces
+          const sourceApps = new Set();
+          const targetApps = new Set();
+          const relatedApps = new Set();
+          
+          relatedInterfacesList.forEach(intf => {
+            if (intf.sourceApplication) {
+              sourceApps.add(intf.sourceApplication);
+              relatedApps.add(intf.sourceApplication);
+            }
+            if (intf.targetApplication) {
+              targetApps.add(intf.targetApplication);
+              relatedApps.add(intf.targetApplication);
+            }
+          });
+
+          // Get related capabilities through applications
+          const relatedCapabilities = new Set();
+          Array.from(relatedApps).forEach(appName => {
+            const app = applications.find(a => a.name === appName);
+            if (app && app.businessCapabilities) {
+              app.businessCapabilities.split(';').forEach(cap => {
+                relatedCapabilities.add(cap.trim().replace(/^~/, ''));
+              });
+            }
+          });
+
+          // Calculate usage frequency based on interface frequency
+          const frequencies = relatedInterfacesList
+            .map(intf => intf.frequency)
+            .filter(Boolean);
+
+          return {
+            name: obj.name,
+            displayName: obj.displayName || '',
+            relatedInterfaces: relatedInterfacesList.map(intf => `${intf.name} (${intf.sourceApplication} -> ${intf.targetApplication})`).join('; '),
+            relatedApplications: Array.from(relatedApps).join('; '),
+            sourceApplications: Array.from(sourceApps).join('; '),
+            targetApplications: Array.from(targetApps).join('; '),
+            relatedCapabilities: Array.from(relatedCapabilities).join('; '),
+            usageFrequency: frequencies.join('; ')
+          };
+        });
         
         const dataObjectCSV = convertToCSV(dataObjectData, dataObjectHeaders);
         downloadCSV(dataObjectCSV, `filtered_data_object_${timestamp}.csv`);
@@ -752,17 +909,71 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       if (relatedInitiatives.length > 0) {
         const initiativeHeaders = [
           'name', 'description', 'status', 'startDate', 'endDate', 
-          'businessCapabilities', 'applications'
+          'businessCapabilities', 'applications', 'relatedApplicationDetails',
+          'relatedCapabilityDetails', 'impactedITComponents', 'relatedInterfaces',
+          'duration', 'businessDomains'
         ];
-        const initiativeData = relatedInitiatives.map(init => ({
-          name: init.name,
-          description: init.description || '',
-          status: init.status || '',
-          startDate: init.startDate || '',
-          endDate: init.endDate || '',
-          businessCapabilities: init.businessCapabilities || '',
-          applications: init.applications || ''
-        }));
+        const initiativeData = relatedInitiatives.map(init => {
+          // Get application details
+          const initiativeApplications = init.applications ? init.applications.split(';').map(app => app.trim()) : [];
+          const relatedApps = applications.filter(app => initiativeApplications.includes(app.name));
+          
+          // Get capability details
+          const initiativeCapabilities = init.businessCapabilities ? init.businessCapabilities.split(';').map(cap => cap.trim()) : [];
+          const relatedCaps = allCapabilities.filter(cap => 
+            initiativeCapabilities.some(initCap => 
+              cap.name === initCap || cap.name.includes(initCap) || initCap.includes(cap.name)
+            )
+          );
+
+          // Get impacted IT components through applications
+          const impactedComponents = itComponents.filter(comp => {
+            if (!comp.applications) return false;
+            return initiativeApplications.some(appName => 
+              comp.applications && comp.applications.includes(appName)
+            );
+          });
+
+          // Get related interfaces through applications
+          const relatedInterfacesList = interfaces.filter(intf => 
+            initiativeApplications.includes(intf.sourceApplication || '') || 
+            initiativeApplications.includes(intf.targetApplication || '')
+          );
+
+          // Calculate duration
+          let duration = '';
+          if (init.startDate && init.endDate) {
+            const start = new Date(init.startDate);
+            const end = new Date(init.endDate);
+            const diffTime = Math.abs(end.getTime() - start.getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            duration = `${diffDays} days`;
+          }
+
+          // Get business domains
+          const businessDomains = new Set();
+          relatedApps.forEach(app => {
+            if (app.businessDomain) {
+              businessDomains.add(app.businessDomain);
+            }
+          });
+
+          return {
+            name: init.name,
+            description: init.description || '',
+            status: init.status || '',
+            startDate: init.startDate || '',
+            endDate: init.endDate || '',
+            businessCapabilities: init.businessCapabilities || '',
+            applications: init.applications || '',
+            relatedApplicationDetails: relatedApps.map(app => `${app.name} (${app.vendor || 'Unknown'}) - ${app.maturityStatus || 'Unknown status'}`).join('; '),
+            relatedCapabilityDetails: relatedCaps.map(cap => `${cap.name} (Level ${cap.level || 'Unknown'})`).join('; '),
+            impactedITComponents: impactedComponents.map(comp => `${comp.name} (${comp.category || 'Unknown category'})`).join('; '),
+            relatedInterfaces: relatedInterfacesList.map(intf => `${intf.name} (${intf.sourceApplication} -> ${intf.targetApplication})`).join('; '),
+            duration: duration,
+            businessDomains: Array.from(businessDomains).join('; ')
+          };
+        });
         
         const initiativeCSV = convertToCSV(initiativeData, initiativeHeaders);
         downloadCSV(initiativeCSV, `filtered_initiative_${timestamp}.csv`);
