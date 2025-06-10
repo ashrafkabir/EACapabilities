@@ -42,7 +42,12 @@ export default function MetisMap({
   const [hoveredNode, setHoveredNode] = useState<MapNode | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
-  const { data: capabilities = [] } = useQuery<BusinessCapability[]>({
+  // Get flat list of all capabilities for parent-child relationship checking
+  const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
+    queryKey: ['/api/business-capabilities'],
+  });
+
+  const { data: hierarchicalCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities/hierarchy'],
   });
 
@@ -56,7 +61,7 @@ export default function MetisMap({
 
   // Build map nodes for current level
   const buildMapNodes = (): MapNode[] => {
-    let filteredCapabilities = capabilities.filter(cap => {
+    let filteredCapabilities = allCapabilities.filter(cap => {
       if (currentLevel === 1) {
         return cap.level === 1;
       } else if (currentLevel === 2 && selectedParent) {
@@ -185,15 +190,21 @@ export default function MetisMap({
       .on("click", (event, d) => {
         event.stopPropagation();
         
+        // Debug logging
+        console.log('Clicked capability:', d.name, 'Level:', d.level, 'Current Level:', currentLevel);
+        
         // Left click - always drill down if children exist, regardless of applications
-        const hasChildren = capabilities.some(cap => cap.parentId === d.id);
+        const hasChildren = allCapabilities.some(cap => cap.parentId === d.id);
+        console.log('Has children:', hasChildren, 'Children found:', allCapabilities.filter(cap => cap.parentId === d.id).length);
         
         if (hasChildren && currentLevel < 3) {
           // Drill down to next level
+          console.log('Drilling down from level', currentLevel, 'to', currentLevel + 1, 'for parent:', d.id);
           setSelectedParent(d.id);
           setCurrentLevel(currentLevel + 1);
         } else {
           // No children - show applications if available
+          console.log('No children, showing applications:', d.applications.length);
           if (d.applications.length > 0) {
             onEntitySelect({
               type: 'capability',
@@ -265,7 +276,7 @@ export default function MetisMap({
       .attr("y", d => (d.y || 0) - (d.radius * 0.7))
       .style("pointer-events", "none");
 
-  }, [nodes, currentLevel, capabilities]);
+  }, [nodes, currentLevel, allCapabilities]);
 
   const handleGoBack = () => {
     if (currentLevel > 1) {
@@ -273,7 +284,7 @@ export default function MetisMap({
       if (currentLevel === 2) {
         setSelectedParent(null);
       } else {
-        const currentParent = capabilities.find(cap => cap.id === selectedParent);
+        const currentParent = allCapabilities.find(cap => cap.id === selectedParent);
         setSelectedParent(currentParent?.parentId || null);
       }
     }
@@ -282,11 +293,11 @@ export default function MetisMap({
   const getCurrentLevelName = () => {
     if (currentLevel === 1) return "Enterprise Capability Map";
     if (currentLevel === 2) {
-      const parent = capabilities.find(cap => cap.id === selectedParent);
+      const parent = allCapabilities.find(cap => cap.id === selectedParent);
       return `${parent?.displayName || parent?.name || 'Capability'} - Level 2`;
     }
     if (currentLevel === 3) {
-      const parent = capabilities.find(cap => cap.id === selectedParent);
+      const parent = allCapabilities.find(cap => cap.id === selectedParent);
       return `${parent?.displayName || parent?.name || 'Capability'} - Level 3`;
     }
     return "Capability Map";
