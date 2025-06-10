@@ -68,12 +68,19 @@ export function generateNetworkData(
   });
   
   // Add application nodes related to capabilities
-  const capabilityIds = new Set(relevantCapabilities.map(c => c.id));
-  const relevantApps = applications.filter(app => 
-    app.businessCapabilities && 
-    capabilityIds.has(selectedCapability || '') ||
-    !selectedCapability
-  ).slice(0, 20);
+  const capabilityNames = new Set(relevantCapabilities.map(c => c.name));
+  const relevantApps = applications.filter(app => {
+    if (!app.businessCapabilities) return false;
+    
+    // Check if any of the app's capabilities match our relevant capabilities
+    const appCapabilities = app.businessCapabilities.split(';').map(cap => cap.trim().replace(/^~/, ''));
+    return appCapabilities.some(appCap => 
+      capabilityNames.has(appCap) || 
+      Array.from(capabilityNames).some(capName => 
+        appCap.includes(capName) || capName.includes(appCap)
+      )
+    );
+  }).slice(0, 20);
   
   relevantApps.forEach(app => {
     nodes.push({
