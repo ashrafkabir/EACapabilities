@@ -13,10 +13,16 @@ interface DetailModalProps {
 }
 
 export default function DetailModal({ entity, onClose }: DetailModalProps) {
-  const { data: entityData, isLoading } = useQuery({
-    queryKey: [`/api/${entity.type}s`, entity.id],
-    enabled: !!entity.id,
+  // Use entity.data if available, otherwise fetch from API
+  const shouldFetch = !entity.data && !!entity.id;
+  
+  const { data: fetchedEntityData, isLoading } = useQuery({
+    queryKey: [`/api/${entity.type === 'capability' ? 'business-capabilities' : entity.type + 's'}`, entity.id],
+    enabled: shouldFetch,
   });
+  
+  // Use entity.data if available, otherwise use fetched data
+  const entityData = entity.data || fetchedEntityData;
 
   // Fetch applications for capabilities
   const { data: relatedApplications, isLoading: appsLoading } = useQuery<Application[]>({
