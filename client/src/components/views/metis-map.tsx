@@ -8,6 +8,14 @@ interface MetisMapProps {
   selectedCapability: string | null;
   searchTerm: string;
   onEntitySelect: (entity: EntityReference) => void;
+  filters: {
+    capabilities: boolean;
+    applications: boolean;
+    components: boolean;
+    interfaces: boolean;
+    capabilityLevel: string;
+    vendor: string;
+  };
 }
 
 interface HeatmapFilters {

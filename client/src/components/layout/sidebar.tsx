@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { BusinessCapability } from "@shared/schema";
 
 interface SidebarProps {
@@ -16,6 +17,8 @@ interface SidebarProps {
     applications: boolean;
     components: boolean;
     interfaces: boolean;
+    capabilityLevel: string;
+    vendor: string;
   };
   onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
@@ -64,10 +67,10 @@ export default function Sidebar({
     setExpandedNodes(newExpanded);
   };
 
-  const handleFilterChange = (filterKey: string, checked: boolean) => {
+  const handleFilterChange = (filterKey: string, value: boolean | string) => {
     onFiltersChange({
       ...filters,
-      [filterKey]: checked,
+      [filterKey]: value,
     });
   };
 
@@ -169,6 +172,35 @@ export default function Sidebar({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
+          />
+        </div>
+
+        {/* Capability Level Filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Capability Level</label>
+          <Select
+            value={filters.capabilityLevel}
+            onValueChange={(value) => handleFilterChange('capabilityLevel', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select level" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Levels</SelectItem>
+              <SelectItem value="1">Level 1</SelectItem>
+              <SelectItem value="2">Level 2</SelectItem>
+              <SelectItem value="3">Level 3</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Vendor Filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Vendor</label>
+          <Input
+            placeholder="Filter by vendor..."
+            value={filters.vendor}
+            onChange={(e) => handleFilterChange('vendor', e.target.value)}
           />
         </div>
         
