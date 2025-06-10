@@ -796,7 +796,8 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
               }
 
               return applicationsUsingComponent.map((app) => {
-                const colors = heatmapFilters.showColors ? getHeatmapColor([app]) : getDefaultLevelColor(null);
+                // Use default application styling for IT component filtered view
+                const colors = getDefaultLevelColor(null);
                 
                 return (
                   <div
