@@ -224,11 +224,34 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           </select>
 
           {heatmapFilters.showColors && heatmapFilters.metric !== 'none' && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Colors based on {heatmapFilters.metric === 'technicalSuitability' ? 'Technical Suitability' :
-                              heatmapFilters.metric === 'functionalFit' ? 'Functional Fit' :
-                              heatmapFilters.metric === 'region' ? 'Region' :
-                              heatmapFilters.metric === 'organization' ? 'Organization' : 'Ownership'}
+            <div className="flex items-center gap-3">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                Colors: {heatmapFilters.metric === 'technicalSuitability' ? 'Technical Suitability' :
+                         heatmapFilters.metric === 'functionalFit' ? 'Functional Fit' :
+                         heatmapFilters.metric === 'region' ? 'Region' :
+                         heatmapFilters.metric === 'organization' ? 'Organization' : 'Ownership'}
+              </div>
+              
+              {(heatmapFilters.metric === 'technicalSuitability' || heatmapFilters.metric === 'functionalFit') && (
+                <div className="flex items-center gap-2 text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-green-500 rounded"></div>
+                    <span>High</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-yellow-500 rounded"></div>
+                    <span>Medium</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-red-500 rounded"></div>
+                    <span>Low</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-gray-400 rounded"></div>
+                    <span>No Data</span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
