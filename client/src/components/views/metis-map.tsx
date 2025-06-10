@@ -1126,7 +1126,27 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     } else {
       // Normal capability map view - use the exact capabilities being rendered in the grid
       // This should match exactly what's shown in the map display
-      currentCapabilities = filteredCapabilities.slice(); // Use the filtered capabilities that are actually displayed
+      if (currentLevel === 1 && !selectedParent) {
+        // Level 1 view - show only level 1 capabilities
+        currentCapabilities = allCapabilities.filter(cap => cap.level === 1);
+      } else if (currentLevel === 2 && selectedParent) {
+        // Level 2 view - show only level 2 capabilities under the selected parent
+        const parentL1Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 1);
+        currentCapabilities = allCapabilities.filter(cap => 
+          cap.level === 2 && cap.level1Capability === parentL1Cap?.name
+        );
+      } else if (currentLevel === 3 && selectedParent) {
+        // Level 3 view - show only level 3 capabilities under the selected parent
+        const parentL2Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 2);
+        currentCapabilities = allCapabilities.filter(cap => 
+          cap.level === 3 && 
+          cap.level1Capability === parentL2Cap?.level1Capability && 
+          cap.level2Capability === selectedParent
+        );
+      } else {
+        // Fallback to filtered capabilities
+        currentCapabilities = filteredCapabilities.slice();
+      }
     }
     
     console.log('Currently displayed capabilities:', currentCapabilities?.length || 0);
