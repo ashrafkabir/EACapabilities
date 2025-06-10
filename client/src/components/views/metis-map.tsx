@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
@@ -82,16 +82,24 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     setSelectedDataObject(null);
   };
 
-  // Sync with sidebar selection - only when selectedCapability changes from sidebar, not from map clicks
+  // Sync with sidebar selection - navigate to the selected capability's context
   useEffect(() => {
     if (selectedCapability && allCapabilities.length > 0) {
       const capability = allCapabilities.find(cap => cap.id === selectedCapability);
       if (capability) {
-        // Only reset navigation if this is a sidebar-triggered selection
-        // Don't interfere with map navigation clicks
-        console.log('Sidebar selection changed to:', capability.name);
-        // For now, disable automatic navigation reset to preserve map navigation
-        // This allows users to navigate freely within the map without sidebar interference
+        console.log('Sidebar selection changed to:', capability.name, 'Level:', capability.level);
+        
+        // Navigate to show this capability in context
+        if (capability.level === 1) {
+          setCurrentLevel(1);
+          setSelectedParent(null);
+        } else if (capability.level === 2) {
+          setCurrentLevel(2);
+          setSelectedParent(capability.level1Capability);
+        } else if (capability.level === 3) {
+          setCurrentLevel(3);
+          setSelectedParent(capability.level2Capability);
+        }
       }
     }
   }, [selectedCapability, allCapabilities]);
@@ -1532,13 +1540,25 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     setShowExportSummary(true);
   };
 
-  // Listen for export event - use callback that reads fresh state
+  // Create a ref to store the latest export function that has access to current state
+  const performExportRef = useRef<() => void>();
+  
+  // Update the ref whenever state changes
+  useEffect(() => {
+    performExportRef.current = () => {
+      console.log('Export called with current state - Level:', currentLevel, 'Parent:', selectedParent);
+      performDirectExport();
+    };
+  }, [currentLevel, selectedParent, selectedITComponent, selectedInterface, selectedDataObject, selectedInitiative, searchTerm, filters]);
+
+  // Listen for export event - use ref to call latest version
   useEffect(() => {
     const handleExport = () => {
       console.log('Export event received in MetisMap');
       try {
-        // Call the export function that will read current state values directly
-        performDirectExport();
+        if (performExportRef.current) {
+          performExportRef.current();
+        }
       } catch (error) {
         console.error('Error in export function:', error);
       }
@@ -1550,7 +1570,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       console.log('Removing export event listener in MetisMap');
       window.removeEventListener('exportData', handleExport);
     };
-  }, []); // Remove dependencies to prevent constant recreation
+  }, []);
 
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
