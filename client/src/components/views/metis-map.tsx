@@ -117,9 +117,30 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
 
   const capabilitiesToShow = getCapabilitiesToShow();
   const filteredCapabilities = searchTerm
-    ? capabilitiesToShow.filter(cap =>
-        cap.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    ? capabilitiesToShow.filter(cap => {
+        // Search by capability name
+        const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                      (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        // Search by related applications
+        const relatedApps = applications.filter(app => {
+          if (!app.businessCapabilities) return false;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          return appCapabilities.some(appCap => 
+            cap.name === appCap || 
+            cap.name.includes(appCap) || 
+            appCap.includes(cap.name) ||
+            appCap.includes(cap.hierarchy || '')
+          );
+        });
+        
+        const matchesApplicationName = relatedApps.some(app => 
+          app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+        
+        return matchesCapabilityName || matchesApplicationName;
+      })
     : capabilitiesToShow;
 
   // Generate legend data for the current metric
@@ -495,6 +516,35 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                   <div className="text-sm text-gray-600 dark:text-gray-400">
                     {itemLabel}: {itemCount}
                   </div>
+                  
+                  {searchTerm && (() => {
+                    // Check if this capability matches through applications
+                    const relatedApps = applications.filter(app => {
+                      if (!app.businessCapabilities) return false;
+                      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                      return appCapabilities.some(appCap => 
+                        capability.name === appCap || 
+                        capability.name.includes(appCap) || 
+                        appCap.includes(capability.name) ||
+                        appCap.includes(capability.hierarchy || '')
+                      );
+                    });
+                    
+                    const matchingApps = relatedApps.filter(app => 
+                      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                      (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+                    );
+                    
+                    if (matchingApps.length > 0) {
+                      return (
+                        <div className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded">
+                          Found via {matchingApps.length} application{matchingApps.length > 1 ? 's' : ''}: {matchingApps.slice(0, 2).map(app => app.name).join(', ')}
+                          {matchingApps.length > 2 && ` +${matchingApps.length - 2} more`}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                   
                   {previewItems.map((item, index) => (
                     <div key={index} className="text-sm text-gray-500 dark:text-gray-500 truncate">

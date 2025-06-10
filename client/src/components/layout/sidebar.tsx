@@ -165,7 +165,7 @@ export default function Sidebar({
         <div className="relative">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search across all entities..."
+            placeholder="Search capabilities and applications..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
