@@ -120,6 +120,9 @@ async function importBusinessCapabilities() {
           hierarchy: mappedL1,
           parentId: null,
           level: 1,
+          level1Capability: mappedL1,
+          level2Capability: null,
+          level3Capability: null,
           mappedLevel1Capability: mappedL1,
           mappedToLifesciencesCapabilities: '',
         };
@@ -146,6 +149,9 @@ async function importBusinessCapabilities() {
             hierarchy: levels.slice(0, i + 1).join(' / '),
             parentId: parentId,
             level: i + 2, // Level 2+ since Level 1 is the mapped capability
+            level1Capability: mappedL1,
+            level2Capability: i >= 0 ? levels[0] : null,
+            level3Capability: i >= 1 ? levels[1] : null,
             mappedLevel1Capability: mappedL1,
             mappedToLifesciencesCapabilities: i === levels.length - 1 ? (row['mapped to Lifesciences Capabilities Level 3'] || '') : '',
           };

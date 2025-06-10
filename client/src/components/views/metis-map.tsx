@@ -14,6 +14,9 @@ interface MapNode {
   displayName?: string;
   level: number;
   parentId?: string;
+  level1Capability?: string | null;
+  level2Capability?: string | null;
+  level3Capability?: string | null;
   applications: Application[];
   initiatives: Initiative[];
   radius: number;
@@ -67,9 +70,11 @@ export default function MetisMap({
       } else if (currentLevel === 2 && selectedParent) {
         // Find the parent capability name to match Level 2 capabilities
         const parentCap = allCapabilities.find(c => c.id === selectedParent);
-        return cap.level === 2 && cap.mappedLevel1Capability === parentCap?.name;
+        return cap.level === 2 && cap.level1Capability === parentCap?.name;
       } else if (currentLevel === 3 && selectedParent) {
-        return cap.level === 3 && cap.parentId === selectedParent;
+        // Find the Level 2 parent capability to match Level 3 capabilities
+        const parentCap = allCapabilities.find(c => c.id === selectedParent);
+        return cap.level === 3 && cap.level1Capability === parentCap?.level1Capability && cap.level2Capability === parentCap?.name;
       }
       return false;
     });
@@ -201,16 +206,18 @@ export default function MetisMap({
         console.log('Clicked capability:', d.name, 'Level:', d.level, 'Current Level:', currentLevel);
         console.log('All capabilities loaded:', allCapabilities.length);
         
-        // Check for children based on hierarchy structure
+        // Check for children based on explicit level columns
         let children: BusinessCapability[] = [];
         if (currentLevel === 1) {
-          // For Level 1, find all Level 2 capabilities with this as their Level 1 parent
+          // For Level 1, find all Level 2 capabilities where level1Capability matches
           children = allCapabilities.filter(cap => 
-            cap.level === 2 && cap.mappedLevel1Capability === d.name
+            cap.level === 2 && cap.level1Capability === d.name
           );
         } else if (currentLevel === 2) {
-          // For Level 2, find direct children (Level 3)
-          children = allCapabilities.filter(cap => cap.parentId === d.id);
+          // For Level 2, find all Level 3 capabilities where level1Capability and level2Capability match
+          children = allCapabilities.filter(cap => 
+            cap.level === 3 && cap.level1Capability === d.level1Capability && cap.level2Capability === d.name
+          );
         }
         
         const hasChildren = children.length > 0;
