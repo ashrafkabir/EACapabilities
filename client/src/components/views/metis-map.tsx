@@ -1049,6 +1049,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   // Export functionality that will be called directly
   const performDirectExport = async () => {
     console.log('Starting contextual export...');
+    console.log('Export state - Level:', currentLevel, 'Parent:', selectedParent);
     
     // Get the exact capabilities visible in the current map view
     let currentCapabilities: any[] = [];
@@ -1531,11 +1532,12 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     setShowExportSummary(true);
   };
 
-  // Listen for export event
+  // Listen for export event - use callback that reads fresh state
   useEffect(() => {
     const handleExport = () => {
       console.log('Export event received in MetisMap');
       try {
+        // Call the export function that will read current state values directly
         performDirectExport();
       } catch (error) {
         console.error('Error in export function:', error);
@@ -1548,7 +1550,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       console.log('Removing export event listener in MetisMap');
       window.removeEventListener('exportData', handleExport);
     };
-  }, [allCapabilities, applications, itComponents, interfaces, dataObjects, initiatives]);
+  }, []); // Remove dependencies to prevent constant recreation
 
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
@@ -1716,7 +1718,11 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             <div
               key={capability.id}
               className={`relative ${colors.bg} rounded-xl border-2 ${colors.border} shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group`}
-              onClick={() => handleCapabilityClick(capability)}
+              onClick={(e) => {
+                console.log('Card clicked for capability:', capability.name);
+                e.preventDefault();
+                handleCapabilityClick(capability);
+              }}
             >
               {/* Hover tooltip for heatmap information */}
               {heatmapFilters.showColors && heatmapFilters.metric !== 'none' && relatedApps.length > 0 && (
