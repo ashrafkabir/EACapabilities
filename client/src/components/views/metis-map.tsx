@@ -1047,7 +1047,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     console.log('Starting contextual export...');
     
     // Get the exact capabilities visible in the current map view
-    let currentCapabilities;
+    let currentCapabilities: any[] = [];
     
     if (selectedITComponent) {
       // When IT component is selected, find its related applications and their capabilities
@@ -1064,7 +1064,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             });
           }
         });
-        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+        currentCapabilities = allCapabilities.filter((cap: any) => capabilityNames.has(cap.name));
       }
     } else if (selectedInterface) {
       // When interface is selected, find its related applications and their capabilities
@@ -1077,12 +1077,12 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         const capabilityNames = new Set();
         relatedApps.forEach(app => {
           if (app.businessCapabilities) {
-            app.businessCapabilities.split(';').forEach(cap => {
+            app.businessCapabilities.split(';').forEach((cap: string) => {
               capabilityNames.add(cap.trim().replace(/^~/, ''));
             });
           }
         });
-        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+        currentCapabilities = allCapabilities.filter((cap: any) => capabilityNames.has(cap.name));
       }
     } else if (selectedDataObject) {
       // When data object is selected, find its related applications and their capabilities
@@ -1099,12 +1099,12 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         const capabilityNames = new Set();
         relatedApps.forEach(app => {
           if (app.businessCapabilities) {
-            app.businessCapabilities.split(';').forEach(cap => {
+            app.businessCapabilities.split(';').forEach((cap: string) => {
               capabilityNames.add(cap.trim().replace(/^~/, ''));
             });
           }
         });
-        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+        currentCapabilities = allCapabilities.filter((cap: any) => capabilityNames.has(cap.name));
       }
     } else if (selectedInitiative) {
       // When initiative is selected, find its related applications and their capabilities
@@ -1116,19 +1116,23 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         const capabilityNames = new Set();
         relatedApps.forEach(app => {
           if (app.businessCapabilities) {
-            app.businessCapabilities.split(';').forEach(cap => {
+            app.businessCapabilities.split(';').forEach((cap: string) => {
               capabilityNames.add(cap.trim().replace(/^~/, ''));
             });
           }
         });
-        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+        currentCapabilities = allCapabilities.filter((cap: any) => capabilityNames.has(cap.name));
       }
     } else {
-      // Normal capability map view - use the exact capabilities being rendered
-      currentCapabilities = capabilitiesToShow.slice(); // Create a copy
+      // Normal capability map view - use the exact capabilities being rendered in the grid
+      // This should match exactly what's shown in the map display
+      currentCapabilities = filteredCapabilities.slice(); // Use the filtered capabilities that are actually displayed
     }
     
     console.log('Currently displayed capabilities:', currentCapabilities?.length || 0);
+    console.log('Capability names:', currentCapabilities?.map(c => c.name).slice(0, 5));
+    console.log('Current level:', currentLevel);
+    console.log('Selected parent:', selectedParent);
     
     if (!currentCapabilities || currentCapabilities.length === 0) {
       console.warn('No capabilities currently displayed to export');
