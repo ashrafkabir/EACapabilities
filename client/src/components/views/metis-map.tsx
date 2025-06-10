@@ -138,18 +138,63 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const downloadCSV = (content: string, filename: string) => {
     console.log('Downloading CSV:', filename, 'Content length:', content.length);
     try {
-      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      console.log('Triggering download for:', filename);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      console.log('Download completed for:', filename);
+      // Add BOM for proper Excel compatibility
+      const BOM = '\uFEFF';
+      const csvContent = BOM + content;
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // Try modern File System Access API first (Chrome/Edge)
+      if ('showSaveFilePicker' in window) {
+        const fileHandle = (window as any).showSaveFilePicker({
+          suggestedName: filename,
+          types: [{
+            description: 'CSV files',
+            accept: { 'text/csv': ['.csv'] }
+          }]
+        }).then(async (fileHandle: any) => {
+          const writable = await fileHandle.createWritable();
+          await writable.write(blob);
+          await writable.close();
+          console.log('File saved successfully:', filename);
+        }).catch((error: any) => {
+          console.log('File picker cancelled or failed, falling back to download:', error);
+          fallbackDownload();
+        });
+      } else {
+        fallbackDownload();
+      }
+      
+      function fallbackDownload() {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        
+        // Use a user-initiated click event
+        const clickEvent = new MouseEvent('click', {
+          bubbles: true,
+          cancelable: true,
+          view: window
+        });
+        
+        setTimeout(() => {
+          console.log('Triggering download for:', filename);
+          link.dispatchEvent(clickEvent);
+          
+          setTimeout(() => {
+            if (document.body.contains(link)) {
+              document.body.removeChild(link);
+            }
+            URL.revokeObjectURL(url);
+            console.log('Download completed for:', filename);
+          }, 1000);
+        }, 100);
+      }
+      
     } catch (error) {
       console.error('Error downloading CSV:', error);
     }
@@ -995,7 +1040,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   };
 
   // Export functionality that will be called directly
-  const performDirectExport = () => {
+  const performDirectExport = async () => {
     console.log('Starting direct export...');
     console.log('Available data:');
     console.log('- allCapabilities:', allCapabilities?.length || 0);
@@ -1006,8 +1051,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     console.log('- initiatives:', initiatives?.length || 0);
 
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const downloads: Array<{ data: any[], headers: string[], filename: string, type: string }> = [];
     
-    // Export all available data, starting with capabilities
+    // Prepare all downloads
     if (allCapabilities && allCapabilities.length > 0) {
       const capabilityHeaders = [
         'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
@@ -1025,12 +1071,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         parentId: cap.parentId || ''
       }));
       
-      console.log('Exporting', capabilityData.length, 'capabilities');
-      const capabilityCSV = convertToCSV(capabilityData, capabilityHeaders);
-      downloadCSV(capabilityCSV, `business_capabilities_${timestamp}.csv`);
+      downloads.push({
+        data: capabilityData,
+        headers: capabilityHeaders,
+        filename: `business_capabilities_${timestamp}.csv`,
+        type: 'capabilities'
+      });
     }
     
-    // Export applications
     if (applications && applications.length > 0) {
       const applicationHeaders = [
         'name', 'displayName', 'businessCapabilities', 'description', 'vendor',
@@ -1049,12 +1097,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         maturityStatus: app.maturityStatus || ''
       }));
       
-      console.log('Exporting', applicationData.length, 'applications');
-      const applicationCSV = convertToCSV(applicationData, applicationHeaders);
-      downloadCSV(applicationCSV, `applications_${timestamp}.csv`);
+      downloads.push({
+        data: applicationData,
+        headers: applicationHeaders,
+        filename: `applications_${timestamp}.csv`,
+        type: 'applications'
+      });
     }
 
-    // Export IT components
     if (itComponents && itComponents.length > 0) {
       const componentHeaders = ['name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications'];
       const componentData = itComponents.map((comp: any) => ({
@@ -1067,12 +1117,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         applications: comp.applications || ''
       }));
       
-      console.log('Exporting', componentData.length, 'IT components');
-      const componentCSV = convertToCSV(componentData, componentHeaders);
-      downloadCSV(componentCSV, `it_components_${timestamp}.csv`);
+      downloads.push({
+        data: componentData,
+        headers: componentHeaders,
+        filename: `it_components_${timestamp}.csv`,
+        type: 'IT components'
+      });
     }
 
-    // Export interfaces
     if (interfaces && interfaces.length > 0) {
       const interfaceHeaders = [
         'name', 'sourceApplication', 'targetApplication', 'dataFlow', 
@@ -1088,12 +1140,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         status: intf.status || ''
       }));
       
-      console.log('Exporting', interfaceData.length, 'interfaces');
-      const interfaceCSV = convertToCSV(interfaceData, interfaceHeaders);
-      downloadCSV(interfaceCSV, `interfaces_${timestamp}.csv`);
+      downloads.push({
+        data: interfaceData,
+        headers: interfaceHeaders,
+        filename: `interfaces_${timestamp}.csv`,
+        type: 'interfaces'
+      });
     }
 
-    // Export data objects
     if (dataObjects && dataObjects.length > 0) {
       const dataObjectHeaders = ['name', 'displayName'];
       const dataObjectData = dataObjects.map((obj: any) => ({
@@ -1101,12 +1155,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         displayName: obj.displayName || ''
       }));
       
-      console.log('Exporting', dataObjectData.length, 'data objects');
-      const dataObjectCSV = convertToCSV(dataObjectData, dataObjectHeaders);
-      downloadCSV(dataObjectCSV, `data_objects_${timestamp}.csv`);
+      downloads.push({
+        data: dataObjectData,
+        headers: dataObjectHeaders,
+        filename: `data_objects_${timestamp}.csv`,
+        type: 'data objects'
+      });
     }
 
-    // Export initiatives
     if (initiatives && initiatives.length > 0) {
       const initiativeHeaders = [
         'name', 'description', 'status', 'startDate', 'endDate', 
@@ -1122,15 +1178,34 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         applications: init.applications || ''
       }));
       
-      console.log('Exporting', initiativeData.length, 'initiatives');
-      const initiativeCSV = convertToCSV(initiativeData, initiativeHeaders);
-      downloadCSV(initiativeCSV, `initiatives_${timestamp}.csv`);
+      downloads.push({
+        data: initiativeData,
+        headers: initiativeHeaders,
+        filename: `initiatives_${timestamp}.csv`,
+        type: 'initiatives'
+      });
     }
 
-    if (!allCapabilities?.length && !applications?.length && !itComponents?.length && 
-        !interfaces?.length && !dataObjects?.length && !initiatives?.length) {
+    if (downloads.length === 0) {
       console.warn('No data available for export - all datasets are empty');
+      return;
     }
+
+    // Download files one at a time with delays to avoid browser blocking
+    for (let i = 0; i < downloads.length; i++) {
+      const download = downloads[i];
+      console.log(`Exporting ${download.data.length} ${download.type}`);
+      
+      const csv = convertToCSV(download.data, download.headers);
+      downloadCSV(csv, download.filename);
+      
+      // Wait 500ms between downloads to avoid browser blocking
+      if (i < downloads.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+    
+    console.log(`Export completed: ${downloads.length} files generated`);
   };
 
   // Listen for export event
