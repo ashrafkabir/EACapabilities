@@ -82,22 +82,16 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     setSelectedDataObject(null);
   };
 
-  // Sync with sidebar selection
+  // Sync with sidebar selection - only when selectedCapability changes from sidebar, not from map clicks
   useEffect(() => {
     if (selectedCapability && allCapabilities.length > 0) {
       const capability = allCapabilities.find(cap => cap.id === selectedCapability);
       if (capability) {
-        // Navigate to the appropriate level and parent based on the selected capability
-        if (capability.level === 1) {
-          setCurrentLevel(1);
-          setSelectedParent(null);
-        } else if (capability.level === 2) {
-          setCurrentLevel(2);
-          setSelectedParent(capability.level1Capability);
-        } else if (capability.level === 3) {
-          setCurrentLevel(3);
-          setSelectedParent(capability.level2Capability);
-        }
+        // Only reset navigation if this is a sidebar-triggered selection
+        // Don't interfere with map navigation clicks
+        console.log('Sidebar selection changed to:', capability.name);
+        // For now, disable automatic navigation reset to preserve map navigation
+        // This allows users to navigate freely within the map without sidebar interference
       }
     }
   }, [selectedCapability, allCapabilities]);
