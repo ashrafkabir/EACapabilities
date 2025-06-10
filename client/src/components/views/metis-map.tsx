@@ -218,6 +218,8 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   };
 
   const handleCapabilityClick = (capability: BusinessCapability) => {
+    console.log('Capability clicked:', capability.name, 'Current level:', currentLevel);
+    
     // Check for children based on explicit level columns
     let children: BusinessCapability[] = [];
     if (currentLevel === 1) {
@@ -230,13 +232,16 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       );
     }
     
+    console.log('Found children:', children.length, 'for capability:', capability.name);
     const hasChildren = children.length > 0;
     
     if (hasChildren && currentLevel < 3) {
       // Use capability name for navigation since that's what the filtering expects
+      console.log('Navigating to:', capability.name, 'New level will be:', currentLevel + 1);
       setSelectedParent(capability.name);
       setCurrentLevel(currentLevel + 1);
     } else {
+      console.log('Showing details for capability:', capability.name);
       // Show details for capabilities without children or Level 3 capabilities
       onEntitySelect({
         type: 'capability',
