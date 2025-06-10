@@ -109,26 +109,44 @@ async function importBusinessCapabilities() {
       const hierarchy = row['Hierarchy'] || '';
       if (!hierarchy) continue;
 
+      const mappedL1 = row['Mapped  Level 1 Capability'] || '';
+      if (!mappedL1) continue;
+
+      // First ensure Level 1 capability exists
+      if (!capabilityMap.has(mappedL1)) {
+        const level1Capability = {
+          name: mappedL1,
+          displayName: mappedL1,
+          hierarchy: mappedL1,
+          parentId: null,
+          level: 1,
+          mappedLevel1Capability: mappedL1,
+          mappedToLifesciencesCapabilities: '',
+        };
+        const [inserted] = await db.insert(businessCapabilities).values(level1Capability).returning({ id: businessCapabilities.id });
+        capabilityMap.set(mappedL1, inserted.id);
+      }
+
       // Split hierarchy into levels: "Human Resources / Benefits / Benefits Management"
       const levels = hierarchy.split(' / ').map(level => level.trim());
       
-      // Create capabilities for each level if they don't exist
-      let parentId: string | null = null;
-      let currentPath = '';
+      // Create Level 2+ capabilities under the mapped Level 1
+      let parentId = capabilityMap.get(mappedL1)!;
+      let currentPath = mappedL1;
 
       for (let i = 0; i < levels.length; i++) {
         const levelName = levels[i];
-        currentPath = levels.slice(0, i + 1).join(' / ');
+        currentPath = `${mappedL1} / ${levels.slice(0, i + 1).join(' / ')}`;
         
         // Check if this capability already exists
         if (!capabilityMap.has(currentPath)) {
           const capability = {
             name: levelName,
             displayName: levelName,
-            hierarchy: currentPath,
+            hierarchy: levels.slice(0, i + 1).join(' / '),
             parentId: parentId,
-            level: i + 1,
-            mappedLevel1Capability: i === 0 ? levelName : (row['Mapped  Level 1 Capability'] || ''),
+            level: i + 2, // Level 2+ since Level 1 is the mapped capability
+            mappedLevel1Capability: mappedL1,
             mappedToLifesciencesCapabilities: i === levels.length - 1 ? (row['mapped to Lifesciences Capabilities Level 3'] || '') : '',
           };
 
