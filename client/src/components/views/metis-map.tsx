@@ -136,15 +136,23 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   };
 
   const downloadCSV = (content: string, filename: string) => {
-    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', filename);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    console.log('Downloading CSV:', filename, 'Content length:', content.length);
+    try {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      console.log('Triggering download for:', filename);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      console.log('Download completed for:', filename);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+    }
   };
 
   const handleGoBack = () => {
@@ -634,7 +642,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
 
   // Export functionality
   const exportCurrentData = () => {
+    console.log('Starting export process...');
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    console.log('Export timestamp:', timestamp);
     
     // Export currently displayed capabilities
     const capabilityHeaders = [
@@ -643,6 +653,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       'relatedApplications', 'childCapabilities', 'hasSubCapabilities'
     ];
     const displayedCapabilities = filteredCapabilities || capabilitiesToShow;
+    console.log('Capabilities to export:', displayedCapabilities.length);
     const capabilityData = displayedCapabilities.map(cap => {
       // Get related applications for this capability
       const capabilityApplications = applications.filter(app => {
@@ -675,7 +686,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       };
     });
     
+    console.log('Capability data processed, generating CSV...');
     const capabilityCSV = convertToCSV(capabilityData, capabilityHeaders);
+    console.log('CSV generated, attempting download...');
     downloadCSV(capabilityCSV, `capabilities_level_${currentLevel}_${timestamp}.csv`);
 
     // Export related applications for displayed capabilities
@@ -985,7 +998,20 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   useEffect(() => {
     const handleExport = () => {
       console.log('Export event received in MetisMap');
-      exportCurrentData();
+      try {
+        // Get current data directly instead of relying on closure
+        const currentCapabilities = filteredCapabilities || capabilitiesToShow;
+        console.log('Current capabilities for export:', currentCapabilities?.length || 0);
+        
+        if (!currentCapabilities || currentCapabilities.length === 0) {
+          console.warn('No capabilities available for export');
+          return;
+        }
+        
+        exportCurrentData();
+      } catch (error) {
+        console.error('Error in export function:', error);
+      }
     };
 
     console.log('Setting up export event listener in MetisMap');
@@ -994,7 +1020,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       console.log('Removing export event listener in MetisMap');
       window.removeEventListener('exportData', handleExport);
     };
-  }, [capabilitiesToShow, filteredCapabilities, applications, itComponents, interfaces, dataObjects, initiatives, selectedITComponent, selectedInterface, selectedDataObject, selectedInitiative, currentLevel]);
+  }, []);
 
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
