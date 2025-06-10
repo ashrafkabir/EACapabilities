@@ -984,11 +984,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   // Listen for export event
   useEffect(() => {
     const handleExport = () => {
+      console.log('Export event received in MetisMap');
       exportCurrentData();
     };
 
+    console.log('Setting up export event listener in MetisMap');
     window.addEventListener('exportData', handleExport);
     return () => {
+      console.log('Removing export event listener in MetisMap');
       window.removeEventListener('exportData', handleExport);
     };
   }, [capabilitiesToShow, filteredCapabilities, applications, itComponents, interfaces, dataObjects, initiatives, selectedITComponent, selectedInterface, selectedDataObject, selectedInitiative, currentLevel]);

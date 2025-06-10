@@ -35,9 +35,11 @@ export default function Dashboard() {
   };
 
   const handleExport = () => {
+    console.log('Export button clicked, current view:', currentView);
     // Trigger export based on current view
     if (currentView === 'network') {
       // Dispatch a custom event to trigger export from MetisMap
+      console.log('Dispatching exportData event');
       window.dispatchEvent(new CustomEvent('exportData'));
     }
   };
