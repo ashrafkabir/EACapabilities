@@ -185,18 +185,22 @@ export default function MetisMap({
       .on("click", (event, d) => {
         event.stopPropagation();
         
-        // Left click - drill down
+        // Left click - always drill down if children exist, regardless of applications
         const hasChildren = capabilities.some(cap => cap.parentId === d.id);
         
         if (hasChildren && currentLevel < 3) {
+          // Drill down to next level
           setSelectedParent(d.id);
           setCurrentLevel(currentLevel + 1);
-        } else if (d.applications.length > 0) {
-          onEntitySelect({
-            type: 'capability',
-            id: d.id,
-            data: d.data
-          });
+        } else {
+          // No children - show applications if available
+          if (d.applications.length > 0) {
+            onEntitySelect({
+              type: 'capability',
+              id: d.id,
+              data: d.data
+            });
+          }
         }
       })
       .on("contextmenu", (event, d) => {
