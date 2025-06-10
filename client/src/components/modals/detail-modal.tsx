@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { X, ExternalLink, Network } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { X, ExternalLink, Network, ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { EntityReference } from "@/pages/dashboard";
 import type { Application, BusinessCapability, DataObject } from "@shared/schema";
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Info } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
@@ -26,6 +26,26 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
   });
+
+  // Sync with sidebar selection
+  useEffect(() => {
+    if (selectedCapability && allCapabilities.length > 0) {
+      const capability = allCapabilities.find(cap => cap.id === selectedCapability);
+      if (capability) {
+        // Navigate to the appropriate level and parent based on the selected capability
+        if (capability.level === 1) {
+          setCurrentLevel(1);
+          setSelectedParent(null);
+        } else if (capability.level === 2) {
+          setCurrentLevel(2);
+          setSelectedParent(capability.level1Capability);
+        } else if (capability.level === 3) {
+          setCurrentLevel(3);
+          setSelectedParent(capability.level2Capability);
+        }
+      }
+    }
+  }, [selectedCapability, allCapabilities]);
 
   const { data: applications = [] } = useQuery<Application[]>({
     queryKey: ['/api/applications'],
@@ -407,11 +427,13 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                           case 'ownedBy': return app.ownedBy;
                           default: return null;
                         }
-                      }).filter(Boolean);
+                      }).filter((value): value is string => Boolean(value));
                       
                       // Count occurrences
                       const valueCounts = metricValues.reduce((acc, value) => {
-                        acc[value] = (acc[value] || 0) + 1;
+                        if (value) {
+                          acc[value] = (acc[value] || 0) + 1;
+                        }
                         return acc;
                       }, {} as Record<string, number>);
                       

@@ -36,6 +36,8 @@ export default function Dashboard() {
     if (currentView !== 'network') {
       setCurrentView('network');
     }
+    // Clear any open entity detail when selecting from sidebar
+    setSelectedEntity(null);
   };
 
   const renderCurrentView = () => {
