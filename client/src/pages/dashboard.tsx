@@ -26,7 +26,6 @@ export default function Dashboard() {
     components: true,
     interfaces: true,
     capabilityLevel: 'all',
-    vendor: '',
   });
 
   const handleEntitySelect = (entity: EntityReference) => {

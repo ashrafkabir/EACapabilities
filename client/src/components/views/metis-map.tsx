@@ -14,7 +14,6 @@ interface MetisMapProps {
     components: boolean;
     interfaces: boolean;
     capabilityLevel: string;
-    vendor: string;
   };
 }
 
@@ -161,28 +160,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       }
     }
     
-    // Apply vendor filter
-    if (filters.vendor) {
-      const relatedApps = applications.filter(app => {
-        if (!app.businessCapabilities) return false;
-        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-        return appCapabilities.some(appCap => 
-          cap.name === appCap || 
-          cap.name.includes(appCap) || 
-          appCap.includes(cap.name) ||
-          appCap.includes(cap.hierarchy || '')
-        );
-      });
-      
-      const hasVendorMatch = relatedApps.some(app => 
-        app.vendor && app.vendor.toLowerCase().includes(filters.vendor.toLowerCase())
-      );
-      
-      if (!hasVendorMatch) {
-        return false;
-      }
-    }
-    
+
     return true;
   });
 

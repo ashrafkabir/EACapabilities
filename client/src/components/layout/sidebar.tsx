@@ -18,7 +18,6 @@ interface SidebarProps {
     components: boolean;
     interfaces: boolean;
     capabilityLevel: string;
-    vendor: string;
   };
   onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
@@ -194,30 +193,7 @@ export default function Sidebar({
           </Select>
         </div>
 
-        {/* Vendor Filter */}
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="vendor"
-              checked={!!filters.vendor}
-              onCheckedChange={(checked) => {
-                if (!checked) {
-                  handleFilterChange('vendor', '');
-                }
-              }}
-            />
-            <label htmlFor="vendor" className="text-sm font-medium">Filter by Vendor</label>
-          </div>
-          {filters.vendor !== '' && (
-            <Input
-              placeholder="Enter vendor name..."
-              value={filters.vendor}
-              onChange={(e) => handleFilterChange('vendor', e.target.value)}
-              className="ml-6"
-            />
-          )}
-        </div>
-        
+
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <Checkbox
