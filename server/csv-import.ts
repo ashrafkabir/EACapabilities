@@ -175,7 +175,7 @@ async function importBusinessCapabilities() {
         const pathLevels = capPath.split(' / ').map((level: any) => level.trim());
         
         // Look for existing mappings that start with the same path
-        for (const [mappedPath, mappedData] of hierarchyToLevelMap) {
+        for (const [mappedPath, mappedData] of Array.from(hierarchyToLevelMap.entries())) {
           if (mappedPath.startsWith(pathLevels[0]) || capPath.includes(mappedPath)) {
             mapping = {
               level1: mappedData.level1,
