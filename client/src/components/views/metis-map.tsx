@@ -208,16 +208,36 @@ export default function MetisMap({
         console.log('=== METIS MAP CLICK ===');
         console.log('Clicked capability:', d.name, 'Level:', d.level, 'Current Level:', currentLevel);
         console.log('All capabilities loaded:', allCapabilities.length);
+        console.log('Clicked node data:', {
+          id: d.id,
+          name: d.name,
+          level: d.level,
+          level1Capability: d.level1Capability,
+          level2Capability: d.level2Capability,
+          level3Capability: d.level3Capability
+        });
         
         // Check for children based on explicit level columns
         let children: BusinessCapability[] = [];
         if (currentLevel === 1) {
           // For Level 1, find all Level 2 capabilities where level1Capability matches
-          children = allCapabilities.filter(cap => 
-            cap.level === 2 && cap.level1Capability === d.name
+          console.log('Searching for Level 2 children where level1Capability =', d.name);
+          children = allCapabilities.filter(cap => {
+            const match = cap.level === 2 && cap.level1Capability === d.name;
+            if (match) {
+              console.log('Found child:', cap.name, 'level1Capability:', cap.level1Capability);
+            }
+            return match;
+          });
+          console.log('Sample Level 2 capabilities in database:', 
+            allCapabilities.filter(cap => cap.level === 2).slice(0, 3).map(cap => ({
+              name: cap.name,
+              level1Capability: cap.level1Capability
+            }))
           );
         } else if (currentLevel === 2) {
           // For Level 2, find all Level 3 capabilities where level1Capability and level2Capability match
+          console.log('Searching for Level 3 children where level1Capability =', d.level1Capability, 'and level2Capability =', d.name);
           children = allCapabilities.filter(cap => 
             cap.level === 3 && cap.level1Capability === d.level1Capability && cap.level2Capability === d.name
           );
