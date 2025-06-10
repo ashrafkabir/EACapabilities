@@ -115,6 +115,10 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     queryKey: ['/api/it-components'],
   });
 
+  const { data: initiatives = [] } = useQuery<Initiative[]>({
+    queryKey: ['/api/initiatives'],
+  });
+
   const handleGoBack = () => {
     if (currentLevel > 1) {
       setCurrentLevel(currentLevel - 1);
@@ -313,30 +317,158 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         });
       });
     } else {
-      // Default or multi-scope search: capabilities & applications
-      return allCapabilities.filter(cap => {
-        const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
-        
-        // Check if any applications related to this capability match the search
-        const relatedApps = applications.filter(app => {
-          if (!app.businessCapabilities) return false;
-          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-          return appCapabilities.some(appCap => 
-            cap.name === appCap || 
-            cap.name.includes(appCap) || 
-            appCap.includes(cap.name) ||
-            appCap.includes(cap.hierarchy || '')
-          );
+      // Mixed search across all enabled types
+      const matchingCapabilities = new Set<BusinessCapability>();
+      
+      if (filters.capabilities) {
+        // Direct capability name search
+        allCapabilities.forEach(cap => {
+          if (cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()))) {
+            matchingCapabilities.add(cap);
+          }
         });
-        
-        const matchesApplicationName = relatedApps.some(app => 
+      }
+      
+      if (filters.applications) {
+        // Find capabilities through applications
+        const matchingApps = applications.filter(app =>
           app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
         );
         
-        return matchesCapabilityName || matchesApplicationName;
-      });
+        matchingApps.forEach(app => {
+          if (!app.businessCapabilities) return;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          allCapabilities.forEach(cap => {
+            if (appCapabilities.some(appCap => 
+              cap.name === appCap || 
+              cap.name.includes(appCap) || 
+              appCap.includes(cap.name) ||
+              appCap.includes(cap.hierarchy || '')
+            )) {
+              matchingCapabilities.add(cap);
+            }
+          });
+        });
+      }
+      
+      if (filters.components) {
+        // Find capabilities through IT components
+        const matchingComponents = itComponents.filter(comp =>
+          comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (comp.displayName && comp.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+        
+        const appsUsingComponents = applications.filter(app => {
+          return matchingComponents.some(comp =>
+            (app.itComponentDisplayName && app.itComponentDisplayName.toLowerCase().includes(comp.name.toLowerCase()))
+          );
+        });
+        
+        appsUsingComponents.forEach(app => {
+          if (!app.businessCapabilities) return;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          allCapabilities.forEach(cap => {
+            if (appCapabilities.some(appCap => 
+              cap.name === appCap || 
+              cap.name.includes(appCap) || 
+              appCap.includes(cap.name) ||
+              appCap.includes(cap.hierarchy || '')
+            )) {
+              matchingCapabilities.add(cap);
+            }
+          });
+        });
+      }
+      
+      if (filters.interfaces) {
+        // Find capabilities through interfaces
+        const matchingInterfaces = interfaces.filter(intf =>
+          intf.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        
+        const appsUsingInterfaces = applications.filter(app => {
+          return matchingInterfaces.some(intf =>
+            (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+            (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+          );
+        });
+        
+        appsUsingInterfaces.forEach(app => {
+          if (!app.businessCapabilities) return;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          allCapabilities.forEach(cap => {
+            if (appCapabilities.some(appCap => 
+              cap.name === appCap || 
+              cap.name.includes(appCap) || 
+              appCap.includes(cap.name) ||
+              appCap.includes(cap.hierarchy || '')
+            )) {
+              matchingCapabilities.add(cap);
+            }
+          });
+        });
+      }
+      
+      if (filters.dataObjects) {
+        // Find capabilities through data objects
+        const matchingDataObjects = dataObjects.filter(obj =>
+          obj.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (obj.displayName && obj.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+        
+        const interfacesUsingDataObjects = interfaces.filter(intf => {
+          return matchingDataObjects.some(obj => {
+            return intf.dataObjects && intf.dataObjects.toLowerCase().includes(obj.name.toLowerCase());
+          });
+        });
+        
+        const appsUsingDataObjects = applications.filter(app => {
+          return interfacesUsingDataObjects.some(intf =>
+            (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+            (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+          );
+        });
+        
+        appsUsingDataObjects.forEach(app => {
+          if (!app.businessCapabilities) return;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          allCapabilities.forEach(cap => {
+            if (appCapabilities.some(appCap => 
+              cap.name === appCap || 
+              cap.name.includes(appCap) || 
+              appCap.includes(cap.name) ||
+              appCap.includes(cap.hierarchy || '')
+            )) {
+              matchingCapabilities.add(cap);
+            }
+          });
+        });
+      }
+      
+      if (filters.initiatives) {
+        // Find capabilities through initiatives
+        const matchingInitiatives = initiatives.filter(init =>
+          init.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (init.description && init.description.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+        
+        // For initiatives, use broader matching since they may not have direct app relationships
+        matchingInitiatives.forEach(init => {
+          allCapabilities.forEach(cap => {
+            // Check if the capability name or hierarchy matches the initiative context
+            if (cap.name.toLowerCase().includes(init.name.toLowerCase()) ||
+                init.name.toLowerCase().includes(cap.name.toLowerCase()) ||
+                (cap.hierarchy && init.name.toLowerCase().includes(cap.hierarchy.toLowerCase())) ||
+                (init.description && cap.name.toLowerCase().includes(init.description.toLowerCase()))) {
+              matchingCapabilities.add(cap);
+            }
+          });
+        });
+      }
+      
+      return Array.from(matchingCapabilities);
     }
   })() : null;
 
