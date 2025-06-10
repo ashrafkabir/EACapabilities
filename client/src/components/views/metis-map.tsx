@@ -1124,38 +1124,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         currentCapabilities = allCapabilities.filter((cap: any) => capabilityNames.has(cap.name));
       }
     } else {
-      // Normal capability map view - use the exact capabilities being rendered in the grid
-      // Get capabilities that are actually displayed in the map (from the grid)
-      
-      // If there's a search term, we need to respect the search filtering
-      if (searchTerm && searchTerm.trim()) {
-        // Use the same filtering logic as the map display
-        const searchLower = searchTerm.toLowerCase();
-        currentCapabilities = filteredCapabilities.filter(cap => 
-          cap.name.toLowerCase().includes(searchLower) || 
-          (cap.displayName && cap.displayName.toLowerCase().includes(searchLower)) ||
-          (cap.hierarchy && cap.hierarchy.toLowerCase().includes(searchLower))
-        );
-      } else {
-        // No search term - use the capabilities that would be displayed at current level/parent
-        if (currentLevel === 1 && !selectedParent) {
-          currentCapabilities = allCapabilities.filter(cap => cap.level === 1);
-        } else if (currentLevel === 2 && selectedParent) {
-          // Level 2 view - show only level 2 capabilities under the selected L1 parent
-          currentCapabilities = allCapabilities.filter(cap => 
-            cap.level === 2 && cap.level1Capability === selectedParent
-          );
-        } else if (currentLevel === 3 && selectedParent) {
-          const parentL2Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 2);
-          currentCapabilities = allCapabilities.filter(cap => 
-            cap.level === 3 && 
-            cap.level1Capability === parentL2Cap?.level1Capability && 
-            cap.level2Capability === selectedParent
-          );
-        } else {
-          currentCapabilities = filteredCapabilities.slice();
-        }
-      }
+      // Normal capability map view - use capabilitiesToShow which respects navigation state
+      // This ensures we capture the exact capabilities for the current level and parent
+      currentCapabilities = capabilitiesToShow.slice();
     }
     
     console.log('Currently displayed capabilities:', currentCapabilities?.length || 0);
