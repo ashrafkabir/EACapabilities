@@ -1046,8 +1046,88 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const performDirectExport = async () => {
     console.log('Starting contextual export...');
     
-    // Get currently displayed capabilities based on the map state
-    const currentCapabilities = filteredCapabilities || capabilitiesToShow;
+    // Get the exact capabilities visible in the current map view
+    let currentCapabilities;
+    
+    if (selectedITComponent) {
+      // When IT component is selected, find its related applications and their capabilities
+      const component = itComponents.find(comp => comp.name === selectedITComponent);
+      if (component) {
+        const relatedApps = applications.filter(app => 
+          component.applications && component.applications.toLowerCase().includes(app.name.toLowerCase())
+        );
+        const capabilityNames = new Set();
+        relatedApps.forEach(app => {
+          if (app.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach(cap => {
+              capabilityNames.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+      }
+    } else if (selectedInterface) {
+      // When interface is selected, find its related applications and their capabilities
+      const intf = interfaces.find(i => i.name === selectedInterface);
+      if (intf) {
+        const relatedApps = applications.filter(app => 
+          (intf.sourceApplication && app.name === intf.sourceApplication) ||
+          (intf.targetApplication && app.name === intf.targetApplication)
+        );
+        const capabilityNames = new Set();
+        relatedApps.forEach(app => {
+          if (app.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach(cap => {
+              capabilityNames.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+      }
+    } else if (selectedDataObject) {
+      // When data object is selected, find its related applications and their capabilities
+      const dataObj = dataObjects.find(obj => obj.name === selectedDataObject);
+      if (dataObj) {
+        const relatedInterfaces = interfaces.filter(intf => 
+          intf.dataObjects && intf.dataObjects.includes(dataObj.name)
+        );
+        const relatedApps = applications.filter(app =>
+          relatedInterfaces.some(intf => 
+            app.name === intf.sourceApplication || app.name === intf.targetApplication
+          )
+        );
+        const capabilityNames = new Set();
+        relatedApps.forEach(app => {
+          if (app.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach(cap => {
+              capabilityNames.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+      }
+    } else if (selectedInitiative) {
+      // When initiative is selected, find its related applications and their capabilities
+      const initiative = initiatives.find(init => init.name === selectedInitiative);
+      if (initiative && initiative.applications) {
+        const relatedApps = applications.filter(app =>
+          initiative.applications && initiative.applications.includes(app.name)
+        );
+        const capabilityNames = new Set();
+        relatedApps.forEach(app => {
+          if (app.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach(cap => {
+              capabilityNames.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+        currentCapabilities = allCapabilities.filter(cap => capabilityNames.has(cap.name));
+      }
+    } else {
+      // Normal capability map view - use the exact capabilities being rendered
+      currentCapabilities = capabilitiesToShow.slice(); // Create a copy
+    }
+    
     console.log('Currently displayed capabilities:', currentCapabilities?.length || 0);
     
     if (!currentCapabilities || currentCapabilities.length === 0) {
