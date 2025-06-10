@@ -240,6 +240,11 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       console.log('Navigating to:', capability.name, 'New level will be:', currentLevel + 1);
       setSelectedParent(capability.name);
       setCurrentLevel(currentLevel + 1);
+      
+      // Add a timeout to verify state was set
+      setTimeout(() => {
+        console.log('State after navigation - Level:', currentLevel + 1, 'Parent:', capability.name);
+      }, 100);
     } else {
       console.log('Showing details for capability:', capability.name);
       // Show details for capabilities without children or Level 3 capabilities
@@ -1129,9 +1134,21 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         currentCapabilities = allCapabilities.filter((cap: any) => capabilityNames.has(cap.name));
       }
     } else {
-      // Normal capability map view - use capabilitiesToShow which respects navigation state
-      // This ensures we capture the exact capabilities for the current level and parent
-      currentCapabilities = capabilitiesToShow.slice();
+      // Normal capability map view - recalculate capabilities based on current navigation state
+      if (currentLevel === 1) {
+        currentCapabilities = allCapabilities.filter(cap => cap.level === 1);
+      } else if (currentLevel === 2) {
+        currentCapabilities = allCapabilities.filter(cap => 
+          cap.level === 2 && cap.level1Capability === selectedParent
+        );
+      } else if (currentLevel === 3) {
+        const parentL2Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 2);
+        currentCapabilities = allCapabilities.filter(cap => 
+          cap.level === 3 && 
+          cap.level1Capability === parentL2Cap?.level1Capability && 
+          cap.level2Capability === selectedParent
+        );
+      }
     }
     
     console.log('Currently displayed capabilities:', currentCapabilities?.length || 0);
