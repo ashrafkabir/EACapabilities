@@ -55,10 +55,12 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     if (currentLevel > 1) {
       setCurrentLevel(currentLevel - 1);
       if (currentLevel === 2) {
+        // Going back from L2 to L1
         setSelectedParent(null);
-      } else {
-        const currentParent = allCapabilities.find(cap => cap.id === selectedParent);
-        setSelectedParent(currentParent?.parentId || null);
+      } else if (currentLevel === 3) {
+        // Going back from L3 to L2 - find the L1 parent of the current L2
+        const currentL2Cap = allCapabilities.find(cap => cap.name === selectedParent && cap.level === 2);
+        setSelectedParent(currentL2Cap?.level1Capability || null);
       }
     }
   };
@@ -79,10 +81,11 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     const hasChildren = children.length > 0;
     
     if (hasChildren && currentLevel < 3) {
-      setSelectedParent(capability.id);
+      // Use capability name for navigation since that's what the filtering expects
+      setSelectedParent(capability.name);
       setCurrentLevel(currentLevel + 1);
-    } else if (currentLevel === 3) {
-      // Show details for Level 3 capabilities
+    } else {
+      // Show details for capabilities without children or Level 3 capabilities
       onEntitySelect({
         type: 'capability',
         id: capability.id,
@@ -95,14 +98,18 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     if (currentLevel === 1) {
       return allCapabilities.filter(cap => cap.level === 1);
     } else if (currentLevel === 2) {
-      const parentCap = allCapabilities.find(c => c.id === selectedParent);
+      // selectedParent now contains the name of the L1 capability
       return allCapabilities.filter(cap => 
-        cap.level === 2 && cap.level1Capability === parentCap?.name
+        cap.level === 2 && cap.level1Capability === selectedParent
       );
     } else if (currentLevel === 3) {
-      const parentCap = allCapabilities.find(c => c.id === selectedParent);
+      // selectedParent now contains the name of the L2 capability
+      // We need to find the L1 capability that contains this L2 capability
+      const parentL2Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 2);
       return allCapabilities.filter(cap => 
-        cap.level === 3 && cap.level1Capability === parentCap?.level1Capability && cap.level2Capability === parentCap?.name
+        cap.level === 3 && 
+        cap.level1Capability === parentL2Cap?.level1Capability && 
+        cap.level2Capability === selectedParent
       );
     }
     return [];
@@ -253,15 +260,24 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
       {/* Navigation breadcrumb */}
-      {(currentLevel > 1 || selectedParent) && (
+      {currentLevel > 1 && (
         <div className="mb-6 flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg shadow-md w-fit">
           <button
             onClick={handleGoBack}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Level {currentLevel - 1}
+            Back
           </button>
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <span>Level {currentLevel}</span>
+            {selectedParent && (
+              <>
+                <span>•</span>
+                <span className="font-medium">{selectedParent}</span>
+              </>
+            )}
+          </div>
         </div>
       )}
 
