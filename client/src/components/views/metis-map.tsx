@@ -1141,9 +1141,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         if (currentLevel === 1 && !selectedParent) {
           currentCapabilities = allCapabilities.filter(cap => cap.level === 1);
         } else if (currentLevel === 2 && selectedParent) {
-          const parentL1Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 1);
+          // Level 2 view - show only level 2 capabilities under the selected L1 parent
           currentCapabilities = allCapabilities.filter(cap => 
-            cap.level === 2 && cap.level1Capability === parentL1Cap?.name
+            cap.level === 2 && cap.level1Capability === selectedParent
           );
         } else if (currentLevel === 3 && selectedParent) {
           const parentL2Cap = allCapabilities.find(c => c.name === selectedParent && c.level === 2);
