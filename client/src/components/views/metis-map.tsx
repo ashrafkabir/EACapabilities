@@ -31,6 +31,8 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const [expandedCapability, setExpandedCapability] = useState<BusinessCapability | null>(null);
   const [expandedApplication, setExpandedApplication] = useState<Application | null>(null);
   const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
+  const [selectedInterface, setSelectedInterface] = useState<string | null>(null);
+  const [selectedDataObject, setSelectedDataObject] = useState<string | null>(null);
 
   const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
@@ -41,6 +43,26 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     // Clear other selections when filtering by IT component
     setExpandedCapability(null);
     setExpandedApplication(null);
+    setSelectedInterface(null);
+    setSelectedDataObject(null);
+  };
+
+  const handleInterfaceClick = (interfaceName: string) => {
+    setSelectedInterface(interfaceName);
+    // Clear other selections when filtering by interface
+    setExpandedCapability(null);
+    setExpandedApplication(null);
+    setSelectedITComponent(null);
+    setSelectedDataObject(null);
+  };
+
+  const handleDataObjectClick = (dataObjectName: string) => {
+    setSelectedDataObject(dataObjectName);
+    // Clear other selections when filtering by data object
+    setExpandedCapability(null);
+    setExpandedApplication(null);
+    setSelectedITComponent(null);
+    setSelectedInterface(null);
   };
 
   // Sync with sidebar selection
@@ -148,8 +170,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   // Find capabilities that match the search criteria based on active filters
   const allMatchingCapabilities = searchTerm ? (() => {
     // Determine search scope based on filters
-    const searchComponents = filters.components && !filters.capabilities && !filters.applications;
-    const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components;
+    const searchComponents = filters.components && !filters.capabilities && !filters.applications && !filters.interfaces;
+    const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components && !filters.interfaces;
+    const searchInterfacesOnly = filters.interfaces && !filters.capabilities && !filters.applications && !filters.components;
     
     if (searchComponents) {
       // IT Component search: find components that match, then find applications using them, then find capabilities
@@ -168,6 +191,33 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       // Find capabilities that use these applications
       return allCapabilities.filter(cap => {
         return applicationsUsingComponents.some(app => {
+          if (!app.businessCapabilities) return false;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          return appCapabilities.some(appCap => 
+            cap.name === appCap || 
+            cap.name.includes(appCap) || 
+            appCap.includes(cap.name) ||
+            appCap.includes(cap.hierarchy || '')
+          );
+        });
+      });
+    } else if (searchInterfacesOnly) {
+      // Interface search: find interfaces that match, then find applications using them, then find capabilities
+      const matchingInterfaces = interfaces.filter(intf =>
+        intf.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      const applicationsUsingInterfaces = applications.filter(app => {
+        return matchingInterfaces.some(intf => {
+          // Check if application is mentioned in interface's source or target applications
+          return (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+                 (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()));
+        });
+      });
+      
+      // Find capabilities that use these applications
+      return allCapabilities.filter(cap => {
+        return applicationsUsingInterfaces.some(app => {
           if (!app.businessCapabilities) return false;
           const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
           return appCapabilities.some(appCap => 
@@ -650,7 +700,52 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                             </div>
                           );
                         }
-                      } else if (filters.applications && !filters.capabilities && !filters.components) {
+                      } else if (filters.interfaces && !filters.capabilities && !filters.applications && !filters.components) {
+                        // Show interface matches
+                        const matchingInterfaces = interfaces.filter(intf =>
+                          intf.name.toLowerCase().includes(searchTerm.toLowerCase())
+                        );
+                        
+                        const relatedApps = applications.filter(app => {
+                          if (!app.businessCapabilities) return false;
+                          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                          return appCapabilities.some(appCap => 
+                            capability.name === appCap || 
+                            capability.name.includes(appCap) || 
+                            appCap.includes(capability.name) ||
+                            appCap.includes(capability.hierarchy || '')
+                          );
+                        });
+                        
+                        const interfacesUsedByCapability = matchingInterfaces.filter(intf => {
+                          return relatedApps.some(app => 
+                            (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+                            (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+                          );
+                        });
+                        
+                        if (interfacesUsedByCapability.length > 0) {
+                          return (
+                            <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                              Uses {interfacesUsedByCapability.length} interface{interfacesUsedByCapability.length > 1 ? 's' : ''}: {interfacesUsedByCapability.slice(0, 2).map((intf, idx) => (
+                                <span key={intf.id}>
+                                  {idx > 0 && ', '}
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleInterfaceClick(intf.name);
+                                    }}
+                                    className="underline hover:bg-blue-200 dark:hover:bg-blue-800 px-1 rounded transition-colors"
+                                  >
+                                    {intf.name}
+                                  </button>
+                                </span>
+                              ))}
+                              {interfacesUsedByCapability.length > 2 && ` +${interfacesUsedByCapability.length - 2} more`}
+                            </div>
+                          );
+                        }
+                      } else if (filters.applications && !filters.capabilities && !filters.components && !filters.interfaces) {
                         // Show application matches
                         const relatedApps = applications.filter(app => {
                           if (!app.businessCapabilities) return false;
@@ -754,7 +849,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         </div>
       )}
 
-      {filteredCapabilities.length === 0 && !selectedITComponent && (
+      {filteredCapabilities.length === 0 && !selectedITComponent && !selectedInterface && !selectedDataObject && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600">
             {searchTerm ? `No capabilities found matching "${searchTerm}"` : 'No capabilities available at this level'}
