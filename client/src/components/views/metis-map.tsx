@@ -593,7 +593,10 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                     const directMatch = allMatchingCapabilities.some(match => match.id === capability.id);
                     
                     if (directMatch) {
-                      if (searchType === 'components') {
+                      // Determine search scope based on filters
+                      const searchComponents = filters.components && !filters.capabilities && !filters.applications;
+                      
+                      if (searchComponents) {
                         // Show IT component matches
                         const matchingComponents = itComponents.filter(comp =>
                           comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -625,7 +628,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                             </div>
                           );
                         }
-                      } else if (searchType === 'applications') {
+                      } else if (filters.applications && !filters.capabilities && !filters.components) {
                         // Show application matches
                         const relatedApps = applications.filter(app => {
                           if (!app.businessCapabilities) return false;
@@ -691,7 +694,9 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                       
                       if (descendantMatches.length > 0) {
                         const levelName = currentLevel === 1 ? 'sub-capabilities' : 'detailed capabilities';
-                        const searchTypeLabel = searchType === 'components' ? 'IT components' : searchType === 'applications' ? 'applications' : 'matches';
+                        const searchComponents = filters.components && !filters.capabilities && !filters.applications;
+                        const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components;
+                        const searchTypeLabel = searchComponents ? 'IT components' : searchApplicationsOnly ? 'applications' : 'matches';
                         return (
                           <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
                             Contains {descendantMatches.length} {levelName} with matching {searchTypeLabel}
