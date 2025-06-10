@@ -16,6 +16,15 @@ export async function importCSVData() {
     // Import Data Objects
     await importDataObjects();
     
+    // Import Interfaces
+    await importInterfaces();
+    
+    // Import Initiatives
+    await importInitiatives();
+    
+    // Import IT Components
+    await importITComponents();
+    
     console.log('CSV import completed successfully');
   } catch (error) {
     console.error('Error during CSV import:', error);
@@ -185,5 +194,86 @@ async function importDataObjects() {
     console.log('Data objects imported successfully');
   } catch (error) {
     console.error('Error importing data objects:', error);
+  }
+}
+
+async function importInterfaces() {
+  try {
+    const data = await parseCSV('Interfaces_1749518164787.csv');
+    console.log(`Processing ${data.length} interfaces...`);
+
+    for (const row of data) {
+      if (!row['Name'] || row['Name'] === 'Name') continue;
+
+      const interfaceObj = {
+        name: row['Name'] || '',
+        sourceApplication: row['Name']?.split(' to ')[0] || '',
+        targetApplication: row['Name']?.split(' to ')[1] || '',
+        dataFlow: row['Data Flow Direction'] || '',
+        frequency: row['Frequency'] || '',
+        dataObjects: row['Data Objects'] || '',
+        status: 'active',
+      };
+
+      await db.insert(interfaces).values(interfaceObj).onConflictDoNothing();
+    }
+
+    console.log('Interfaces imported successfully');
+  } catch (error) {
+    console.error('Error importing interfaces:', error);
+  }
+}
+
+async function importInitiatives() {
+  try {
+    const data = await parseCSV('Initiatives_1749518164787.csv');
+    console.log(`Processing ${data.length} initiatives...`);
+
+    for (const row of data) {
+      if (!row['Name'] || row['Name'] === 'Name') continue;
+
+      const initiative = {
+        name: row['Name'] || '',
+        description: row['Display Name'] || '',
+        status: row['Project Phase'] || 'active',
+        startDate: '',
+        endDate: '',
+        businessCapabilities: row['Business Capabilities'] || '',
+        applications: row['Applications'] || '',
+      };
+
+      await db.insert(initiatives).values(initiative).onConflictDoNothing();
+    }
+
+    console.log('Initiatives imported successfully');
+  } catch (error) {
+    console.error('Error importing initiatives:', error);
+  }
+}
+
+async function importITComponents() {
+  try {
+    const data = await parseCSV('ITComponents_1749518164787.csv');
+    console.log(`Processing ${data.length} IT components...`);
+
+    for (const row of data) {
+      if (!row['Name'] || row['Name'] === 'Name') continue;
+
+      const component = {
+        name: row['Name'] || '',
+        displayName: row['Display Name'] || row['Name'] || '',
+        category: row['Tech Categories'] || '',
+        vendor: row['Providers'] || '',
+        version: '',
+        status: 'active',
+        applications: row['Applications'] || '',
+      };
+
+      await db.insert(itComponents).values(component).onConflictDoNothing();
+    }
+
+    console.log('IT components imported successfully');
+  } catch (error) {
+    console.error('Error importing IT components:', error);
   }
 }
