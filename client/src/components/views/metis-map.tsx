@@ -1228,10 +1228,102 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       });
     }
 
-    // Export any active filters
-    if (selectedITComponent || selectedInterface || selectedDataObject || selectedInitiative) {
-      // Add specific filtered data exports here if needed
-      console.log('Active filters detected, including filtered data');
+    // Get interfaces involving the related applications
+    const relatedInterfaces = interfaces.filter(intf => 
+      relatedApplications.some(app => 
+        intf.sourceApplication === app.name || intf.targetApplication === app.name
+      )
+    );
+
+    if (relatedInterfaces.length > 0) {
+      const interfaceHeaders = [
+        'name', 'sourceApplication', 'targetApplication', 'dataFlow', 
+        'frequency', 'dataObjects', 'status', 'relatedCapabilities'
+      ];
+      
+      const interfaceData = relatedInterfaces.map((intf: any) => {
+        // Get capabilities related through source and target applications
+        const sourceApp = applications.find(app => app.name === intf.sourceApplication);
+        const targetApp = applications.find(app => app.name === intf.targetApplication);
+        const relatedCaps = new Set();
+        
+        if (sourceApp?.businessCapabilities) {
+          sourceApp.businessCapabilities.split(';').forEach((cap: string) => {
+            relatedCaps.add(cap.trim().replace(/^~/, ''));
+          });
+        }
+        if (targetApp?.businessCapabilities) {
+          targetApp.businessCapabilities.split(';').forEach((cap: string) => {
+            relatedCaps.add(cap.trim().replace(/^~/, ''));
+          });
+        }
+
+        return {
+          name: intf.name,
+          sourceApplication: intf.sourceApplication || '',
+          targetApplication: intf.targetApplication || '',
+          dataFlow: intf.dataFlow || '',
+          frequency: intf.frequency || '',
+          dataObjects: intf.dataObjects || '',
+          status: intf.status || '',
+          relatedCapabilities: Array.from(relatedCaps).join('; ')
+        };
+      });
+      
+      downloads.push({
+        data: interfaceData,
+        headers: interfaceHeaders,
+        filename: `related_interfaces_level_${currentLevel}_${timestamp}.csv`,
+        type: 'related interfaces'
+      });
+    }
+
+    // Get initiatives that involve the related applications
+    const relatedInitiatives = initiatives.filter(init => {
+      if (!init.applications) return false;
+      return relatedApplications.some(app => 
+        init.applications && init.applications.includes(app.name)
+      );
+    });
+
+    if (relatedInitiatives.length > 0) {
+      const initiativeHeaders = [
+        'name', 'description', 'status', 'startDate', 'endDate', 
+        'businessCapabilities', 'applications', 'relatedCapabilitiesFromApps'
+      ];
+      
+      const initiativeData = relatedInitiatives.map((init: any) => {
+        // Get capabilities from the initiative's applications
+        const initApps = init.applications ? init.applications.split(';').map((app: string) => app.trim()) : [];
+        const relatedCaps = new Set();
+        
+        initApps.forEach((appName: string) => {
+          const app = applications.find(a => a.name === appName);
+          if (app?.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach((cap: string) => {
+              relatedCaps.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+
+        return {
+          name: init.name,
+          description: init.description || '',
+          status: init.status || '',
+          startDate: init.startDate || '',
+          endDate: init.endDate || '',
+          businessCapabilities: init.businessCapabilities || '',
+          applications: init.applications || '',
+          relatedCapabilitiesFromApps: Array.from(relatedCaps).join('; ')
+        };
+      });
+      
+      downloads.push({
+        data: initiativeData,
+        headers: initiativeHeaders,
+        filename: `related_initiatives_level_${currentLevel}_${timestamp}.csv`,
+        type: 'related initiatives'
+      });
     }
 
     if (downloads.length === 0) {
