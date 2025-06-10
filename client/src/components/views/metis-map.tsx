@@ -168,7 +168,7 @@ export default function MetisMap({ selectedCapability, searchTerm, searchType = 
         });
       });
     } else if (searchType === 'applications') {
-      // Application-only search
+      // Application-only search - find capabilities that have matching applications
       const matchingApps = applications.filter(app =>
         app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -187,12 +187,12 @@ export default function MetisMap({ selectedCapability, searchTerm, searchType = 
         });
       });
     } else {
-      // Default capabilities & applications search
+      // Default capabilities & applications search (unchanged original behavior)
       return allCapabilities.filter(cap => {
         const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
         
-        // Search by related applications
+        // Check if any applications related to this capability match the search
         const relatedApps = applications.filter(app => {
           if (!app.businessCapabilities) return false;
           const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));

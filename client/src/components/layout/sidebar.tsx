@@ -177,7 +177,7 @@ export default function Sidebar({
             <SelectContent>
               <SelectItem value="capabilities">Capabilities & Applications</SelectItem>
               <SelectItem value="applications">Applications Only</SelectItem>
-              <SelectItem value="components">IT Components</SelectItem>
+              <SelectItem value="components">IT Components Only</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -187,9 +187,9 @@ export default function Sidebar({
           <Input
             placeholder={
               searchType === 'components' 
-                ? "Search IT components..." 
+                ? "Search IT components only..." 
                 : searchType === 'applications'
-                ? "Search applications..."
+                ? "Search applications only..."
                 : "Search capabilities and applications..."
             }
             value={searchTerm}
