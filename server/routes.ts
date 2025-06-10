@@ -64,14 +64,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/applications/by-capability/:capabilityId", async (req, res) => {
+  app.get("/api/capabilities/:id/applications", async (req, res) => {
     try {
-      const applications = await storage.getApplicationsByCapability(req.params.capabilityId);
+      const applications = await storage.getApplicationsByCapability(req.params.id);
       res.json(applications);
     } catch (error) {
-      res.status(500).json({ message: "Failed to fetch applications by capability" });
+      res.status(500).json({ message: "Failed to fetch applications for capability" });
     }
   });
+
+
 
   // Data Objects routes
   app.get("/api/data-objects", async (req, res) => {

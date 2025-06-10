@@ -18,6 +18,12 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
     enabled: !!entity.id,
   });
 
+  // Fetch applications for capabilities
+  const { data: relatedApplications } = useQuery({
+    queryKey: [`/api/capabilities`, entity.id, 'applications'],
+    enabled: !!entity.id && entity.type === 'capability',
+  });
+
   const renderApplicationDetails = (app: Application) => (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
