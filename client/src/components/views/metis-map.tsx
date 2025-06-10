@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
+import ExportSummaryModal from "@/components/modals/export-summary-modal";
 
 interface MetisMapProps {
   selectedCapability: string | null;
@@ -30,6 +31,8 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     metric: 'none',
     showColors: false
   });
+  const [showExportSummary, setShowExportSummary] = useState(false);
+  const [exportSummaryData, setExportSummaryData] = useState<any>(null);
   const [expandedCapability, setExpandedCapability] = useState<BusinessCapability | null>(null);
   const [expandedApplication, setExpandedApplication] = useState<Application | null>(null);
   const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
@@ -1407,6 +1410,23 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     console.log(`- ${relatedInterfaces.length} related interfaces`);
     console.log(`- ${relatedDataObjects.length} related data objects`);
     console.log(`- ${relatedInitiatives.length} related initiatives`);
+
+    // Prepare export summary data for modal
+    const summaryData = {
+      capabilities: currentCapabilities.length,
+      applications: relatedApplications.length,
+      itComponents: relatedITComponents.length,
+      interfaces: relatedInterfaces.length,
+      dataObjects: relatedDataObjects.length,
+      initiatives: relatedInitiatives.length,
+      level: currentLevel,
+      filenames: downloads.map(d => d.filename),
+      totalFiles: downloads.length
+    };
+
+    // Show export summary modal
+    setExportSummaryData(summaryData);
+    setShowExportSummary(true);
   };
 
   // Listen for export event
@@ -2749,6 +2769,13 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           </div>
         </div>
       )}
+
+      {/* Export Summary Modal */}
+      <ExportSummaryModal
+        isOpen={showExportSummary}
+        onClose={() => setShowExportSummary(false)}
+        exportData={exportSummaryData}
+      />
     </div>
   );
 }
