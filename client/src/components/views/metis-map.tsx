@@ -384,9 +384,56 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           return (
             <div
               key={capability.id}
-              className={`${colors.bg} rounded-xl border-2 ${colors.border} shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group`}
+              className={`relative ${colors.bg} rounded-xl border-2 ${colors.border} shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group`}
               onClick={() => handleCapabilityClick(capability)}
             >
+              {/* Hover tooltip for heatmap information */}
+              {heatmapFilters.showColors && heatmapFilters.metric !== 'none' && relatedApps.length > 0 && (
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded-lg px-3 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-64">
+                  <div className="font-medium mb-2">
+                    {heatmapFilters.metric === 'technicalSuitability' ? 'Technical Suitability' :
+                     heatmapFilters.metric === 'functionalFit' ? 'Functional Fit' :
+                     heatmapFilters.metric === 'region' ? 'Region' :
+                     heatmapFilters.metric === 'organization' ? 'Organization' : 'Ownership'}
+                  </div>
+                  <div className="space-y-1 max-h-32 overflow-y-auto">
+                    {(() => {
+                      const metricValues = relatedApps.map(app => {
+                        switch (heatmapFilters.metric) {
+                          case 'technicalSuitability': return app.technicalSuitability;
+                          case 'functionalFit': return app.functionalFit;
+                          case 'region': return app.region;
+                          case 'organization': return app.organizations;
+                          case 'ownedBy': return app.ownedBy;
+                          default: return null;
+                        }
+                      }).filter(Boolean);
+                      
+                      // Count occurrences
+                      const valueCounts = metricValues.reduce((acc, value) => {
+                        acc[value] = (acc[value] || 0) + 1;
+                        return acc;
+                      }, {} as Record<string, number>);
+                      
+                      const sortedValues = Object.entries(valueCounts)
+                        .sort(([,a], [,b]) => b - a)
+                        .slice(0, 6);
+                      
+                      return sortedValues.map(([value, count], idx) => (
+                        <div key={idx} className="text-xs flex justify-between">
+                          <span>• {value}</span>
+                          <span className="opacity-75">({count})</span>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                  <div className="text-xs opacity-75 mt-2 pt-2 border-t border-gray-600">
+                    From {relatedApps.length} application{relatedApps.length !== 1 ? 's' : ''}
+                  </div>
+                  {/* Tooltip arrow */}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black"></div>
+                </div>
+              )}
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className={`text-lg font-semibold text-gray-900 dark:text-white group-hover:${colors.color} transition-colors`}>
