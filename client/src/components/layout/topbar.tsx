@@ -5,6 +5,7 @@ import type { ViewType } from "@/pages/dashboard";
 interface TopBarProps {
   currentView: ViewType;
   onViewChange: (view: ViewType) => void;
+  onExport?: () => void;
 }
 
 const viewConfig = {
@@ -14,7 +15,7 @@ const viewConfig = {
   dashboard: { icon: BarChart3, label: 'Dashboard' },
 };
 
-export default function TopBar({ currentView, onViewChange }: TopBarProps) {
+export default function TopBar({ currentView, onViewChange, onExport }: TopBarProps) {
   return (
     <div className="bg-card border-b border-border px-6 py-4">
       <div className="flex items-center justify-between">
@@ -39,7 +40,12 @@ export default function TopBar({ currentView, onViewChange }: TopBarProps) {
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="flex items-center space-x-2"
+            onClick={onExport}
+          >
             <Download className="w-4 h-4" />
             <span>Export</span>
           </Button>

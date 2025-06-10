@@ -34,6 +34,14 @@ export default function Dashboard() {
     setSelectedEntity(entity);
   };
 
+  const handleExport = () => {
+    // Trigger export based on current view
+    if (currentView === 'network') {
+      // Dispatch a custom event to trigger export from MetisMap
+      window.dispatchEvent(new CustomEvent('exportData'));
+    }
+  };
+
   const handleCapabilitySelect = (capabilityId: string) => {
     setSelectedCapability(capabilityId);
     if (currentView !== 'network') {
@@ -94,6 +102,7 @@ export default function Dashboard() {
         <TopBar
           currentView={currentView}
           onViewChange={setCurrentView}
+          onExport={handleExport}
         />
         
         <div className="flex-1 relative">
