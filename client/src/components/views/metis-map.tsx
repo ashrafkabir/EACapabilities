@@ -65,7 +65,9 @@ export default function MetisMap({
       if (currentLevel === 1) {
         return cap.level === 1;
       } else if (currentLevel === 2 && selectedParent) {
-        return cap.level === 2 && cap.parentId === selectedParent;
+        // Find the parent capability name to match Level 2 capabilities
+        const parentCap = allCapabilities.find(c => c.id === selectedParent);
+        return cap.level === 2 && cap.mappedLevel1Capability === parentCap?.name;
       } else if (currentLevel === 3 && selectedParent) {
         return cap.level === 3 && cap.parentId === selectedParent;
       }
@@ -199,13 +201,24 @@ export default function MetisMap({
         console.log('Clicked capability:', d.name, 'Level:', d.level, 'Current Level:', currentLevel);
         console.log('All capabilities loaded:', allCapabilities.length);
         
-        // Check for children
-        const children = allCapabilities.filter(cap => cap.parentId === d.id);
+        // Check for children based on hierarchy structure
+        let children: BusinessCapability[] = [];
+        if (currentLevel === 1) {
+          // For Level 1, find all Level 2 capabilities with this as their Level 1 parent
+          children = allCapabilities.filter(cap => 
+            cap.level === 2 && cap.mappedLevel1Capability === d.name
+          );
+        } else if (currentLevel === 2) {
+          // For Level 2, find direct children (Level 3)
+          children = allCapabilities.filter(cap => cap.parentId === d.id);
+        }
+        
         const hasChildren = children.length > 0;
         console.log('Has children:', hasChildren, 'Children found:', children.length);
+        console.log('Children names:', children.map(c => c.name));
         
         if (hasChildren && currentLevel < 3) {
-          console.log('Drilling down from level', currentLevel, 'to', currentLevel + 1, 'for parent:', d.id);
+          console.log('Drilling down from level', currentLevel, 'to', currentLevel + 1, 'for parent:', d.name);
           setSelectedParent(d.id);
           setCurrentLevel(currentLevel + 1);
         } else {
