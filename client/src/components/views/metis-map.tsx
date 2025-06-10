@@ -521,7 +521,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       </div>
 
       {/* Columnar grid layout */}
-      {!selectedITComponent && (
+      {!selectedITComponent && !selectedInterface && !selectedDataObject && (
         <div className="grid grid-cols-3 gap-6 auto-rows-min">
           {filteredCapabilities.map((capability) => {
           // Get related applications for heatmap calculation
@@ -846,6 +846,184 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             </div>
           );
         })}
+        </div>
+      )}
+
+      {/* Interface Filtered Applications View */}
+      {selectedInterface && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedInterface(null)}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Capabilities
+              </button>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Applications using interface: {selectedInterface}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {(() => {
+              // Find the interface
+              const interfaceObj = interfaces.find(intf => intf.name === selectedInterface);
+              if (!interfaceObj) return <div className="text-gray-500 dark:text-gray-400">Interface not found.</div>;
+
+              // Find applications that use this interface
+              const applicationsUsingInterface = applications.filter(app => {
+                return (interfaceObj.sourceApplication && interfaceObj.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+                       (interfaceObj.targetApplication && interfaceObj.targetApplication.toLowerCase().includes(app.name.toLowerCase()));
+              });
+
+              if (applicationsUsingInterface.length === 0) {
+                return <div className="text-gray-500 dark:text-gray-400">No applications found using this interface.</div>;
+              }
+
+              return applicationsUsingInterface.map((app) => {
+                const colors = getDefaultLevelColor(null);
+                
+                return (
+                  <div
+                    key={app.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${colors.bg} ${colors.border}`}
+                    onClick={() => setExpandedApplication(app)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-lg ${colors.color}`}>
+                          {app.displayName || app.name}
+                        </h3>
+                        {app.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                            {app.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Show interface relationship */}
+                    <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                      <span className="font-medium">Interface role:</span> 
+                      {interfaceObj.sourceApplication?.toLowerCase().includes(app.name.toLowerCase()) && ' Source'}
+                      {interfaceObj.targetApplication?.toLowerCase().includes(app.name.toLowerCase()) && ' Target'}
+                    </div>
+
+                    {/* Show business capabilities this app supports */}
+                    {app.businessCapabilities && (
+                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        <span className="font-medium">Supports capabilities:</span> {app.businessCapabilities.split(';').slice(0, 3).map(cap => cap.trim().replace(/^~/, '')).join(', ')}
+                        {app.businessCapabilities.split(';').length > 3 && ` +${app.businessCapabilities.split(';').length - 3} more`}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </div>
+      )}
+
+      {/* Data Object Filtered Applications View */}
+      {selectedDataObject && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedDataObject(null)}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Capabilities
+              </button>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Applications using data object: {selectedDataObject}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {(() => {
+              // Find the data object
+              const dataObj = dataObjects.find(obj => obj.name === selectedDataObject);
+              if (!dataObj) return <div className="text-gray-500 dark:text-gray-400">Data object not found.</div>;
+
+              // Find applications that use this data object (check interfaces that reference this data object)
+              const relatedInterfaces = interfaces.filter(intf => 
+                intf.dataObjects && intf.dataObjects.toLowerCase().includes(dataObj.name.toLowerCase())
+              );
+
+              const applicationsUsingDataObject = applications.filter(app => {
+                return relatedInterfaces.some(intf =>
+                  (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+                  (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+                );
+              });
+
+              if (applicationsUsingDataObject.length === 0) {
+                return <div className="text-gray-500 dark:text-gray-400">No applications found using this data object.</div>;
+              }
+
+              return applicationsUsingDataObject.map((app) => {
+                const colors = getDefaultLevelColor(null);
+                
+                return (
+                  <div
+                    key={app.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${colors.bg} ${colors.border}`}
+                    onClick={() => setExpandedApplication(app)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-lg ${colors.color}`}>
+                          {app.displayName || app.name}
+                        </h3>
+                        {app.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                            {app.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Show related interfaces */}
+                    {(() => {
+                      const appInterfaces = relatedInterfaces.filter(intf =>
+                        (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+                        (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+                      );
+                      
+                      if (appInterfaces.length > 0) {
+                        return (
+                          <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                            <span className="font-medium">Related interfaces:</span> {appInterfaces.slice(0, 2).map(intf => intf.name).join(', ')}
+                            {appInterfaces.length > 2 && ` +${appInterfaces.length - 2} more`}
+                          </div>
+                        );
+                      }
+                    })()}
+
+                    {/* Show business capabilities this app supports */}
+                    {app.businessCapabilities && (
+                      <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                        <span className="font-medium">Supports capabilities:</span> {app.businessCapabilities.split(';').slice(0, 3).map(cap => cap.trim().replace(/^~/, '')).join(', ')}
+                        {app.businessCapabilities.split(';').length > 3 && ` +${app.businessCapabilities.split(';').length - 3} more`}
+                      </div>
+                    )}
+                  </div>
+                );
+              });
+            })()}
+          </div>
         </div>
       )}
 
