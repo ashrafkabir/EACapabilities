@@ -59,6 +59,18 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     queryKey: ['/api/applications'],
   });
 
+  const { data: dataObjects = [] } = useQuery<DataObject[]>({
+    queryKey: ['/api/data-objects'],
+  });
+
+  const { data: interfaces = [] } = useQuery<Interface[]>({
+    queryKey: ['/api/interfaces'],
+  });
+
+  const { data: itComponents = [] } = useQuery<ITComponent[]>({
+    queryKey: ['/api/it-components'],
+  });
+
   const handleGoBack = () => {
     if (currentLevel > 1) {
       setCurrentLevel(currentLevel - 1);
@@ -499,6 +511,16 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                   </h3>
                   <div className="flex items-center gap-2">
                     <div className={`w-4 h-4 rounded-full ${colors.dot}`}></div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedCapability(capability);
+                      }}
+                      className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                      title="View detailed information"
+                    >
+                      <Expand className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                    </button>
                     {hasChildren && (
                       <div className="text-blue-600 dark:text-blue-400 text-xs bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
                         Expand
@@ -593,6 +615,425 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600">
             {searchTerm ? `No capabilities found matching "${searchTerm}"` : 'No capabilities available at this level'}
+          </div>
+        </div>
+      )}
+
+      {/* Capability Detail Modal */}
+      {expandedCapability && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                {expandedCapability.displayName || expandedCapability.name}
+              </h2>
+              <button
+                onClick={() => setExpandedCapability(null)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Basic Information</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Name:</span>
+                    <p className="text-gray-900 dark:text-white">{expandedCapability.name}</p>
+                  </div>
+                  {expandedCapability.displayName && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Display Name:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.displayName}</p>
+                    </div>
+                  )}
+                  <div>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Level:</span>
+                    <p className="text-gray-900 dark:text-white">{expandedCapability.level}</p>
+                  </div>
+                  {expandedCapability.hierarchy && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Hierarchy:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.hierarchy}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Level Mappings */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Level Mappings</h3>
+                <div className="grid grid-cols-1 gap-3 text-sm">
+                  {expandedCapability.level1Capability && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Level 1 Capability:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.level1Capability}</p>
+                    </div>
+                  )}
+                  {expandedCapability.level2Capability && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Level 2 Capability:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.level2Capability}</p>
+                    </div>
+                  )}
+                  {expandedCapability.level3Capability && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Level 3 Capability:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.level3Capability}</p>
+                    </div>
+                  )}
+                  {expandedCapability.mappedLevel1Capability && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Mapped Level 1:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.mappedLevel1Capability}</p>
+                    </div>
+                  )}
+                  {expandedCapability.mappedToLifesciencesCapabilities && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Mapped to Life Sciences:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedCapability.mappedToLifesciencesCapabilities}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Related Applications */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Related Applications</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {(() => {
+                    const relatedApps = applications.filter(app => {
+                      if (!app.businessCapabilities) return false;
+                      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                      return appCapabilities.some(appCap => 
+                        expandedCapability.name === appCap || 
+                        expandedCapability.name.includes(appCap) || 
+                        appCap.includes(expandedCapability.name) ||
+                        appCap.includes(expandedCapability.hierarchy || '')
+                      );
+                    });
+
+                    if (relatedApps.length === 0) {
+                      return <p className="text-gray-500 dark:text-gray-400">No applications found for this capability.</p>;
+                    }
+
+                    return relatedApps.map((app) => (
+                      <div
+                        key={app.id}
+                        className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer"
+                        onClick={() => setExpandedApplication(app)}
+                      >
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-white">{app.displayName || app.name}</p>
+                          {app.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 truncate">{app.description}</p>
+                          )}
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Application Detail Modal */}
+      {expandedApplication && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                {expandedApplication.displayName || expandedApplication.name}
+              </h2>
+              <button
+                onClick={() => setExpandedApplication(null)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-6">
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Basic Information</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-gray-600 dark:text-gray-400">Name:</span>
+                    <p className="text-gray-900 dark:text-white">{expandedApplication.name}</p>
+                  </div>
+                  {expandedApplication.displayName && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Display Name:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.displayName}</p>
+                    </div>
+                  )}
+                  {expandedApplication.description && (
+                    <div className="col-span-2">
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Description:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.description}</p>
+                    </div>
+                  )}
+                  {expandedApplication.vendor && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Vendor:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.vendor}</p>
+                    </div>
+                  )}
+                  {expandedApplication.businessDomain && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Business Domain:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.businessDomain}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Technical & Operational Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Technical & Operational</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {expandedApplication.technicalSuitability && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Technical Suitability:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.technicalSuitability}</p>
+                    </div>
+                  )}
+                  {expandedApplication.functionalFit && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Functional Fit:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.functionalFit}</p>
+                    </div>
+                  )}
+                  {expandedApplication.technicalFit && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Technical Fit:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.technicalFit}</p>
+                    </div>
+                  )}
+                  {expandedApplication.serviceLevel && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Service Level:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.serviceLevel}</p>
+                    </div>
+                  )}
+                  {expandedApplication.maturityStatus && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Maturity Status:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.maturityStatus}</p>
+                    </div>
+                  )}
+                  {expandedApplication.obsolescenceRiskStatus && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Obsolescence Risk:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.obsolescenceRiskStatus}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Business Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Business Information</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {expandedApplication.ownedBy && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Owned By:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.ownedBy}</p>
+                    </div>
+                  )}
+                  {expandedApplication.owningFunction && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Owning Function:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.owningFunction}</p>
+                    </div>
+                  )}
+                  {expandedApplication.businessUnit && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Business Unit:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.businessUnit}</p>
+                    </div>
+                  )}
+                  {expandedApplication.organizations && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Organizations:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.organizations}</p>
+                    </div>
+                  )}
+                  {expandedApplication.region && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Region:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.region}</p>
+                    </div>
+                  )}
+                  {expandedApplication.mainArea && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Main Area:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.mainArea}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Lifecycle & Cost Information */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Lifecycle & Cost</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  {expandedApplication.activeFrom && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Active From:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.activeFrom}</p>
+                    </div>
+                  )}
+                  {expandedApplication.activeUntil && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Active Until:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.activeUntil}</p>
+                    </div>
+                  )}
+                  {expandedApplication.costTotalAnnual && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Annual Cost:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.costTotalAnnual}</p>
+                    </div>
+                  )}
+                  {expandedApplication.pace && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">Pace:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.pace}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Related Components */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Related Components</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {expandedApplication.itComponentDisplayName && (
+                    <div>
+                      <span className="font-medium text-gray-600 dark:text-gray-400">IT Component:</span>
+                      <p className="text-gray-900 dark:text-white">{expandedApplication.itComponentDisplayName}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Related Data Objects */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Related Data Objects</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {(() => {
+                    const relatedDataObjects = dataObjects.filter(dataObj => 
+                      dataObj.relDataObjectToApplication?.includes(expandedApplication.name)
+                    );
+
+                    if (relatedDataObjects.length === 0) {
+                      return <p className="text-gray-500 dark:text-gray-400">No data objects found for this application.</p>;
+                    }
+
+                    return relatedDataObjects.map((dataObj) => (
+                      <div key={dataObj.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <p className="font-medium text-gray-900 dark:text-white">{dataObj.displayName || dataObj.name}</p>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+
+              {/* Related Interfaces */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Related Interfaces</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {(() => {
+                    const relatedInterfaces = interfaces.filter(intf => 
+                      intf.sourceApplication === expandedApplication.name || 
+                      intf.targetApplication === expandedApplication.name
+                    );
+
+                    if (relatedInterfaces.length === 0) {
+                      return <p className="text-gray-500 dark:text-gray-400">No interfaces found for this application.</p>;
+                    }
+
+                    return relatedInterfaces.map((intf) => (
+                      <div key={intf.id} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium text-gray-900 dark:text-white">{intf.name}</p>
+                          <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                            {intf.sourceApplication === expandedApplication.name ? 'Source' : 'Target'}
+                          </span>
+                        </div>
+                        {intf.dataFlow && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{intf.dataFlow}</p>
+                        )}
+                        {intf.frequency && (
+                          <p className="text-xs text-gray-500 dark:text-gray-500">Frequency: {intf.frequency}</p>
+                        )}
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+
+              {/* Business Capabilities */}
+              {expandedApplication.businessCapabilities && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Business Capabilities</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {expandedApplication.businessCapabilities.split(';').map((cap, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm"
+                      >
+                        {cap.trim().replace(/^~/, '')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Information */}
+              {expandedApplication.obsolescenceRiskComment && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">Risk Comments</h3>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                    {expandedApplication.obsolescenceRiskComment}
+                  </p>
+                </div>
+              )}
+
+              {/* Links */}
+              <div className="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                {expandedApplication.cmdbApplicationServiceUrl && (
+                  <a
+                    href={expandedApplication.cmdbApplicationServiceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    CMDB Application Service
+                  </a>
+                )}
+                {expandedApplication.cmdbBusinessApplicationUrl && (
+                  <a
+                    href={expandedApplication.cmdbBusinessApplicationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    CMDB Business Application
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
