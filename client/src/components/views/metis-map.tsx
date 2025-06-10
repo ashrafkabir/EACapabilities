@@ -833,7 +833,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                     </button>
                     {hasChildren && (
                       <div className="text-blue-600 dark:text-blue-400 text-xs bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
-                        Expand
+                        {/* Visual indicator for expandable capability */}
                       </div>
                     )}
                   </div>
