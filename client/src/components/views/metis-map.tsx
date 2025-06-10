@@ -256,12 +256,6 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           return app.technicalSuitability;
         case 'functionalFit':
           return app.functionalFit;
-        case 'region':
-          return app.region;
-        case 'organization':
-          return app.organizations;
-        case 'ownedBy':
-          return app.ownedBy;
         default:
           return null;
       }
@@ -271,35 +265,20 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       return { bg: 'bg-gray-100 dark:bg-gray-800', border: 'border-gray-300 dark:border-gray-600', color: 'text-gray-500 dark:text-gray-400', dot: 'bg-gray-400' };
     }
 
-    // Color coding based on metric type
-    if (heatmapFilters.metric === 'technicalSuitability' || heatmapFilters.metric === 'functionalFit') {
-      const scores = metricValues.map(val => {
-        switch (val?.toLowerCase()) {
-          case 'perfect': case 'fullyappropriate': return 5;
-          case 'appropriate': case 'adequate': return 3;
-          case 'partiallyappropriate': case 'poor': return 1;
-          default: return 2;
-        }
-      });
-      const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
-      
-      if (avgScore >= 4) return { bg: 'bg-green-100 dark:bg-green-900/30', border: 'border-green-400 dark:border-green-600', color: 'text-green-700 dark:text-green-300', dot: 'bg-green-500' };
-      if (avgScore >= 2.5) return { bg: 'bg-yellow-100 dark:bg-yellow-900/30', border: 'border-yellow-400 dark:border-yellow-600', color: 'text-yellow-700 dark:text-yellow-300', dot: 'bg-yellow-500' };
-      return { bg: 'bg-red-100 dark:bg-red-900/30', border: 'border-red-400 dark:border-red-600', color: 'text-red-700 dark:text-red-300', dot: 'bg-red-500' };
-    }
-
-    // For categorical metrics (region, organization, ownedBy), use distinct colors
-    const uniqueValues = Array.from(new Set(metricValues.filter(v => v !== null)));
-    const colorIndex = uniqueValues.length % 6;
-    const colors = [
-      { bg: 'bg-purple-100 dark:bg-purple-900/30', border: 'border-purple-400', color: 'text-purple-700', dot: 'bg-purple-500' },
-      { bg: 'bg-indigo-100 dark:bg-indigo-900/30', border: 'border-indigo-400', color: 'text-indigo-700', dot: 'bg-indigo-500' },
-      { bg: 'bg-pink-100 dark:bg-pink-900/30', border: 'border-pink-400', color: 'text-pink-700', dot: 'bg-pink-500' },
-      { bg: 'bg-teal-100 dark:bg-teal-900/30', border: 'border-teal-400', color: 'text-teal-700', dot: 'bg-teal-500' },
-      { bg: 'bg-cyan-100 dark:bg-cyan-900/30', border: 'border-cyan-400', color: 'text-cyan-700', dot: 'bg-cyan-500' },
-      { bg: 'bg-lime-100 dark:bg-lime-900/30', border: 'border-lime-400', color: 'text-lime-700', dot: 'bg-lime-500' }
-    ];
-    return colors[colorIndex];
+    // Color coding based on metric scores (only for technical suitability and functional fit)
+    const scores = metricValues.map(val => {
+      switch (val?.toLowerCase()) {
+        case 'perfect': case 'fullyappropriate': return 5;
+        case 'appropriate': case 'adequate': return 3;
+        case 'partiallyappropriate': case 'poor': return 1;
+        default: return 2;
+      }
+    });
+    const avgScore = scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0;
+    
+    if (avgScore >= 4) return { bg: 'bg-green-100 dark:bg-green-900/30', border: 'border-green-400 dark:border-green-600', color: 'text-green-700 dark:text-green-300', dot: 'bg-green-500' };
+    if (avgScore >= 2.5) return { bg: 'bg-yellow-100 dark:bg-yellow-900/30', border: 'border-yellow-400 dark:border-yellow-600', color: 'text-yellow-700 dark:text-yellow-300', dot: 'bg-yellow-500' };
+    return { bg: 'bg-red-100 dark:bg-red-900/30', border: 'border-red-400 dark:border-red-600', color: 'text-red-700 dark:text-red-300', dot: 'bg-red-500' };
   };
 
   const getDefaultLevelColor = (level: number | null) => {
@@ -484,9 +463,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded-lg px-3 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-64">
                   <div className="font-medium mb-2">
                     {heatmapFilters.metric === 'technicalSuitability' ? 'Technical Suitability' :
-                     heatmapFilters.metric === 'functionalFit' ? 'Functional Fit' :
-                     heatmapFilters.metric === 'region' ? 'Region' :
-                     heatmapFilters.metric === 'organization' ? 'Organization' : 'Ownership'}
+                     heatmapFilters.metric === 'functionalFit' ? 'Functional Fit' : 'Metric'}
                   </div>
                   <div className="space-y-1 max-h-32 overflow-y-auto">
                     {(() => {
@@ -494,9 +471,6 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                         switch (heatmapFilters.metric) {
                           case 'technicalSuitability': return app.technicalSuitability;
                           case 'functionalFit': return app.functionalFit;
-                          case 'region': return app.region;
-                          case 'organization': return app.organizations;
-                          case 'ownedBy': return app.ownedBy;
                           default: return null;
                         }
                       }).filter((value): value is string => Boolean(value));
