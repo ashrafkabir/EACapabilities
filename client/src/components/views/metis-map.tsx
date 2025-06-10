@@ -942,7 +942,96 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                             </div>
                           );
                         }
-                      } else if (filters.applications && !filters.capabilities && !filters.components && !filters.interfaces) {
+                      } else if (filters.dataObjects && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.initiatives) {
+                        // Show data object matches
+                        const matchingDataObjects = dataObjects.filter(obj =>
+                          obj.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (obj.displayName && obj.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+                        );
+                        
+                        const relatedApps = applications.filter(app => {
+                          if (!app.businessCapabilities) return false;
+                          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                          return appCapabilities.some(appCap => 
+                            capability.name === appCap || 
+                            capability.name.includes(appCap) || 
+                            appCap.includes(capability.name) ||
+                            appCap.includes(capability.hierarchy || '')
+                          );
+                        });
+                        
+                        const dataObjectsUsedByCapability = matchingDataObjects.filter(obj => {
+                          // Find interfaces that use this data object
+                          const relatedInterfaces = interfaces.filter(intf => 
+                            intf.dataObjects && intf.dataObjects.toLowerCase().includes(obj.name.toLowerCase())
+                          );
+                          
+                          // Check if any of these interfaces are used by applications related to this capability
+                          return relatedInterfaces.some(intf => 
+                            relatedApps.some(app =>
+                              (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+                              (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+                            )
+                          );
+                        });
+                        
+                        if (dataObjectsUsedByCapability.length > 0) {
+                          return (
+                            <div className="text-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 px-2 py-1 rounded">
+                              Uses {dataObjectsUsedByCapability.length} data object{dataObjectsUsedByCapability.length > 1 ? 's' : ''}: {dataObjectsUsedByCapability.slice(0, 2).map((obj, idx) => (
+                                <span key={obj.id}>
+                                  {idx > 0 && ', '}
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDataObjectClick(obj.name);
+                                    }}
+                                    className="underline hover:bg-orange-200 dark:hover:bg-orange-800 px-1 rounded transition-colors"
+                                  >
+                                    {obj.name}
+                                  </button>
+                                </span>
+                              ))}
+                              {dataObjectsUsedByCapability.length > 2 && ` +${dataObjectsUsedByCapability.length - 2} more`}
+                            </div>
+                          );
+                        }
+                      } else if (filters.initiatives && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects) {
+                        // Show initiative matches
+                        const matchingInitiatives = initiatives.filter(init =>
+                          init.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (init.description && init.description.toLowerCase().includes(searchTerm.toLowerCase()))
+                        );
+                        
+                        const initiativesRelatedToCapability = matchingInitiatives.filter(init => 
+                          init.name.toLowerCase().includes(capability.name.toLowerCase()) ||
+                          capability.name.toLowerCase().includes(init.name.toLowerCase()) ||
+                          (capability.hierarchy && init.name.toLowerCase().includes(capability.hierarchy.toLowerCase())) ||
+                          (init.description && capability.name.toLowerCase().includes(init.description.toLowerCase()))
+                        );
+                        
+                        if (initiativesRelatedToCapability.length > 0) {
+                          return (
+                            <div className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 px-2 py-1 rounded">
+                              Related to {initiativesRelatedToCapability.length} initiative{initiativesRelatedToCapability.length > 1 ? 's' : ''}: {initiativesRelatedToCapability.slice(0, 2).map((init, idx) => (
+                                <span key={init.id}>
+                                  {idx > 0 && ', '}
+                                  <button 
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleInitiativeClick(init.name);
+                                    }}
+                                    className="underline hover:bg-indigo-200 dark:hover:bg-indigo-800 px-1 rounded transition-colors"
+                                  >
+                                    {init.name}
+                                  </button>
+                                </span>
+                              ))}
+                              {initiativesRelatedToCapability.length > 2 && ` +${initiativesRelatedToCapability.length - 2} more`}
+                            </div>
+                          );
+                        }
+                      } else if (filters.applications && !filters.capabilities && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives) {
                         // Show application matches
                         const relatedApps = applications.filter(app => {
                           if (!app.businessCapabilities) return false;
@@ -1224,7 +1313,117 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         </div>
       )}
 
-      {filteredCapabilities.length === 0 && !selectedITComponent && !selectedInterface && !selectedDataObject && (
+      {/* Initiative Filtered Applications View */}
+      {selectedInitiative && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSelectedInitiative(null)}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back to Capabilities
+              </button>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Applications related to initiative: {selectedInitiative}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {(() => {
+              // Find the initiative
+              const initiative = initiatives.find(init => init.name === selectedInitiative);
+              if (!initiative) return <div className="text-gray-500 dark:text-gray-400">Initiative not found.</div>;
+
+              // Find applications related to this initiative through business capabilities
+              const relatedCapabilities = allCapabilities.filter(cap => 
+                cap.name.toLowerCase().includes(initiative.name.toLowerCase()) ||
+                initiative.name.toLowerCase().includes(cap.name.toLowerCase()) ||
+                (cap.hierarchy && initiative.name.toLowerCase().includes(cap.hierarchy.toLowerCase())) ||
+                (initiative.description && cap.name.toLowerCase().includes(initiative.description.toLowerCase()))
+              );
+
+              const applicationsRelatedToInitiative = applications.filter(app => {
+                if (!app.businessCapabilities) return false;
+                const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                return relatedCapabilities.some(cap => 
+                  appCapabilities.some(appCap => 
+                    cap.name === appCap || 
+                    cap.name.includes(appCap) || 
+                    appCap.includes(cap.name) ||
+                    appCap.includes(cap.hierarchy || '')
+                  )
+                );
+              });
+
+              if (applicationsRelatedToInitiative.length === 0) {
+                return <div className="text-gray-500 dark:text-gray-400">No applications found related to this initiative.</div>;
+              }
+
+              return applicationsRelatedToInitiative.map((app) => {
+                const colors = getDefaultLevelColor(null);
+                
+                return (
+                  <div
+                    key={app.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-all hover:shadow-md ${colors.bg} ${colors.border}`}
+                    onClick={() => setExpandedApplication(app)}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-lg ${colors.color}`}>
+                          {app.displayName || app.name}
+                        </h3>
+                        {app.description && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
+                            {app.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <ExternalLink className="w-4 h-4 text-gray-400" />
+                      </div>
+                    </div>
+
+                    {/* Show business capabilities this app supports */}
+                    {app.businessCapabilities && (
+                      <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                        <span className="font-medium">Supports capabilities:</span> {app.businessCapabilities.split(';').slice(0, 3).map(cap => cap.trim().replace(/^~/, '')).join(', ')}
+                        {app.businessCapabilities.split(';').length > 3 && ` +${app.businessCapabilities.split(';').length - 3} more`}
+                      </div>
+                    )}
+
+                    {/* Show related capabilities */}
+                    {(() => {
+                      const appCapabilities = app.businessCapabilities ? app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, '')) : [];
+                      const matchingCaps = relatedCapabilities.filter(cap => 
+                        appCapabilities.some(appCap => 
+                          cap.name === appCap || 
+                          cap.name.includes(appCap) || 
+                          appCap.includes(cap.name)
+                        )
+                      );
+                      
+                      if (matchingCaps.length > 0) {
+                        return (
+                          <div className="mt-2 text-xs text-indigo-600 dark:text-indigo-400">
+                            <span className="font-medium">Related to initiative via:</span> {matchingCaps.slice(0, 2).map(cap => cap.name).join(', ')}
+                            {matchingCaps.length > 2 && ` +${matchingCaps.length - 2} more capabilities`}
+                          </div>
+                        );
+                      }
+                    })()}
+                  </div>
+                );
+              });
+            })()}
+          </div>
+        </div>
+      )}
+
+      {filteredCapabilities.length === 0 && !selectedITComponent && !selectedInterface && !selectedDataObject && !selectedInitiative && (
         <div className="text-center py-12">
           <div className="text-gray-400 dark:text-gray-600">
             {searchTerm ? `No capabilities found matching "${searchTerm}"` : 'No capabilities available at this level'}
