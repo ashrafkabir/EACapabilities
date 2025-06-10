@@ -396,6 +396,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           let itemCount = 0;
           let itemLabel = '';
           let previewItems: string[] = [];
+          let hasChildren = false;
           
           if (currentLevel === 1) {
             const l2Children = allCapabilities.filter(cap => 
@@ -404,6 +405,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             itemCount = l2Children.length;
             itemLabel = 'Sub-capabilities';
             previewItems = l2Children.slice(0, 3).map(cap => cap.name);
+            hasChildren = l2Children.length > 0;
           } else if (currentLevel === 2) {
             const l3Children = allCapabilities.filter(cap => 
               cap.level === 3 && cap.level1Capability === capability.level1Capability && cap.level2Capability === capability.name
@@ -411,10 +413,12 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             itemCount = l3Children.length;
             itemLabel = 'Detailed capabilities';
             previewItems = l3Children.slice(0, 3).map(cap => cap.name);
+            hasChildren = l3Children.length > 0;
           } else if (currentLevel === 3) {
             itemCount = relatedApps.length;
             itemLabel = 'Applications';
             previewItems = relatedApps.slice(0, 3).map(app => app.name);
+            hasChildren = false;
           }
           
           return (
@@ -477,7 +481,14 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                   <h3 className={`text-lg font-semibold text-gray-900 dark:text-white group-hover:${colors.color} transition-colors`}>
                     {capability.displayName || capability.name}
                   </h3>
-                  <div className={`w-4 h-4 rounded-full ${colors.dot}`}></div>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-4 h-4 rounded-full ${colors.dot}`}></div>
+                    {hasChildren && (
+                      <div className="text-blue-600 dark:text-blue-400 text-xs bg-blue-100 dark:bg-blue-900 px-2 py-1 rounded">
+                        Expand
+                      </div>
+                    )}
+                  </div>
                 </div>
                 
                 <div className="space-y-2">
