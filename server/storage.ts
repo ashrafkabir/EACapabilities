@@ -114,8 +114,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getApplicationsByCapability(capabilityId: string): Promise<Application[]> {
-    return await db.select().from(applications)
-      .where(like(applications.businessCapabilities, `%${capabilityId}%`));
+    // Get the capability name to match against application business_capabilities field
+    const capability = await this.getBusinessCapabilityById(capabilityId);
+    if (!capability) return [];
+
+    const apps = await db.select().from(applications);
+    
+    // Filter applications that have this capability in their business_capabilities field
+    return apps.filter(app => {
+      if (!app.businessCapabilities) return false;
+      
+      // Handle multiple capabilities separated by semicolons or commas
+      const appCapabilities = app.businessCapabilities
+        .split(/[;,]/)
+        .map(cap => cap.trim().replace(/^~/, ''));
+      
+      // Check if any of the app's capabilities match this capability name or hierarchy
+      return appCapabilities.some(appCap => 
+        appCap === capability.name ||
+        appCap.includes(capability.name) ||
+        capability.name.includes(appCap) ||
+        (capability.hierarchy && (
+          appCap === capability.hierarchy ||
+          appCap.includes(capability.hierarchy) ||
+          capability.hierarchy.includes(appCap)
+        ))
+      );
+    });
   }
 
   // Data Object methods
