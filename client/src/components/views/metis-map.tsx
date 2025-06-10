@@ -19,11 +19,11 @@ interface MetisMapProps {
 }
 
 interface HeatmapFilters {
-  metric: 'technicalSuitability' | 'functionalFit' | 'region' | 'organization' | 'ownedBy' | 'none';
+  metric: 'technicalSuitability' | 'functionalFit' | 'none';
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect, filters }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -124,32 +124,67 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   };
 
   const capabilitiesToShow = getCapabilitiesToShow();
-  const filteredCapabilities = searchTerm
-    ? capabilitiesToShow.filter(cap => {
-        // Search by capability name
-        const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                      (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
-        
-        // Search by related applications
-        const relatedApps = applications.filter(app => {
-          if (!app.businessCapabilities) return false;
-          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-          return appCapabilities.some(appCap => 
-            cap.name === appCap || 
-            cap.name.includes(appCap) || 
-            appCap.includes(cap.name) ||
-            appCap.includes(cap.hierarchy || '')
-          );
-        });
-        
-        const matchesApplicationName = relatedApps.some(app => 
-          app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredCapabilities = capabilitiesToShow.filter(cap => {
+    // Apply capability level filter
+    if (filters.capabilityLevel !== 'all') {
+      const targetLevel = parseInt(filters.capabilityLevel);
+      if (currentLevel !== targetLevel) {
+        return false;
+      }
+    }
+    
+    // Apply search term filter
+    if (searchTerm) {
+      // Search by capability name
+      const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                    (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      // Search by related applications
+      const relatedApps = applications.filter(app => {
+        if (!app.businessCapabilities) return false;
+        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+        return appCapabilities.some(appCap => 
+          cap.name === appCap || 
+          cap.name.includes(appCap) || 
+          appCap.includes(cap.name) ||
+          appCap.includes(cap.hierarchy || '')
         );
-        
-        return matchesCapabilityName || matchesApplicationName;
-      })
-    : capabilitiesToShow;
+      });
+      
+      const matchesApplicationName = relatedApps.some(app => 
+        app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      
+      if (!matchesCapabilityName && !matchesApplicationName) {
+        return false;
+      }
+    }
+    
+    // Apply vendor filter
+    if (filters.vendor) {
+      const relatedApps = applications.filter(app => {
+        if (!app.businessCapabilities) return false;
+        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+        return appCapabilities.some(appCap => 
+          cap.name === appCap || 
+          cap.name.includes(appCap) || 
+          appCap.includes(cap.name) ||
+          appCap.includes(cap.hierarchy || '')
+        );
+      });
+      
+      const hasVendorMatch = relatedApps.some(app => 
+        app.vendor && app.vendor.toLowerCase().includes(filters.vendor.toLowerCase())
+      );
+      
+      if (!hasVendorMatch) {
+        return false;
+      }
+    }
+    
+    return true;
+  });
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
@@ -166,15 +201,6 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           break;
         case 'functionalFit':
           value = app.functionalFit;
-          break;
-        case 'region':
-          value = app.region;
-          break;
-        case 'organization':
-          value = app.organizations;
-          break;
-        case 'ownedBy':
-          value = app.ownedBy;
           break;
       }
       if (value && value.trim()) {
@@ -350,9 +376,6 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             <option value="none">Select Metric</option>
             <option value="technicalSuitability">Technical Suitability</option>
             <option value="functionalFit">Functional Fit</option>
-            <option value="region">Region</option>
-            <option value="organization">Organization</option>
-            <option value="ownedBy">Owned By</option>
           </select>
 
           {heatmapFilters.showColors && heatmapFilters.metric !== 'none' && (

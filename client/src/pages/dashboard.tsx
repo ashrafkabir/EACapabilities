@@ -50,6 +50,7 @@ export default function Dashboard() {
             selectedCapability={selectedCapability}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
+            filters={filters}
           />
         );
       case 'hierarchy':
@@ -73,7 +74,7 @@ export default function Dashboard() {
           />
         );
       default:
-        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} />;
+        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
     }
   };
 
