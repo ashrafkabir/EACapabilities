@@ -1004,7 +1004,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           console.log('Starting direct export...');
           
           // Get fresh data from queries
-          const capabilitiesToExport = hierarchyCapabilities || [];
+          const capabilitiesToExport = allCapabilities || [];
           console.log('Capabilities available for export:', capabilitiesToExport.length);
           
           if (capabilitiesToExport.length === 0) {
@@ -1020,7 +1020,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             'level2Capability', 'level3Capability', 'parentId'
           ];
           
-          const capabilityData = capabilitiesToExport.map(cap => ({
+          const capabilityData = capabilitiesToExport.map((cap: any) => ({
             name: cap.name,
             displayName: cap.displayName || '',
             hierarchy: cap.hierarchy || '',
