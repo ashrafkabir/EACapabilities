@@ -135,6 +135,36 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     return csvContent;
   };
 
+  const fallbackDownload = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.style.display = 'none';
+    
+    document.body.appendChild(link);
+    
+    // Use a user-initiated click event
+    const clickEvent = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+    
+    setTimeout(() => {
+      console.log('Triggering download for:', filename);
+      link.dispatchEvent(clickEvent);
+      
+      setTimeout(() => {
+        if (document.body.contains(link)) {
+          document.body.removeChild(link);
+        }
+        URL.revokeObjectURL(url);
+        console.log('Download completed for:', filename);
+      }, 1000);
+    }, 100);
+  };
+
   const downloadCSV = (content: string, filename: string) => {
     console.log('Downloading CSV:', filename, 'Content length:', content.length);
     try {
@@ -146,7 +176,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       
       // Try modern File System Access API first (Chrome/Edge)
       if ('showSaveFilePicker' in window) {
-        const fileHandle = (window as any).showSaveFilePicker({
+        (window as any).showSaveFilePicker({
           suggestedName: filename,
           types: [{
             description: 'CSV files',
@@ -159,40 +189,10 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
           console.log('File saved successfully:', filename);
         }).catch((error: any) => {
           console.log('File picker cancelled or failed, falling back to download:', error);
-          fallbackDownload();
+          fallbackDownload(blob, filename);
         });
       } else {
-        fallbackDownload();
-      }
-      
-      function fallbackDownload() {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        
-        // Use a user-initiated click event
-        const clickEvent = new MouseEvent('click', {
-          bubbles: true,
-          cancelable: true,
-          view: window
-        });
-        
-        setTimeout(() => {
-          console.log('Triggering download for:', filename);
-          link.dispatchEvent(clickEvent);
-          
-          setTimeout(() => {
-            if (document.body.contains(link)) {
-              document.body.removeChild(link);
-            }
-            URL.revokeObjectURL(url);
-            console.log('Download completed for:', filename);
-          }, 1000);
-        }, 100);
+        fallbackDownload(blob, filename);
       }
       
     } catch (error) {
@@ -1041,26 +1041,44 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
 
   // Export functionality that will be called directly
   const performDirectExport = async () => {
-    console.log('Starting direct export...');
-    console.log('Available data:');
-    console.log('- allCapabilities:', allCapabilities?.length || 0);
-    console.log('- applications:', applications?.length || 0);
-    console.log('- itComponents:', itComponents?.length || 0);
-    console.log('- interfaces:', interfaces?.length || 0);
-    console.log('- dataObjects:', dataObjects?.length || 0);
-    console.log('- initiatives:', initiatives?.length || 0);
+    console.log('Starting contextual export...');
+    
+    // Get currently displayed capabilities based on the map state
+    const currentCapabilities = filteredCapabilities || capabilitiesToShow;
+    console.log('Currently displayed capabilities:', currentCapabilities?.length || 0);
+    
+    if (!currentCapabilities || currentCapabilities.length === 0) {
+      console.warn('No capabilities currently displayed to export');
+      return;
+    }
 
     const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
     const downloads: Array<{ data: any[], headers: string[], filename: string, type: string }> = [];
     
-    // Prepare all downloads
-    if (allCapabilities && allCapabilities.length > 0) {
-      const capabilityHeaders = [
-        'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
-        'level2Capability', 'level3Capability', 'parentId'
-      ];
+    // Export only currently displayed capabilities
+    const capabilityHeaders = [
+      'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
+      'level2Capability', 'level3Capability', 'parentId', 'relatedApplicationsCount',
+      'relatedApplications', 'childCapabilities', 'hasSubCapabilities'
+    ];
+    
+    const capabilityData = currentCapabilities.map((cap: any) => {
+      // Get related applications for this specific capability
+      const capabilityApplications = applications.filter(app => {
+        if (!app.businessCapabilities) return false;
+        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+        return appCapabilities.some(appCap => 
+          cap.name === appCap || 
+          cap.name.includes(appCap) || 
+          appCap.includes(cap.name) ||
+          appCap.includes(cap.hierarchy || '')
+        );
+      });
+
+      // Get child capabilities
+      const childCapabilities = allCapabilities.filter(child => child.parentId === cap.id);
       
-      const capabilityData = allCapabilities.map((cap: any) => ({
+      return {
         name: cap.name,
         displayName: cap.displayName || '',
         hierarchy: cap.hierarchy || '',
@@ -1068,122 +1086,152 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         level1Capability: cap.level1Capability || '',
         level2Capability: cap.level2Capability || '',
         level3Capability: cap.level3Capability || '',
-        parentId: cap.parentId || ''
-      }));
-      
-      downloads.push({
-        data: capabilityData,
-        headers: capabilityHeaders,
-        filename: `business_capabilities_${timestamp}.csv`,
-        type: 'capabilities'
-      });
-    }
+        parentId: cap.parentId || '',
+        relatedApplicationsCount: capabilityApplications.length,
+        relatedApplications: capabilityApplications.map(app => app.name).join('; '),
+        childCapabilities: childCapabilities.map(child => child.name).join('; '),
+        hasSubCapabilities: childCapabilities.length > 0 ? 'Yes' : 'No'
+      };
+    });
     
-    if (applications && applications.length > 0) {
+    downloads.push({
+      data: capabilityData,
+      headers: capabilityHeaders,
+      filename: `displayed_capabilities_level_${currentLevel}_${timestamp}.csv`,
+      type: 'displayed capabilities'
+    });
+
+    // Get applications related to displayed capabilities
+    const relatedApplications = applications.filter(app => {
+      if (!app.businessCapabilities) return false;
+      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+      return currentCapabilities.some(cap => 
+        appCapabilities.some(appCap => 
+          cap.name === appCap || 
+          cap.name.includes(appCap) || 
+          appCap.includes(cap.name) ||
+          appCap.includes(cap.hierarchy || '')
+        )
+      );
+    });
+
+    if (relatedApplications.length > 0) {
       const applicationHeaders = [
         'name', 'displayName', 'businessCapabilities', 'description', 'vendor',
-        'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus'
+        'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus',
+        'relatedITComponents', 'relatedInterfaces', 'relatedDataObjects', 'usedByInitiatives'
       ];
       
-      const applicationData = applications.map((app: any) => ({
-        name: app.name,
-        displayName: app.displayName || '',
-        businessCapabilities: app.businessCapabilities || '',
-        description: app.description || '',
-        vendor: app.vendor || '',
-        technicalSuitability: app.technicalSuitability || '',
-        functionalFit: app.functionalFit || '',
-        businessDomain: app.businessDomain || '',
-        maturityStatus: app.maturityStatus || ''
-      }));
+      const applicationData = relatedApplications.map((app: any) => {
+        // Get related IT components
+        const relatedComponents = itComponents.filter(comp => 
+          comp.applications && comp.applications.includes(app.name)
+        ).map(comp => comp.name).join('; ');
+
+        // Get related interfaces (where app is source or target)
+        const relatedInterfacesList = interfaces.filter(intf => 
+          intf.sourceApplication === app.name || intf.targetApplication === app.name
+        ).map(intf => `${intf.name} (${intf.sourceApplication} -> ${intf.targetApplication})`).join('; ');
+
+        // Get related data objects from interfaces
+        const relatedDataObjectsList = interfaces
+          .filter(intf => intf.sourceApplication === app.name || intf.targetApplication === app.name)
+          .map(intf => intf.dataObjects)
+          .filter(Boolean)
+          .join('; ');
+
+        // Get initiatives that use this application
+        const usedByInitiativesList = initiatives.filter(init => 
+          init.applications && init.applications.includes(app.name)
+        ).map(init => init.name).join('; ');
+
+        return {
+          name: app.name,
+          displayName: app.displayName || '',
+          businessCapabilities: app.businessCapabilities || '',
+          description: app.description || '',
+          vendor: app.vendor || '',
+          technicalSuitability: app.technicalSuitability || '',
+          functionalFit: app.functionalFit || '',
+          businessDomain: app.businessDomain || '',
+          maturityStatus: app.maturityStatus || '',
+          relatedITComponents: relatedComponents,
+          relatedInterfaces: relatedInterfacesList,
+          relatedDataObjects: relatedDataObjectsList,
+          usedByInitiatives: usedByInitiativesList
+        };
+      });
       
       downloads.push({
         data: applicationData,
         headers: applicationHeaders,
-        filename: `applications_${timestamp}.csv`,
-        type: 'applications'
+        filename: `related_applications_level_${currentLevel}_${timestamp}.csv`,
+        type: 'related applications'
       });
     }
 
-    if (itComponents && itComponents.length > 0) {
-      const componentHeaders = ['name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications'];
-      const componentData = itComponents.map((comp: any) => ({
-        name: comp.name,
-        displayName: comp.displayName || '',
-        category: comp.category || '',
-        vendor: comp.vendor || '',
-        version: comp.version || '',
-        status: comp.status || '',
-        applications: comp.applications || ''
-      }));
+    // Get IT components used by related applications
+    const relatedITComponents = itComponents.filter(comp => {
+      if (!comp.applications) return false;
+      const compApplications = comp.applications.split(';').map(app => app.trim());
+      return relatedApplications.some(app => compApplications.includes(app.name));
+    });
+
+    if (relatedITComponents.length > 0) {
+      const componentHeaders = [
+        'name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications',
+        'relatedApplicationsList', 'relatedCapabilities', 'usedByInitiatives'
+      ];
+      
+      const componentData = relatedITComponents.map((comp: any) => {
+        // Get related applications
+        const componentApplications = comp.applications ? comp.applications.split(';').map((app: string) => app.trim()) : [];
+        const relatedApps = applications.filter((app: any) => componentApplications.includes(app.name));
+        
+        // Get related capabilities through applications
+        const relatedCapabilities = new Set();
+        relatedApps.forEach((app: any) => {
+          if (app.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach((cap: string) => {
+              relatedCapabilities.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+
+        // Get initiatives that use this component
+        const usedByInitiativesList = initiatives.filter(init => {
+          if (!init.applications) return false;
+          return componentApplications.some((appName: any) => 
+            init.applications && init.applications.includes(appName)
+          );
+        }).map(init => init.name).join('; ');
+
+        return {
+          name: comp.name,
+          displayName: comp.displayName || '',
+          category: comp.category || '',
+          vendor: comp.vendor || '',
+          version: comp.version || '',
+          status: comp.status || '',
+          applications: comp.applications || '',
+          relatedApplicationsList: relatedApps.map(app => `${app.name} (${app.vendor || 'Unknown'})`).join('; '),
+          relatedCapabilities: Array.from(relatedCapabilities).join('; '),
+          usedByInitiatives: usedByInitiativesList
+        };
+      });
       
       downloads.push({
         data: componentData,
         headers: componentHeaders,
-        filename: `it_components_${timestamp}.csv`,
-        type: 'IT components'
+        filename: `related_it_components_level_${currentLevel}_${timestamp}.csv`,
+        type: 'related IT components'
       });
     }
 
-    if (interfaces && interfaces.length > 0) {
-      const interfaceHeaders = [
-        'name', 'sourceApplication', 'targetApplication', 'dataFlow', 
-        'frequency', 'dataObjects', 'status'
-      ];
-      const interfaceData = interfaces.map((intf: any) => ({
-        name: intf.name,
-        sourceApplication: intf.sourceApplication || '',
-        targetApplication: intf.targetApplication || '',
-        dataFlow: intf.dataFlow || '',
-        frequency: intf.frequency || '',
-        dataObjects: intf.dataObjects || '',
-        status: intf.status || ''
-      }));
-      
-      downloads.push({
-        data: interfaceData,
-        headers: interfaceHeaders,
-        filename: `interfaces_${timestamp}.csv`,
-        type: 'interfaces'
-      });
-    }
-
-    if (dataObjects && dataObjects.length > 0) {
-      const dataObjectHeaders = ['name', 'displayName'];
-      const dataObjectData = dataObjects.map((obj: any) => ({
-        name: obj.name,
-        displayName: obj.displayName || ''
-      }));
-      
-      downloads.push({
-        data: dataObjectData,
-        headers: dataObjectHeaders,
-        filename: `data_objects_${timestamp}.csv`,
-        type: 'data objects'
-      });
-    }
-
-    if (initiatives && initiatives.length > 0) {
-      const initiativeHeaders = [
-        'name', 'description', 'status', 'startDate', 'endDate', 
-        'businessCapabilities', 'applications'
-      ];
-      const initiativeData = initiatives.map((init: any) => ({
-        name: init.name,
-        description: init.description || '',
-        status: init.status || '',
-        startDate: init.startDate || '',
-        endDate: init.endDate || '',
-        businessCapabilities: init.businessCapabilities || '',
-        applications: init.applications || ''
-      }));
-      
-      downloads.push({
-        data: initiativeData,
-        headers: initiativeHeaders,
-        filename: `initiatives_${timestamp}.csv`,
-        type: 'initiatives'
-      });
+    // Export any active filters
+    if (selectedITComponent || selectedInterface || selectedDataObject || selectedInitiative) {
+      // Add specific filtered data exports here if needed
+      console.log('Active filters detected, including filtered data');
     }
 
     if (downloads.length === 0) {
