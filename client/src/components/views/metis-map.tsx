@@ -7,6 +7,7 @@ import type { BusinessCapability, Application, Initiative, DataObject, Interface
 interface MetisMapProps {
   selectedCapability: string | null;
   searchTerm: string;
+  searchType?: 'capabilities' | 'applications' | 'components';
   onEntitySelect: (entity: EntityReference) => void;
   filters: {
     capabilities: boolean;
@@ -21,7 +22,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect, filters }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, searchTerm, searchType = 'capabilities', onEntitySelect, filters }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -137,31 +138,81 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
 
   const capabilitiesToShow = getCapabilitiesToShow();
   
-  // First, find all capabilities that match the search criteria (across all levels)
-  const allMatchingCapabilities = searchTerm ? allCapabilities.filter(cap => {
-    // Search by capability name
-    const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                  (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Search by related applications
-    const relatedApps = applications.filter(app => {
-      if (!app.businessCapabilities) return false;
-      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-      return appCapabilities.some(appCap => 
-        cap.name === appCap || 
-        cap.name.includes(appCap) || 
-        appCap.includes(cap.name) ||
-        appCap.includes(cap.hierarchy || '')
+  // Find capabilities that match the search criteria based on search type
+  const allMatchingCapabilities = searchTerm ? (() => {
+    if (searchType === 'components') {
+      // IT Component search: find components that match, then find applications using them, then find capabilities
+      const matchingComponents = itComponents.filter(comp =>
+        comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (comp.displayName && comp.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
       );
-    });
-    
-    const matchesApplicationName = relatedApps.some(app => 
-      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    
-    return matchesCapabilityName || matchesApplicationName;
-  }) : null;
+      
+      const applicationsUsingComponents = applications.filter(app => {
+        return matchingComponents.some(comp => {
+          // Check if application is mentioned in component's applications field
+          return comp.applications && comp.applications.toLowerCase().includes(app.name.toLowerCase());
+        });
+      });
+      
+      // Find capabilities that use these applications
+      return allCapabilities.filter(cap => {
+        return applicationsUsingComponents.some(app => {
+          if (!app.businessCapabilities) return false;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          return appCapabilities.some(appCap => 
+            cap.name === appCap || 
+            cap.name.includes(appCap) || 
+            appCap.includes(cap.name) ||
+            appCap.includes(cap.hierarchy || '')
+          );
+        });
+      });
+    } else if (searchType === 'applications') {
+      // Application-only search
+      const matchingApps = applications.filter(app =>
+        app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      
+      return allCapabilities.filter(cap => {
+        return matchingApps.some(app => {
+          if (!app.businessCapabilities) return false;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          return appCapabilities.some(appCap => 
+            cap.name === appCap || 
+            cap.name.includes(appCap) || 
+            appCap.includes(cap.name) ||
+            appCap.includes(cap.hierarchy || '')
+          );
+        });
+      });
+    } else {
+      // Default capabilities & applications search
+      return allCapabilities.filter(cap => {
+        const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        // Search by related applications
+        const relatedApps = applications.filter(app => {
+          if (!app.businessCapabilities) return false;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          return appCapabilities.some(appCap => 
+            cap.name === appCap || 
+            cap.name.includes(appCap) || 
+            appCap.includes(cap.name) ||
+            appCap.includes(cap.hierarchy || '')
+          );
+        });
+        
+        const matchesApplicationName = relatedApps.some(app => 
+          app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+        
+        return matchesCapabilityName || matchesApplicationName;
+      });
+    }
+  })() : null;
 
 
 
@@ -539,30 +590,90 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                     const directMatch = allMatchingCapabilities.some(match => match.id === capability.id);
                     
                     if (directMatch) {
-                      // Check if matched through applications
-                      const relatedApps = applications.filter(app => {
-                        if (!app.businessCapabilities) return false;
-                        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-                        return appCapabilities.some(appCap => 
-                          capability.name === appCap || 
-                          capability.name.includes(appCap) || 
-                          appCap.includes(capability.name) ||
-                          appCap.includes(capability.hierarchy || '')
+                      if (searchType === 'components') {
+                        // Show IT component matches
+                        const matchingComponents = itComponents.filter(comp =>
+                          comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (comp.displayName && comp.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
                         );
-                      });
-                      
-                      const matchingApps = relatedApps.filter(app => 
-                        app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                        (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-                      );
-                      
-                      if (matchingApps.length > 0) {
-                        return (
-                          <div className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded">
-                            Found via {matchingApps.length} application{matchingApps.length > 1 ? 's' : ''}: {matchingApps.slice(0, 2).map(app => app.name).join(', ')}
-                            {matchingApps.length > 2 && ` +${matchingApps.length - 2} more`}
-                          </div>
+                        
+                        const relatedApps = applications.filter(app => {
+                          if (!app.businessCapabilities) return false;
+                          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                          return appCapabilities.some(appCap => 
+                            capability.name === appCap || 
+                            capability.name.includes(appCap) || 
+                            appCap.includes(capability.name) ||
+                            appCap.includes(capability.hierarchy || '')
+                          );
+                        });
+                        
+                        const componentsUsedByCapability = matchingComponents.filter(comp => {
+                          return relatedApps.some(app => 
+                            comp.applications && comp.applications.toLowerCase().includes(app.name.toLowerCase())
+                          );
+                        });
+                        
+                        if (componentsUsedByCapability.length > 0) {
+                          return (
+                            <div className="text-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 px-2 py-1 rounded">
+                              Uses {componentsUsedByCapability.length} IT component{componentsUsedByCapability.length > 1 ? 's' : ''}: {componentsUsedByCapability.slice(0, 2).map(comp => comp.name).join(', ')}
+                              {componentsUsedByCapability.length > 2 && ` +${componentsUsedByCapability.length - 2} more`}
+                            </div>
+                          );
+                        }
+                      } else if (searchType === 'applications') {
+                        // Show application matches
+                        const relatedApps = applications.filter(app => {
+                          if (!app.businessCapabilities) return false;
+                          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                          return appCapabilities.some(appCap => 
+                            capability.name === appCap || 
+                            capability.name.includes(appCap) || 
+                            appCap.includes(capability.name) ||
+                            appCap.includes(capability.hierarchy || '')
+                          );
+                        });
+                        
+                        const matchingApps = relatedApps.filter(app => 
+                          app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
                         );
+                        
+                        if (matchingApps.length > 0) {
+                          return (
+                            <div className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded">
+                              Found via {matchingApps.length} application{matchingApps.length > 1 ? 's' : ''}: {matchingApps.slice(0, 2).map(app => app.name).join(', ')}
+                              {matchingApps.length > 2 && ` +${matchingApps.length - 2} more`}
+                            </div>
+                          );
+                        }
+                      } else {
+                        // Default capabilities & applications search
+                        const relatedApps = applications.filter(app => {
+                          if (!app.businessCapabilities) return false;
+                          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                          return appCapabilities.some(appCap => 
+                            capability.name === appCap || 
+                            capability.name.includes(appCap) || 
+                            appCap.includes(capability.name) ||
+                            appCap.includes(capability.hierarchy || '')
+                          );
+                        });
+                        
+                        const matchingApps = relatedApps.filter(app => 
+                          app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+                        );
+                        
+                        if (matchingApps.length > 0) {
+                          return (
+                            <div className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded">
+                              Found via {matchingApps.length} application{matchingApps.length > 1 ? 's' : ''}: {matchingApps.slice(0, 2).map(app => app.name).join(', ')}
+                              {matchingApps.length > 2 && ` +${matchingApps.length - 2} more`}
+                            </div>
+                          );
+                        }
                       }
                     } else {
                       // Check if shown because of descendant matches
@@ -577,9 +688,10 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                       
                       if (descendantMatches.length > 0) {
                         const levelName = currentLevel === 1 ? 'sub-capabilities' : 'detailed capabilities';
+                        const searchTypeLabel = searchType === 'components' ? 'IT components' : searchType === 'applications' ? 'applications' : 'matches';
                         return (
                           <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
-                            Contains {descendantMatches.length} matching {levelName}
+                            Contains {descendantMatches.length} {levelName} with matching {searchTypeLabel}
                           </div>
                         );
                       }
