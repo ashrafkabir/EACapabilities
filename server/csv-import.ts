@@ -94,79 +94,161 @@ function parseCSVLine(line: string): string[] {
 
 async function importBusinessCapabilities() {
   try {
-    const data = await parseCSV('BusinessCapabilities_mapping_1749518164788.csv');
-    console.log(`Processing ${data.length} business capabilities...`);
+    const mappingData = await parseCSV('BusinessCapabilities_mapping_1749518164788.csv');
+    console.log(`Processing ${mappingData.length} business capability mappings...`);
 
     // Clear existing capabilities to rebuild hierarchy
     await db.delete(businessCapabilities);
 
-    // Map to track created capabilities by their full path
-    const capabilityMap = new Map<string, string>(); // path -> id
-    
-    for (const row of data) {
-      if (!row['Business Capability in LeanIX']) continue;
+    // Create a mapping from hierarchy paths to L1-L3 structure
+    const hierarchyToLevelMap = new Map<string, {
+      level1: string,
+      level2?: string,
+      level3?: string,
+      mappedL1: string
+    }>();
 
+    // Process mapping data to build hierarchy map
+    for (const row of mappingData) {
       const hierarchy = row['Hierarchy'] || '';
-      if (!hierarchy) continue;
-
       const mappedL1 = row['Mapped  Level 1 Capability'] || '';
-      if (!mappedL1) continue;
+      if (!hierarchy || !mappedL1) continue;
 
-      // First ensure Level 1 capability exists
-      if (!capabilityMap.has(mappedL1)) {
-        const level1Capability = {
-          name: mappedL1,
-          displayName: mappedL1,
-          hierarchy: mappedL1,
-          parentId: null,
-          level: 1,
-          level1Capability: mappedL1,
-          level2Capability: null,
-          level3Capability: null,
-          mappedLevel1Capability: mappedL1,
-          mappedToLifesciencesCapabilities: '',
-        };
-        const [inserted] = await db.insert(businessCapabilities).values(level1Capability).returning({ id: businessCapabilities.id });
-        capabilityMap.set(mappedL1, inserted.id);
+      const levels = hierarchy.split(' / ').map((level: any) => level.trim());
+      hierarchyToLevelMap.set(hierarchy, {
+        level1: mappedL1,
+        level2: levels.length > 0 ? levels[0] : undefined,
+        level3: levels.length > 1 ? levels[1] : undefined,
+        mappedL1: mappedL1
+      });
+    }
+
+    // Get all unique capability hierarchies from Applications data
+    const applicationsData = await parseCSV('Applications_1749518164788.csv');
+    const allCapabilityPaths = new Set<string>();
+    
+    for (const app of applicationsData) {
+      const businessCaps = app['relApplicationToBusinessCapability'] || app['Business Capabilities'] || '';
+      if (businessCaps) {
+        // Split by semicolon and process each capability path
+        const capPaths = businessCaps.split(';').map((path: any) => path.trim().replace(/^~/, ''));
+        capPaths.forEach((path: any) => {
+          if (path) allCapabilityPaths.add(path);
+        });
+      }
+    }
+
+    console.log(`Found ${allCapabilityPaths.size} unique capability paths from applications`);
+    console.log('Sample paths:', Array.from(allCapabilityPaths).slice(0, 5));
+
+    // Create L1 capabilities based on mapped values
+    const l1Capabilities = new Set<string>();
+    hierarchyToLevelMap.forEach(mapping => l1Capabilities.add(mapping.level1));
+    
+    const capabilityIdMap = new Map<string, string>();
+    
+    // Create Level 1 capabilities
+    for (const l1Name of Array.from(l1Capabilities)) {
+      const l1Cap = {
+        name: l1Name,
+        displayName: l1Name,
+        hierarchy: l1Name,
+        parentId: null,
+        level: 1,
+        level1Capability: l1Name,
+        level2Capability: null,
+        level3Capability: null,
+        mappedLevel1Capability: l1Name,
+        mappedToLifesciencesCapabilities: '',
+      };
+      const [inserted] = await db.insert(businessCapabilities).values(l1Cap).returning({ id: businessCapabilities.id });
+      capabilityIdMap.set(l1Name, inserted.id);
+    }
+
+    // Process all capability paths found in applications
+    for (const capPath of Array.from(allCapabilityPaths)) {
+      // Find matching mapping or create based on structure
+      let mapping = hierarchyToLevelMap.get(capPath);
+      
+      if (!mapping) {
+        // Try to find partial matches or create mapping based on path structure
+        const pathLevels = capPath.split(' / ').map((level: any) => level.trim());
+        
+        // Look for existing mappings that start with the same path
+        for (const [mappedPath, mappedData] of hierarchyToLevelMap) {
+          if (mappedPath.startsWith(pathLevels[0]) || capPath.includes(mappedPath)) {
+            mapping = {
+              level1: mappedData.level1,
+              level2: pathLevels[0],
+              level3: pathLevels.length > 1 ? pathLevels[1] : undefined,
+              mappedL1: mappedData.level1
+            };
+            break;
+          }
+        }
+        
+        // If no mapping found, use first level as L1 (fallback)
+        if (!mapping) {
+          mapping = {
+            level1: pathLevels[0],
+            level2: pathLevels.length > 1 ? pathLevels[1] : undefined,
+            level3: pathLevels.length > 2 ? pathLevels[2] : undefined,
+            mappedL1: pathLevels[0]
+          };
+        }
       }
 
-      // Split hierarchy into levels: "Human Resources / Benefits / Benefits Management"
-      const levels = hierarchy.split(' / ').map(level => level.trim());
-      
-      // Create Level 2+ capabilities under the mapped Level 1
-      let parentId = capabilityMap.get(mappedL1)!;
-      let currentPath = mappedL1;
+      // Create L2 capability if needed
+      if (mapping.level2) {
+        const l2Key = `${mapping.level1}::${mapping.level2}`;
+        if (!capabilityIdMap.has(l2Key)) {
+          const l1ParentId = capabilityIdMap.get(mapping.level1);
+          if (l1ParentId) {
+            const l2Cap = {
+              name: mapping.level2,
+              displayName: mapping.level2,
+              hierarchy: mapping.level2,
+              parentId: l1ParentId,
+              level: 2,
+              level1Capability: mapping.level1,
+              level2Capability: mapping.level2,
+              level3Capability: null,
+              mappedLevel1Capability: mapping.level1,
+              mappedToLifesciencesCapabilities: '',
+            };
+            const [inserted] = await db.insert(businessCapabilities).values(l2Cap).returning({ id: businessCapabilities.id });
+            capabilityIdMap.set(l2Key, inserted.id);
+          }
+        }
 
-      for (let i = 0; i < levels.length; i++) {
-        const levelName = levels[i];
-        currentPath = `${mappedL1} / ${levels.slice(0, i + 1).join(' / ')}`;
-        
-        // Check if this capability already exists
-        if (!capabilityMap.has(currentPath)) {
-          const capability = {
-            name: levelName,
-            displayName: levelName,
-            hierarchy: levels.slice(0, i + 1).join(' / '),
-            parentId: parentId,
-            level: i + 2, // Level 2+ since Level 1 is the mapped capability
-            level1Capability: mappedL1,
-            level2Capability: i >= 0 ? levels[0] : null,
-            level3Capability: i >= 1 ? levels[1] : null,
-            mappedLevel1Capability: mappedL1,
-            mappedToLifesciencesCapabilities: i === levels.length - 1 ? (row['mapped to Lifesciences Capabilities Level 3'] || '') : '',
-          };
-
-          const [inserted] = await db.insert(businessCapabilities).values(capability).returning({ id: businessCapabilities.id });
-          capabilityMap.set(currentPath, inserted.id);
-          parentId = inserted.id;
-        } else {
-          // Use existing capability as parent for next level
-          parentId = capabilityMap.get(currentPath)!;
+        // Create L3 capability if needed
+        if (mapping.level3) {
+          const l3Key = `${mapping.level1}::${mapping.level2}::${mapping.level3}`;
+          if (!capabilityIdMap.has(l3Key)) {
+            const l2ParentId = capabilityIdMap.get(l2Key);
+            if (l2ParentId) {
+              const l3Cap = {
+                name: mapping.level3,
+                displayName: mapping.level3,
+                hierarchy: `${mapping.level2} / ${mapping.level3}`,
+                parentId: l2ParentId,
+                level: 3,
+                level1Capability: mapping.level1,
+                level2Capability: mapping.level2,
+                level3Capability: mapping.level3,
+                mappedLevel1Capability: mapping.level1,
+                mappedToLifesciencesCapabilities: '',
+              };
+              const [inserted] = await db.insert(businessCapabilities).values(l3Cap).returning({ id: businessCapabilities.id });
+              capabilityIdMap.set(l3Key, inserted.id);
+            }
+          }
         }
       }
     }
 
-    console.log(`Business capabilities imported successfully - created ${capabilityMap.size} capabilities`);
+    console.log(`Business capabilities imported successfully - created ${capabilityIdMap.size} capabilities`);
+    console.log(`Level 1 capabilities: ${l1Capabilities.size}`);
   } catch (error) {
     console.error('Error importing business capabilities:', error);
   }
