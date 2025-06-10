@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Info } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative } from "@shared/schema";
 
@@ -94,6 +94,73 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
         cap.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : capabilitiesToShow;
+
+  // Generate legend data for the current metric
+  const legendData = useMemo(() => {
+    if (!heatmapFilters.showColors || heatmapFilters.metric === 'none' || !applications.length) {
+      return [];
+    }
+
+    const allValues = new Set<string>();
+    applications.forEach(app => {
+      let value: string | null = null;
+      switch (heatmapFilters.metric) {
+        case 'technicalSuitability':
+          value = app.technicalSuitability;
+          break;
+        case 'functionalFit':
+          value = app.functionalFit;
+          break;
+        case 'region':
+          value = app.region;
+          break;
+        case 'organization':
+          value = app.organizations;
+          break;
+        case 'ownedBy':
+          value = app.ownedBy;
+          break;
+      }
+      if (value && value.trim()) {
+        allValues.add(value.trim());
+      }
+    });
+
+    const uniqueValues = Array.from(allValues).sort();
+
+    if (heatmapFilters.metric === 'technicalSuitability' || heatmapFilters.metric === 'functionalFit') {
+      // Score-based coloring
+      return uniqueValues.map(value => {
+        const score = (() => {
+          switch (value.toLowerCase()) {
+            case 'perfect': case 'fullyappropriate': return 5;
+            case 'appropriate': case 'adequate': return 3;
+            case 'partiallyappropriate': case 'poor': return 1;
+            default: return 2;
+          }
+        })();
+
+        let color;
+        if (score >= 4) color = 'bg-green-500';
+        else if (score >= 2.5) color = 'bg-yellow-500';
+        else color = 'bg-red-500';
+
+        return { value, color, score };
+      }).sort((a, b) => b.score - a.score);
+    } else {
+      // Categorical coloring
+      const colors = [
+        'bg-purple-500', 'bg-indigo-500', 'bg-pink-500',
+        'bg-teal-500', 'bg-cyan-500', 'bg-lime-500'
+      ];
+      
+      return uniqueValues.map((value, index) => ({
+        value,
+        color: colors[index % colors.length],
+        score: 0
+      }));
+    }
+  }, [heatmapFilters.metric, heatmapFilters.showColors, applications]);
 
   const getHeatmapColor = (capability: BusinessCapability, relatedApps: Application[]) => {
     if (!heatmapFilters.showColors || heatmapFilters.metric === 'none') {
@@ -232,26 +299,41 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                          heatmapFilters.metric === 'organization' ? 'Organization' : 'Ownership'}
               </div>
               
-              {(heatmapFilters.metric === 'technicalSuitability' || heatmapFilters.metric === 'functionalFit') && (
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-green-500 rounded"></div>
-                    <span>High</span>
+              {/* Legend tooltip */}
+              <div className="relative group">
+                <Info className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-help" />
+                
+                {/* Tooltip content */}
+                <div className="absolute top-6 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-4 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 min-w-64">
+                  <div className="text-sm font-medium text-gray-900 dark:text-white mb-3">
+                    Color Legend - {heatmapFilters.metric === 'technicalSuitability' ? 'Technical Suitability' :
+                                   heatmapFilters.metric === 'functionalFit' ? 'Functional Fit' :
+                                   heatmapFilters.metric === 'region' ? 'Region' :
+                                   heatmapFilters.metric === 'organization' ? 'Organization' : 'Ownership'}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-yellow-500 rounded"></div>
-                    <span>Medium</span>
+                  
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {legendData.map(({ value, color }, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        <div className={`w-3 h-3 rounded ${color}`}></div>
+                        <span className="text-xs text-gray-700 dark:text-gray-300">{value}</span>
+                      </div>
+                    ))}
+                    
+                    {/* No data indicator */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                      <div className="w-3 h-3 rounded bg-gray-400"></div>
+                      <span className="text-xs text-gray-700 dark:text-gray-300">No Data</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-red-500 rounded"></div>
-                    <span>Low</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-gray-400 rounded"></div>
-                    <span>No Data</span>
-                  </div>
+                  
+                  {legendData.length > 8 && (
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
+                      Showing {legendData.length} unique values
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
             </div>
           )}
         </div>
