@@ -48,15 +48,20 @@ async function parseCSV(filePath: string): Promise<any[]> {
     return [];
   }
 
-  const headers = lines[0].split(',').map(h => h.trim().replace(/^"/, '').replace(/"$/, ''));
+  // Clean BOM from first line if present
+  if (lines[0].charCodeAt(0) === 0xFEFF) {
+    lines[0] = lines[0].substring(1);
+  }
+  
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"/, '').replace(/"$/, '').replace(/﻿/, ''));
   const data = [];
 
   for (let i = 1; i < lines.length; i++) {
     const values = parseCSVLine(lines[i]);
-    if (values.length === headers.length) {
+    if (values.length > 0 && values[0]) { // Only process non-empty rows
       const row: any = {};
       headers.forEach((header, index) => {
-        row[header] = values[index]?.trim() || '';
+        row[header] = values[index]?.trim().replace(/^"/, '').replace(/"$/, '') || '';
       });
       data.push(row);
     }
@@ -119,38 +124,39 @@ async function importApplications() {
     console.log(`Processing ${data.length} applications...`);
 
     for (const row of data) {
-      if (!row['Name'] || row['Name'] === 'Name') continue;
+      // Skip header rows
+      if (!row['name'] || row['name'] === 'Name' || row['type'] === 'Type') continue;
 
       const application = {
-        name: row['Name'] || '',
-        displayName: row['Display Name'] || row['Name'] || '',
-        businessCapabilities: row['Business Capabilities'] || '',
-        itComponentDisplayName: row['IT Component: Display Name'] || '',
-        activeFrom: row['Active from'] || '',
-        activeUntil: row['Active until'] || '',
-        costTotalAnnual: row['costTotalAnnual'] || '',
-        description: row['Description'] || '',
-        obsolescenceRiskComment: row['Obsolescence Risk Comment'] || '',
-        obsolescenceRiskStatus: row['Obsolescence Risk Status'] || '',
-        serviceLevel: row['serviceLevel'] || '',
-        technicalSuitability: row['Technical Fit'] || '',
-        gdItTeams: row['GD IT Teams'] || '',
-        ownedBy: row['Owned By'] || '',
-        owningFunction: row['Owning Function'] || '',
-        businessDomain: row['Business Domain'] || '',
-        maturityStatus: row['Maturity Status'] || '',
-        mainArea: row['Main Area'] || '',
-        pace: row['PACE'] || '',
-        businessUnit: row['Business Unit'] || '',
-        vendor: row['Vendor'] || '',
-        lxPsWip: row['LX PS WiP'] || '',
-        region: row['Region'] || '',
-        otherTags: row['Other tags'] || '',
-        organizations: row['Organizations'] || '',
-        cmdbApplicationServiceUrl: row['CMDB Application Service URL'] || '',
-        cmdbBusinessApplicationUrl: row['CMDB Business Application URL'] || '',
-        functionalFit: row['Functional Fit'] || '',
-        technicalFit: row['Technical Fit'] || '',
+        name: row['name'] || '',
+        displayName: row['displayName'] || row['name'] || '',
+        businessCapabilities: row['relApplicationToBusinessCapability'] || '',
+        itComponentDisplayName: row['relApplicationToITComponent:displayName'] || '',
+        activeFrom: row['relApplicationToITComponent:activeFrom'] || '',
+        activeUntil: row['relApplicationToITComponent:activeUntil'] || '',
+        costTotalAnnual: row['relApplicationToITComponent:costTotalAnnual'] || '',
+        description: row['relApplicationToITComponent:description'] || '',
+        obsolescenceRiskComment: row['relApplicationToITComponent:obsolescenceRiskComment'] || '',
+        obsolescenceRiskStatus: row['relApplicationToITComponent:obsolescenceRiskStatus'] || '',
+        serviceLevel: row['relApplicationToITComponent:serviceLevel'] || '',
+        technicalSuitability: row['relApplicationToITComponent:technicalSuitability'] || row['technicalSuitability'] || '',
+        gdItTeams: row['tags:GD IT Teams'] || '',
+        ownedBy: row['tags:Owned By'] || '',
+        owningFunction: row['tags:Owning Function'] || '',
+        businessDomain: row['tags:Business Domain'] || '',
+        maturityStatus: row['tags:Maturity Status'] || row['maturityStatus'] || '',
+        mainArea: row['tags:Main Area'] || '',
+        pace: row['tags:PACE'] || '',
+        businessUnit: row['tags:Business Unit'] || '',
+        vendor: row['tags:Vendor'] || '',
+        lxPsWip: row['tags:LX PS WiP'] || '',
+        region: row['tags:Region'] || '',
+        otherTags: row['tags:Other tags'] || '',
+        organizations: row['relApplicationToUserGroup'] || '',
+        cmdbApplicationServiceUrl: row['CMDB_SYS_ID'] || '',
+        cmdbBusinessApplicationUrl: row['cmdbBizAppUrl'] || '',
+        functionalFit: row['functionalSuitability'] || '',
+        technicalFit: row['technicalSuitability'] || '',
       };
 
       await db.insert(applications).values(application).onConflictDoNothing();
