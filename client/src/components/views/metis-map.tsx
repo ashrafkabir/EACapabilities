@@ -13,6 +13,8 @@ interface MetisMapProps {
     applications: boolean;
     components: boolean;
     interfaces: boolean;
+    dataObjects: boolean;
+    initiatives: boolean;
   };
 }
 
@@ -33,6 +35,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
   const [selectedInterface, setSelectedInterface] = useState<string | null>(null);
   const [selectedDataObject, setSelectedDataObject] = useState<string | null>(null);
+  const [selectedInitiative, setSelectedInitiative] = useState<string | null>(null);
 
   const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
@@ -63,6 +66,17 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     setExpandedApplication(null);
     setSelectedITComponent(null);
     setSelectedInterface(null);
+    setSelectedInitiative(null);
+  };
+
+  const handleInitiativeClick = (initiativeName: string) => {
+    setSelectedInitiative(initiativeName);
+    // Clear other selections when filtering by initiative
+    setExpandedCapability(null);
+    setExpandedApplication(null);
+    setSelectedITComponent(null);
+    setSelectedInterface(null);
+    setSelectedDataObject(null);
   };
 
   // Sync with sidebar selection
@@ -170,9 +184,11 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   // Find capabilities that match the search criteria based on active filters
   const allMatchingCapabilities = searchTerm ? (() => {
     // Determine search scope based on filters
-    const searchComponents = filters.components && !filters.capabilities && !filters.applications && !filters.interfaces;
-    const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components && !filters.interfaces;
-    const searchInterfacesOnly = filters.interfaces && !filters.capabilities && !filters.applications && !filters.components;
+    const searchComponents = filters.components && !filters.capabilities && !filters.applications && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
+    const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
+    const searchInterfacesOnly = filters.interfaces && !filters.capabilities && !filters.applications && !filters.components && !filters.dataObjects && !filters.initiatives;
+    const searchDataObjectsOnly = filters.dataObjects && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.initiatives;
+    const searchInitiativesOnly = filters.initiatives && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects;
     
     if (searchComponents) {
       // IT Component search: find components that match, then find applications using them, then find capabilities
@@ -227,6 +243,55 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             appCap.includes(cap.hierarchy || '')
           );
         });
+      });
+    } else if (searchDataObjectsOnly) {
+      // Data Object search: find data objects that match, then find interfaces using them, then find applications, then find capabilities
+      const matchingDataObjects = dataObjects.filter(obj =>
+        obj.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (obj.displayName && obj.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      
+      const interfacesUsingDataObjects = interfaces.filter(intf => {
+        return matchingDataObjects.some(obj => {
+          return intf.dataObjects && intf.dataObjects.toLowerCase().includes(obj.name.toLowerCase());
+        });
+      });
+      
+      const applicationsUsingDataObjects = applications.filter(app => {
+        return interfacesUsingDataObjects.some(intf =>
+          (intf.sourceApplication && intf.sourceApplication.toLowerCase().includes(app.name.toLowerCase())) ||
+          (intf.targetApplication && intf.targetApplication.toLowerCase().includes(app.name.toLowerCase()))
+        );
+      });
+      
+      // Find capabilities that use these applications
+      return allCapabilities.filter(cap => {
+        return applicationsUsingDataObjects.some(app => {
+          if (!app.businessCapabilities) return false;
+          const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+          return appCapabilities.some(appCap => 
+            cap.name === appCap || 
+            cap.name.includes(appCap) || 
+            appCap.includes(cap.name) ||
+            appCap.includes(cap.hierarchy || '')
+          );
+        });
+      });
+    } else if (searchInitiativesOnly) {
+      // Initiative search: find initiatives that match, then find applications using them, then find capabilities
+      const matchingInitiatives = initiatives.filter(init =>
+        init.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (init.description && init.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      
+      // For now, we'll use a simple mapping - initiatives don't have direct application relationships in the current schema
+      // This would need to be enhanced based on actual data relationships
+      return allCapabilities.filter(cap => {
+        // Simple name matching for demonstration - would need proper relationship mapping
+        return matchingInitiatives.some(init => 
+          cap.name.toLowerCase().includes(init.name.toLowerCase()) ||
+          init.name.toLowerCase().includes(cap.name.toLowerCase())
+        );
       });
     } else if (searchApplicationsOnly) {
       // Application-only search - find capabilities that have matching applications

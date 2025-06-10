@@ -17,6 +17,8 @@ interface SidebarProps {
     applications: boolean;
     components: boolean;
     interfaces: boolean;
+    dataObjects: boolean;
+    initiatives: boolean;
   };
   onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
@@ -207,6 +209,22 @@ export default function Sidebar({
               onCheckedChange={(checked) => handleFilterChange('interfaces', !!checked)}
             />
             <label htmlFor="interfaces" className="text-sm">Interfaces</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="dataObjects"
+              checked={filters.dataObjects}
+              onCheckedChange={(checked) => handleFilterChange('dataObjects', !!checked)}
+            />
+            <label htmlFor="dataObjects" className="text-sm">Data Objects</label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="initiatives"
+              checked={filters.initiatives}
+              onCheckedChange={(checked) => handleFilterChange('initiatives', !!checked)}
+            />
+            <label htmlFor="initiatives" className="text-sm">Initiatives</label>
           </div>
         </div>
       </div>
