@@ -1278,6 +1278,60 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       });
     }
 
+    // Get data objects that are used by the related interfaces
+    const relatedDataObjects = dataObjects.filter(dataObj => {
+      return relatedInterfaces.some(intf => 
+        intf.dataObjects && intf.dataObjects.includes(dataObj.name)
+      );
+    });
+
+    if (relatedDataObjects.length > 0) {
+      const dataObjectHeaders = [
+        'name', 'displayName', 'usedByInterfaces', 'relatedApplications', 'relatedCapabilities'
+      ];
+      
+      const dataObjectData = relatedDataObjects.map((dataObj: any) => {
+        // Get interfaces that use this data object
+        const usingInterfaces = relatedInterfaces.filter(intf => 
+          intf.dataObjects && intf.dataObjects.includes(dataObj.name)
+        );
+
+        // Get applications involved in these interfaces
+        const involvedApps = new Set();
+        const relatedCaps = new Set();
+        
+        usingInterfaces.forEach(intf => {
+          if (intf.sourceApplication) involvedApps.add(intf.sourceApplication);
+          if (intf.targetApplication) involvedApps.add(intf.targetApplication);
+        });
+
+        // Get capabilities from involved applications
+        Array.from(involvedApps).forEach((appName: any) => {
+          const app = applications.find(a => a.name === appName);
+          if (app?.businessCapabilities) {
+            app.businessCapabilities.split(';').forEach((cap: string) => {
+              relatedCaps.add(cap.trim().replace(/^~/, ''));
+            });
+          }
+        });
+
+        return {
+          name: dataObj.name,
+          displayName: dataObj.displayName || '',
+          usedByInterfaces: usingInterfaces.map(intf => intf.name).join('; '),
+          relatedApplications: Array.from(involvedApps).join('; '),
+          relatedCapabilities: Array.from(relatedCaps).join('; ')
+        };
+      });
+      
+      downloads.push({
+        data: dataObjectData,
+        headers: dataObjectHeaders,
+        filename: `related_data_objects_level_${currentLevel}_${timestamp}.csv`,
+        type: 'related data objects'
+      });
+    }
+
     // Get initiatives that involve the related applications
     const relatedInitiatives = initiatives.filter(init => {
       if (!init.applications) return false;
@@ -1346,6 +1400,13 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     }
     
     console.log(`Export completed: ${downloads.length} files generated`);
+    console.log('Summary of exported data:');
+    console.log(`- ${currentCapabilities.length} capabilities (Level ${currentLevel})`);
+    console.log(`- ${relatedApplications.length} related applications`);
+    console.log(`- ${relatedITComponents.length} related IT components`);
+    console.log(`- ${relatedInterfaces.length} related interfaces`);
+    console.log(`- ${relatedDataObjects.length} related data objects`);
+    console.log(`- ${relatedInitiatives.length} related initiatives`);
   };
 
   // Listen for export event
