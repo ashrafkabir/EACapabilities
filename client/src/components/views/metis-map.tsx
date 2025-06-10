@@ -994,72 +994,151 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     }
   };
 
+  // Export functionality that will be called directly
+  const performDirectExport = () => {
+    console.log('Starting direct export...');
+    console.log('Available data:');
+    console.log('- allCapabilities:', allCapabilities?.length || 0);
+    console.log('- applications:', applications?.length || 0);
+    console.log('- itComponents:', itComponents?.length || 0);
+    console.log('- interfaces:', interfaces?.length || 0);
+    console.log('- dataObjects:', dataObjects?.length || 0);
+    console.log('- initiatives:', initiatives?.length || 0);
+
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    
+    // Export all available data, starting with capabilities
+    if (allCapabilities && allCapabilities.length > 0) {
+      const capabilityHeaders = [
+        'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
+        'level2Capability', 'level3Capability', 'parentId'
+      ];
+      
+      const capabilityData = allCapabilities.map((cap: any) => ({
+        name: cap.name,
+        displayName: cap.displayName || '',
+        hierarchy: cap.hierarchy || '',
+        level: cap.level || '',
+        level1Capability: cap.level1Capability || '',
+        level2Capability: cap.level2Capability || '',
+        level3Capability: cap.level3Capability || '',
+        parentId: cap.parentId || ''
+      }));
+      
+      console.log('Exporting', capabilityData.length, 'capabilities');
+      const capabilityCSV = convertToCSV(capabilityData, capabilityHeaders);
+      downloadCSV(capabilityCSV, `business_capabilities_${timestamp}.csv`);
+    }
+    
+    // Export applications
+    if (applications && applications.length > 0) {
+      const applicationHeaders = [
+        'name', 'displayName', 'businessCapabilities', 'description', 'vendor',
+        'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus'
+      ];
+      
+      const applicationData = applications.map((app: any) => ({
+        name: app.name,
+        displayName: app.displayName || '',
+        businessCapabilities: app.businessCapabilities || '',
+        description: app.description || '',
+        vendor: app.vendor || '',
+        technicalSuitability: app.technicalSuitability || '',
+        functionalFit: app.functionalFit || '',
+        businessDomain: app.businessDomain || '',
+        maturityStatus: app.maturityStatus || ''
+      }));
+      
+      console.log('Exporting', applicationData.length, 'applications');
+      const applicationCSV = convertToCSV(applicationData, applicationHeaders);
+      downloadCSV(applicationCSV, `applications_${timestamp}.csv`);
+    }
+
+    // Export IT components
+    if (itComponents && itComponents.length > 0) {
+      const componentHeaders = ['name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications'];
+      const componentData = itComponents.map((comp: any) => ({
+        name: comp.name,
+        displayName: comp.displayName || '',
+        category: comp.category || '',
+        vendor: comp.vendor || '',
+        version: comp.version || '',
+        status: comp.status || '',
+        applications: comp.applications || ''
+      }));
+      
+      console.log('Exporting', componentData.length, 'IT components');
+      const componentCSV = convertToCSV(componentData, componentHeaders);
+      downloadCSV(componentCSV, `it_components_${timestamp}.csv`);
+    }
+
+    // Export interfaces
+    if (interfaces && interfaces.length > 0) {
+      const interfaceHeaders = [
+        'name', 'sourceApplication', 'targetApplication', 'dataFlow', 
+        'frequency', 'dataObjects', 'status'
+      ];
+      const interfaceData = interfaces.map((intf: any) => ({
+        name: intf.name,
+        sourceApplication: intf.sourceApplication || '',
+        targetApplication: intf.targetApplication || '',
+        dataFlow: intf.dataFlow || '',
+        frequency: intf.frequency || '',
+        dataObjects: intf.dataObjects || '',
+        status: intf.status || ''
+      }));
+      
+      console.log('Exporting', interfaceData.length, 'interfaces');
+      const interfaceCSV = convertToCSV(interfaceData, interfaceHeaders);
+      downloadCSV(interfaceCSV, `interfaces_${timestamp}.csv`);
+    }
+
+    // Export data objects
+    if (dataObjects && dataObjects.length > 0) {
+      const dataObjectHeaders = ['name', 'displayName'];
+      const dataObjectData = dataObjects.map((obj: any) => ({
+        name: obj.name,
+        displayName: obj.displayName || ''
+      }));
+      
+      console.log('Exporting', dataObjectData.length, 'data objects');
+      const dataObjectCSV = convertToCSV(dataObjectData, dataObjectHeaders);
+      downloadCSV(dataObjectCSV, `data_objects_${timestamp}.csv`);
+    }
+
+    // Export initiatives
+    if (initiatives && initiatives.length > 0) {
+      const initiativeHeaders = [
+        'name', 'description', 'status', 'startDate', 'endDate', 
+        'businessCapabilities', 'applications'
+      ];
+      const initiativeData = initiatives.map((init: any) => ({
+        name: init.name,
+        description: init.description || '',
+        status: init.status || '',
+        startDate: init.startDate || '',
+        endDate: init.endDate || '',
+        businessCapabilities: init.businessCapabilities || '',
+        applications: init.applications || ''
+      }));
+      
+      console.log('Exporting', initiativeData.length, 'initiatives');
+      const initiativeCSV = convertToCSV(initiativeData, initiativeHeaders);
+      downloadCSV(initiativeCSV, `initiatives_${timestamp}.csv`);
+    }
+
+    if (!allCapabilities?.length && !applications?.length && !itComponents?.length && 
+        !interfaces?.length && !dataObjects?.length && !initiatives?.length) {
+      console.warn('No data available for export - all datasets are empty');
+    }
+  };
+
   // Listen for export event
   useEffect(() => {
     const handleExport = () => {
       console.log('Export event received in MetisMap');
       try {
-        // Create a standalone export function that gets fresh data
-        const performExport = () => {
-          console.log('Starting direct export...');
-          
-          // Get fresh data from queries
-          const capabilitiesToExport = allCapabilities || [];
-          console.log('Capabilities available for export:', capabilitiesToExport.length);
-          
-          if (capabilitiesToExport.length === 0) {
-            console.warn('No capabilities data loaded yet');
-            return;
-          }
-
-          const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-          
-          // Export capabilities
-          const capabilityHeaders = [
-            'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
-            'level2Capability', 'level3Capability', 'parentId'
-          ];
-          
-          const capabilityData = capabilitiesToExport.map((cap: any) => ({
-            name: cap.name,
-            displayName: cap.displayName || '',
-            hierarchy: cap.hierarchy || '',
-            level: cap.level || '',
-            level1Capability: cap.level1Capability || '',
-            level2Capability: cap.level2Capability || '',
-            level3Capability: cap.level3Capability || '',
-            parentId: cap.parentId || ''
-          }));
-          
-          console.log('Processing', capabilityData.length, 'capabilities for export');
-          const capabilityCSV = convertToCSV(capabilityData, capabilityHeaders);
-          downloadCSV(capabilityCSV, `capabilities_export_${timestamp}.csv`);
-          
-          // Export applications if available
-          if (applications && applications.length > 0) {
-            const applicationHeaders = [
-              'name', 'displayName', 'businessCapabilities', 'description', 'vendor',
-              'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus'
-            ];
-            
-            const applicationData = applications.map(app => ({
-              name: app.name,
-              displayName: app.displayName || '',
-              businessCapabilities: app.businessCapabilities || '',
-              description: app.description || '',
-              vendor: app.vendor || '',
-              technicalSuitability: app.technicalSuitability || '',
-              functionalFit: app.functionalFit || '',
-              businessDomain: app.businessDomain || '',
-              maturityStatus: app.maturityStatus || ''
-            }));
-            
-            const applicationCSV = convertToCSV(applicationData, applicationHeaders);
-            downloadCSV(applicationCSV, `applications_export_${timestamp}.csv`);
-          }
-        };
-        
-        performExport();
+        performDirectExport();
       } catch (error) {
         console.error('Error in export function:', error);
       }
@@ -1071,7 +1150,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       console.log('Removing export event listener in MetisMap');
       window.removeEventListener('exportData', handleExport);
     };
-  }, []);
+  }, [allCapabilities, applications, itComponents, interfaces, dataObjects, initiatives]);
 
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
