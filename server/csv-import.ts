@@ -97,22 +97,52 @@ async function importBusinessCapabilities() {
     const data = await parseCSV('BusinessCapabilities_mapping_1749518164788.csv');
     console.log(`Processing ${data.length} business capabilities...`);
 
+    // Clear existing capabilities to rebuild hierarchy
+    await db.delete(businessCapabilities);
+
+    // Map to track created capabilities by their full path
+    const capabilityMap = new Map<string, string>(); // path -> id
+    
     for (const row of data) {
       if (!row['Business Capability in LeanIX']) continue;
 
-      const capability = {
-        name: row['Business Capability in LeanIX'],
-        displayName: row['Business Capability in LeanIX'],
-        hierarchy: row['Hierarchy'] || '',
-        mappedLevel1Capability: row['Mapped  Level 1 Capability'] || '',
-        mappedToLifesciencesCapabilities: row['mapped to Lifesciences Capabilities Level 3'] || '',
-        level: (row['Hierarchy'] || '').split(' / ').length,
-      };
+      const hierarchy = row['Hierarchy'] || '';
+      if (!hierarchy) continue;
 
-      await db.insert(businessCapabilities).values(capability).onConflictDoNothing();
+      // Split hierarchy into levels: "Human Resources / Benefits / Benefits Management"
+      const levels = hierarchy.split(' / ').map(level => level.trim());
+      
+      // Create capabilities for each level if they don't exist
+      let parentId: string | null = null;
+      let currentPath = '';
+
+      for (let i = 0; i < levels.length; i++) {
+        const levelName = levels[i];
+        currentPath = levels.slice(0, i + 1).join(' / ');
+        
+        // Check if this capability already exists
+        if (!capabilityMap.has(currentPath)) {
+          const capability = {
+            name: levelName,
+            displayName: levelName,
+            hierarchy: currentPath,
+            parentId: parentId,
+            level: i + 1,
+            mappedLevel1Capability: i === 0 ? levelName : (row['Mapped  Level 1 Capability'] || ''),
+            mappedToLifesciencesCapabilities: i === levels.length - 1 ? (row['mapped to Lifesciences Capabilities Level 3'] || '') : '',
+          };
+
+          const [inserted] = await db.insert(businessCapabilities).values(capability).returning({ id: businessCapabilities.id });
+          capabilityMap.set(currentPath, inserted.id);
+          parentId = inserted.id;
+        } else {
+          // Use existing capability as parent for next level
+          parentId = capabilityMap.get(currentPath)!;
+        }
+      }
     }
 
-    console.log('Business capabilities imported successfully');
+    console.log(`Business capabilities imported successfully - created ${capabilityMap.size} capabilities`);
   } catch (error) {
     console.error('Error importing business capabilities:', error);
   }
