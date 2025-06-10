@@ -19,8 +19,8 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
   });
 
   // Fetch applications for capabilities
-  const { data: relatedApplications } = useQuery({
-    queryKey: [`/api/capabilities`, entity.id, 'applications'],
+  const { data: relatedApplications } = useQuery<Application[]>({
+    queryKey: [`/api/capabilities/${entity.id}/applications`],
     enabled: !!entity.id && entity.type === 'capability',
   });
 
@@ -131,6 +131,39 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
           </dl>
         </div>
       </div>
+
+      {/* Related Applications Section */}
+      {entity.type === 'capability' && relatedApplications && relatedApplications.length > 0 && (
+        <div>
+          <h3 className="font-medium text-foreground mb-3">Related Applications ({relatedApplications.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {relatedApplications.slice(0, 6).map((app: Application) => (
+              <div key={app.id} className="bg-muted/30 rounded-lg p-3 border">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-sm text-foreground">{app.displayName || app.name}</h4>
+                    {app.businessDomain && (
+                      <Badge variant="secondary" className="mt-1 text-xs">{app.businessDomain}</Badge>
+                    )}
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+          {relatedApplications.length > 6 && (
+            <p className="text-sm text-muted-foreground mt-2">
+              and {relatedApplications.length - 6} more applications...
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 

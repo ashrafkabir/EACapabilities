@@ -124,22 +124,24 @@ export class DatabaseStorage implements IStorage {
     return apps.filter(app => {
       if (!app.businessCapabilities) return false;
       
-      // Handle multiple capabilities separated by semicolons or commas
+      // Handle multiple capabilities separated by semicolons
       const appCapabilities = app.businessCapabilities
-        .split(/[;,]/)
+        .split(';')
         .map(cap => cap.trim().replace(/^~/, ''));
       
-      // Check if any of the app's capabilities match this capability name or hierarchy
-      return appCapabilities.some(appCap => 
-        appCap === capability.name ||
-        appCap.includes(capability.name) ||
-        capability.name.includes(appCap) ||
-        (capability.hierarchy && (
-          appCap === capability.hierarchy ||
-          appCap.includes(capability.hierarchy) ||
-          capability.hierarchy.includes(appCap)
-        ))
-      );
+      // Check for exact matches or hierarchical matches
+      return appCapabilities.some(appCap => {
+        // Exact match
+        if (appCap === capability.name) return true;
+        
+        // Check if the capability name is contained in the app capability
+        if (appCap.includes(capability.name)) return true;
+        
+        // Check if the app capability starts with the capability name
+        if (capability.name.startsWith(appCap)) return true;
+        
+        return false;
+      });
     });
   }
 
