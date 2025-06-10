@@ -26,6 +26,7 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
 
   // Debug logging
   console.log('Entity type:', entity.type, 'Related apps:', relatedApplications?.length || 0);
+  console.log('Apps loading:', appsLoading, 'Apps data:', relatedApplications);
 
   const renderApplicationDetails = (app: Application) => (
     <div className="space-y-6">
@@ -134,53 +135,6 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
           </dl>
         </div>
       </div>
-
-      {/* Related Applications Section */}
-      {entity.type === 'capability' && (
-        <div>
-          {appsLoading ? (
-            <div>
-              <h3 className="font-medium text-foreground mb-3">Loading Applications...</h3>
-              <div className="h-16 bg-muted/30 rounded-lg animate-pulse"></div>
-            </div>
-          ) : relatedApplications && relatedApplications.length > 0 ? (
-            <div>
-              <h3 className="font-medium text-foreground mb-3">Related Applications ({relatedApplications.length})</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {relatedApplications.slice(0, 6).map((app: Application) => (
-                  <div key={app.id} className="bg-muted/30 rounded-lg p-3 border">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <h4 className="font-medium text-sm text-foreground">{app.displayName || app.name}</h4>
-                        {app.businessDomain && (
-                          <Badge variant="secondary" className="mt-1 text-xs">{app.businessDomain}</Badge>
-                        )}
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="h-6 w-6 p-0"
-                      >
-                        <ExternalLink className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {relatedApplications.length > 6 && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  and {relatedApplications.length - 6} more applications...
-                </p>
-              )}
-            </div>
-          ) : (
-            <div>
-              <h3 className="font-medium text-foreground mb-3">Related Applications</h3>
-              <p className="text-sm text-muted-foreground">No applications found for this capability.</p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 
@@ -258,11 +212,11 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
   };
 
   const getEntityTitle = () => {
-    if (entity.data) {
+    if (entity.data && typeof entity.data === 'object' && 'displayName' in entity.data) {
       return entity.data.displayName || entity.data.name || 'Entity Details';
     }
-    if (entityData) {
-      return entityData.displayName || entityData.name || 'Entity Details';
+    if (entityData && typeof entityData === 'object' && 'displayName' in entityData) {
+      return (entityData as any).displayName || (entityData as any).name || 'Entity Details';
     }
     return 'Entity Details';
   };
@@ -292,12 +246,75 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
             </TabsContent>
             
             <TabsContent value="relationships" className="mt-6">
-              <div className="space-y-4">
-                <h3 className="font-medium text-foreground">Connected Entities</h3>
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground">
-                    Relationship data will be displayed here
-                  </p>
+              <div className="space-y-6">
+                {/* Related Applications Section for Capabilities */}
+                {entity.type === 'capability' && (
+                  <div>
+                    {appsLoading ? (
+                      <div>
+                        <h3 className="font-medium text-foreground mb-3">Loading Applications...</h3>
+                        <div className="h-16 bg-muted/30 rounded-lg animate-pulse"></div>
+                      </div>
+                    ) : relatedApplications && relatedApplications.length > 0 ? (
+                      <div>
+                        <h3 className="font-medium text-foreground mb-3">Related Applications ({relatedApplications.length})</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {relatedApplications.slice(0, 6).map((app: Application) => (
+                            <div key={app.id} className="bg-muted/30 rounded-lg p-3 border">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-medium text-sm text-foreground">{app.displayName || app.name}</h4>
+                                  {app.businessDomain && (
+                                    <Badge variant="secondary" className="mt-1 text-xs">{app.businessDomain}</Badge>
+                                  )}
+                                  {app.ownedBy && (
+                                    <p className="text-xs text-muted-foreground mt-1">Owner: {app.ownedBy}</p>
+                                  )}
+                                  <div className="flex items-center gap-2 mt-2">
+                                    <Badge variant="outline" className="text-xs">{app.maturityStatus || 'Active'}</Badge>
+                                    {app.mainArea && (
+                                      <Badge variant="outline" className="text-xs">{app.mainArea}</Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  className="h-6 w-6 p-0"
+                                  onClick={() => {
+                                    // Navigate to application details
+                                    console.log('Navigate to app:', app.id);
+                                  }}
+                                >
+                                  <ExternalLink className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {relatedApplications.length > 6 && (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            and {relatedApplications.length - 6} more applications...
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <h3 className="font-medium text-foreground mb-3">Related Applications</h3>
+                        <p className="text-sm text-muted-foreground">No applications found for this capability.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* General Connected Entities Section */}
+                <div>
+                  <h3 className="font-medium text-foreground mb-3">Other Connected Entities</h3>
+                  <div className="bg-muted/50 rounded-lg p-4">
+                    <p className="text-sm text-muted-foreground">
+                      Additional relationship data will be displayed here
+                    </p>
+                  </div>
                 </div>
               </div>
             </TabsContent>
