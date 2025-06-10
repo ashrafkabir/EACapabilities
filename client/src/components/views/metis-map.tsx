@@ -119,6 +119,34 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     queryKey: ['/api/initiatives'],
   });
 
+  // CSV Export Functions
+  const convertToCSV = (data: any[], headers: string[]) => {
+    const csvContent = [
+      headers.join(','),
+      ...data.map(row => 
+        headers.map(header => {
+          const value = row[header] || '';
+          // Escape commas and quotes in CSV values
+          const escapedValue = String(value).replace(/"/g, '""');
+          return `"${escapedValue}"`;
+        }).join(',')
+      )
+    ].join('\n');
+    return csvContent;
+  };
+
+  const downloadCSV = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleGoBack = () => {
     if (currentLevel > 1) {
       setCurrentLevel(currentLevel - 1);
@@ -474,6 +502,8 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
 
 
 
+
+
   // If searching, find the capabilities that should be shown at the current display level
   const filteredCapabilities = searchTerm && allMatchingCapabilities ? 
     capabilitiesToShow.filter(cap => {
@@ -601,6 +631,156 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
       default: return { bg: 'bg-gray-50 dark:bg-gray-900/20', border: 'border-gray-200 dark:border-gray-700', color: 'text-gray-600 dark:text-gray-400', dot: 'bg-gray-500' };
     }
   };
+
+  // Export functionality
+  const exportCurrentData = () => {
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    
+    // Export currently displayed capabilities
+    const capabilityHeaders = [
+      'name', 'displayName', 'hierarchy', 'level', 'level1Capability', 
+      'level2Capability', 'level3Capability', 'parentId'
+    ];
+    const displayedCapabilities = filteredCapabilities || capabilitiesToShow;
+    const capabilityData = displayedCapabilities.map(cap => ({
+      name: cap.name,
+      displayName: cap.displayName || '',
+      hierarchy: cap.hierarchy || '',
+      level: cap.level || '',
+      level1Capability: cap.level1Capability || '',
+      level2Capability: cap.level2Capability || '',
+      level3Capability: cap.level3Capability || '',
+      parentId: cap.parentId || ''
+    }));
+    
+    const capabilityCSV = convertToCSV(capabilityData, capabilityHeaders);
+    downloadCSV(capabilityCSV, `capabilities_level_${currentLevel}_${timestamp}.csv`);
+
+    // Export related applications for displayed capabilities
+    const relatedApplications = applications.filter(app => {
+      if (!app.businessCapabilities) return false;
+      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+      return displayedCapabilities.some(cap => 
+        appCapabilities.some(appCap => 
+          cap.name === appCap || 
+          cap.name.includes(appCap) || 
+          appCap.includes(cap.name) ||
+          appCap.includes(cap.hierarchy || '')
+        )
+      );
+    });
+
+    if (relatedApplications.length > 0) {
+      const applicationHeaders = [
+        'name', 'displayName', 'businessCapabilities', 'description', 'vendor',
+        'technicalSuitability', 'functionalFit', 'businessDomain', 'maturityStatus'
+      ];
+      const applicationData = relatedApplications.map(app => ({
+        name: app.name,
+        displayName: app.displayName || '',
+        businessCapabilities: app.businessCapabilities || '',
+        description: app.description || '',
+        vendor: app.vendor || '',
+        technicalSuitability: app.technicalSuitability || '',
+        functionalFit: app.functionalFit || '',
+        businessDomain: app.businessDomain || '',
+        maturityStatus: app.maturityStatus || ''
+      }));
+      
+      const applicationCSV = convertToCSV(applicationData, applicationHeaders);
+      downloadCSV(applicationCSV, `applications_${timestamp}.csv`);
+    }
+
+    // Export specific filtered data if any filter is active
+    if (selectedITComponent) {
+      const relatedComponents = itComponents.filter(comp => comp.name === selectedITComponent);
+      if (relatedComponents.length > 0) {
+        const componentHeaders = ['name', 'displayName', 'category', 'vendor', 'version', 'status', 'applications'];
+        const componentData = relatedComponents.map(comp => ({
+          name: comp.name,
+          displayName: comp.displayName || '',
+          category: comp.category || '',
+          vendor: comp.vendor || '',
+          version: comp.version || '',
+          status: comp.status || '',
+          applications: comp.applications || ''
+        }));
+        
+        const componentCSV = convertToCSV(componentData, componentHeaders);
+        downloadCSV(componentCSV, `filtered_it_component_${timestamp}.csv`);
+      }
+    }
+
+    if (selectedInterface) {
+      const relatedInterfaces = interfaces.filter(intf => intf.name === selectedInterface);
+      if (relatedInterfaces.length > 0) {
+        const interfaceHeaders = [
+          'name', 'sourceApplication', 'targetApplication', 'dataFlow', 
+          'frequency', 'dataObjects', 'status'
+        ];
+        const interfaceData = relatedInterfaces.map(intf => ({
+          name: intf.name,
+          sourceApplication: intf.sourceApplication || '',
+          targetApplication: intf.targetApplication || '',
+          dataFlow: intf.dataFlow || '',
+          frequency: intf.frequency || '',
+          dataObjects: intf.dataObjects || '',
+          status: intf.status || ''
+        }));
+        
+        const interfaceCSV = convertToCSV(interfaceData, interfaceHeaders);
+        downloadCSV(interfaceCSV, `filtered_interface_${timestamp}.csv`);
+      }
+    }
+
+    if (selectedDataObject) {
+      const relatedDataObjects = dataObjects.filter(obj => obj.name === selectedDataObject);
+      if (relatedDataObjects.length > 0) {
+        const dataObjectHeaders = ['name', 'displayName'];
+        const dataObjectData = relatedDataObjects.map(obj => ({
+          name: obj.name,
+          displayName: obj.displayName || ''
+        }));
+        
+        const dataObjectCSV = convertToCSV(dataObjectData, dataObjectHeaders);
+        downloadCSV(dataObjectCSV, `filtered_data_object_${timestamp}.csv`);
+      }
+    }
+
+    if (selectedInitiative) {
+      const relatedInitiatives = initiatives.filter(init => init.name === selectedInitiative);
+      if (relatedInitiatives.length > 0) {
+        const initiativeHeaders = [
+          'name', 'description', 'status', 'startDate', 'endDate', 
+          'businessCapabilities', 'applications'
+        ];
+        const initiativeData = relatedInitiatives.map(init => ({
+          name: init.name,
+          description: init.description || '',
+          status: init.status || '',
+          startDate: init.startDate || '',
+          endDate: init.endDate || '',
+          businessCapabilities: init.businessCapabilities || '',
+          applications: init.applications || ''
+        }));
+        
+        const initiativeCSV = convertToCSV(initiativeData, initiativeHeaders);
+        downloadCSV(initiativeCSV, `filtered_initiative_${timestamp}.csv`);
+      }
+    }
+  };
+
+  // Listen for export event
+  useEffect(() => {
+    const handleExport = () => {
+      exportCurrentData();
+    };
+
+    window.addEventListener('exportData', handleExport);
+    return () => {
+      window.removeEventListener('exportData', handleExport);
+    };
+  }, [capabilitiesToShow, filteredCapabilities, applications, itComponents, interfaces, dataObjects, initiatives, selectedITComponent, selectedInterface, selectedDataObject, selectedInitiative, currentLevel]);
 
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
