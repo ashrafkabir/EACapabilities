@@ -160,16 +160,20 @@ export default function MetisMap({
     }
 
     // Create nodes
-    const nodeElements = container.selectAll("circle")
+    const nodeElements = container.selectAll("circle.node-circle")
       .data(nodes)
       .join("circle")
+      .attr("class", "node-circle")
       .attr("r", d => d.radius)
       .attr("fill", d => d.color)
       .attr("stroke", "#fff")
       .attr("stroke-width", 3)
       .attr("opacity", 0.8)
-      .style("cursor", "pointer")
-      .on("mouseover", (event, d) => {
+      .style("cursor", "pointer");
+
+    // Add event handlers separately to ensure they work
+    nodeElements
+      .on("mouseover", function(event, d) {
         setHoveredNode(d);
         const rect = svgRef.current!.getBoundingClientRect();
         setTooltipPosition({
@@ -177,33 +181,34 @@ export default function MetisMap({
           y: event.clientY - rect.top
         });
       })
-      .on("mousemove", (event) => {
+      .on("mousemove", function(event) {
         const rect = svgRef.current!.getBoundingClientRect();
         setTooltipPosition({
           x: event.clientX - rect.left,
           y: event.clientY - rect.top
         });
       })
-      .on("mouseout", () => {
+      .on("mouseout", function() {
         setHoveredNode(null);
       })
-      .on("click", (event, d) => {
+      .on("click", function(event, d) {
         event.stopPropagation();
+        event.preventDefault();
         
-        // Debug logging
+        console.log('=== METIS MAP CLICK ===');
         console.log('Clicked capability:', d.name, 'Level:', d.level, 'Current Level:', currentLevel);
+        console.log('All capabilities loaded:', allCapabilities.length);
         
-        // Left click - always drill down if children exist, regardless of applications
-        const hasChildren = allCapabilities.some(cap => cap.parentId === d.id);
-        console.log('Has children:', hasChildren, 'Children found:', allCapabilities.filter(cap => cap.parentId === d.id).length);
+        // Check for children
+        const children = allCapabilities.filter(cap => cap.parentId === d.id);
+        const hasChildren = children.length > 0;
+        console.log('Has children:', hasChildren, 'Children found:', children.length);
         
         if (hasChildren && currentLevel < 3) {
-          // Drill down to next level
           console.log('Drilling down from level', currentLevel, 'to', currentLevel + 1, 'for parent:', d.id);
           setSelectedParent(d.id);
           setCurrentLevel(currentLevel + 1);
         } else {
-          // No children - show applications if available
           console.log('No children, showing applications:', d.applications.length);
           if (d.applications.length > 0) {
             onEntitySelect({
@@ -214,7 +219,7 @@ export default function MetisMap({
           }
         }
       })
-      .on("contextmenu", (event, d) => {
+      .on("contextmenu", function(event, d) {
         event.preventDefault();
         onEntitySelect({
           type: 'capability',
