@@ -123,46 +123,66 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   };
 
   const capabilitiesToShow = getCapabilitiesToShow();
-  const filteredCapabilities = capabilitiesToShow.filter(cap => {
-    // Apply capability level filter
+  
+  // First, find all capabilities that match the search criteria (across all levels)
+  const allMatchingCapabilities = searchTerm ? allCapabilities.filter(cap => {
+    // Search by capability name
+    const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                  (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Search by related applications
+    const relatedApps = applications.filter(app => {
+      if (!app.businessCapabilities) return false;
+      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+      return appCapabilities.some(appCap => 
+        cap.name === appCap || 
+        cap.name.includes(appCap) || 
+        appCap.includes(cap.name) ||
+        appCap.includes(cap.hierarchy || '')
+      );
+    });
+    
+    const matchesApplicationName = relatedApps.some(app => 
+      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+    
+    return matchesCapabilityName || matchesApplicationName;
+  }) : null;
+
+  // Apply capability level filter (controls display level)
+  useEffect(() => {
     if (filters.capabilityLevel !== 'all') {
       const targetLevel = parseInt(filters.capabilityLevel);
-      if (currentLevel !== targetLevel) {
-        return false;
+      if (targetLevel !== currentLevel) {
+        setCurrentLevel(targetLevel);
+        setSelectedParent(null); // Reset parent when changing levels via filter
       }
     }
-    
-    // Apply search term filter
-    if (searchTerm) {
-      // Search by capability name
-      const matchesCapabilityName = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                    (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [filters.capabilityLevel, currentLevel]);
+
+  // If searching, find the capabilities that should be shown at the current display level
+  const filteredCapabilities = searchTerm && allMatchingCapabilities ? 
+    capabilitiesToShow.filter(cap => {
+      // If the capability itself matches and is at the current display level, include it
+      if (allMatchingCapabilities.some(match => match.id === cap.id && match.level === currentLevel)) {
+        return true;
+      }
       
-      // Search by related applications
-      const relatedApps = applications.filter(app => {
-        if (!app.businessCapabilities) return false;
-        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-        return appCapabilities.some(appCap => 
-          cap.name === appCap || 
-          cap.name.includes(appCap) || 
-          appCap.includes(cap.name) ||
-          appCap.includes(cap.hierarchy || '')
-        );
+      // If any descendant capabilities match, include this ancestor at the current display level
+      const hasMatchingDescendants = allMatchingCapabilities.some(match => {
+        if (currentLevel === 1) {
+          // For Level 1 display, include if any L2 or L3 capabilities have this as their L1 parent
+          return match.level1Capability === cap.name;
+        } else if (currentLevel === 2) {
+          // For Level 2 display, include if any L3 capabilities have this as their L2 parent
+          return match.level2Capability === cap.name;
+        }
+        return false;
       });
       
-      const matchesApplicationName = relatedApps.some(app => 
-        app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-      
-      if (!matchesCapabilityName && !matchesApplicationName) {
-        return false;
-      }
-    }
-    
-
-    return true;
-  });
+      return hasMatchingDescendants;
+    }) : capabilitiesToShow;
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
@@ -500,31 +520,55 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
                     {itemLabel}: {itemCount}
                   </div>
                   
-                  {searchTerm && (() => {
-                    // Check if this capability matches through applications
-                    const relatedApps = applications.filter(app => {
-                      if (!app.businessCapabilities) return false;
-                      const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
-                      return appCapabilities.some(appCap => 
-                        capability.name === appCap || 
-                        capability.name.includes(appCap) || 
-                        appCap.includes(capability.name) ||
-                        appCap.includes(capability.hierarchy || '')
-                      );
-                    });
+                  {searchTerm && allMatchingCapabilities && (() => {
+                    // Check if this capability is shown because of direct matches
+                    const directMatch = allMatchingCapabilities.some(match => match.id === capability.id);
                     
-                    const matchingApps = relatedApps.filter(app => 
-                      app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                      (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
-                    );
-                    
-                    if (matchingApps.length > 0) {
-                      return (
-                        <div className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded">
-                          Found via {matchingApps.length} application{matchingApps.length > 1 ? 's' : ''}: {matchingApps.slice(0, 2).map(app => app.name).join(', ')}
-                          {matchingApps.length > 2 && ` +${matchingApps.length - 2} more`}
-                        </div>
+                    if (directMatch) {
+                      // Check if matched through applications
+                      const relatedApps = applications.filter(app => {
+                        if (!app.businessCapabilities) return false;
+                        const appCapabilities = app.businessCapabilities.split(';').map(c => c.trim().replace(/^~/, ''));
+                        return appCapabilities.some(appCap => 
+                          capability.name === appCap || 
+                          capability.name.includes(appCap) || 
+                          appCap.includes(capability.name) ||
+                          appCap.includes(capability.hierarchy || '')
+                        );
+                      });
+                      
+                      const matchingApps = relatedApps.filter(app => 
+                        app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        (app.displayName && app.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
                       );
+                      
+                      if (matchingApps.length > 0) {
+                        return (
+                          <div className="text-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 px-2 py-1 rounded">
+                            Found via {matchingApps.length} application{matchingApps.length > 1 ? 's' : ''}: {matchingApps.slice(0, 2).map(app => app.name).join(', ')}
+                            {matchingApps.length > 2 && ` +${matchingApps.length - 2} more`}
+                          </div>
+                        );
+                      }
+                    } else {
+                      // Check if shown because of descendant matches
+                      const descendantMatches = allMatchingCapabilities.filter(match => {
+                        if (currentLevel === 1) {
+                          return match.level1Capability === capability.name;
+                        } else if (currentLevel === 2) {
+                          return match.level2Capability === capability.name;
+                        }
+                        return false;
+                      });
+                      
+                      if (descendantMatches.length > 0) {
+                        const levelName = currentLevel === 1 ? 'sub-capabilities' : 'detailed capabilities';
+                        return (
+                          <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                            Contains {descendantMatches.length} matching {levelName}
+                          </div>
+                        );
+                      }
                     }
                     return null;
                   })()}
