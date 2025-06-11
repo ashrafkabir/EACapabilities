@@ -9,7 +9,7 @@ interface TopBarProps {
 }
 
 const viewConfig = {
-  network: { icon: Network, label: 'Network View' },
+  network: { icon: Network, label: 'Business Capabilities' },
   hierarchy: { icon: List, label: 'Hierarchy' },
   heatmap: { icon: Grid3x3, label: 'Heatmap' },
   dashboard: { icon: BarChart3, label: 'Dashboard' },

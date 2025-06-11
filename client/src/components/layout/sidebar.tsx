@@ -156,7 +156,7 @@ export default function Sidebar({
       {/* Header */}
       <div className="p-6 border-b border-border">
         <h1 className="text-xl font-medium text-foreground">
-          Enterprise Architecture Navigator
+          REA Landscape Navigator
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Navigate capabilities, applications & components
