@@ -20,9 +20,19 @@ interface HeatmapData {
 
 interface HeatmapViewProps {
   onEntitySelect: (entity: EntityReference) => void;
+  searchTerm: string;
+  selectedCapability: string | null;
+  filters: {
+    capabilities: boolean;
+    applications: boolean;
+    components: boolean;
+    interfaces: boolean;
+    dataObjects: boolean;
+    initiatives: boolean;
+  };
 }
 
-export default function HeatmapView({ onEntitySelect }: HeatmapViewProps) {
+export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapability, filters }: HeatmapViewProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedMetric, setSelectedMetric] = useState('applicationCount');
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });

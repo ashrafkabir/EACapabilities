@@ -62,6 +62,13 @@ export default function Dashboard() {
     setSelectedEntity(null);
   };
 
+  const handleViewChange = (view: ViewType) => {
+    // Reset search and navigation when switching tabs
+    setSearchTerm('');
+    setSelectedCapability(null);
+    setCurrentView(view);
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'network':
@@ -86,12 +93,18 @@ export default function Dashboard() {
         return (
           <HeatmapView
             onEntitySelect={handleEntitySelect}
+            searchTerm={searchTerm}
+            selectedCapability={selectedCapability}
+            filters={filters}
           />
         );
       case 'dashboard':
         return (
           <DashboardView
             onEntitySelect={handleEntitySelect}
+            searchTerm={searchTerm}
+            selectedCapability={selectedCapability}
+            filters={filters}
           />
         );
       case 'model':
@@ -120,7 +133,7 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col">
         <TopBar
           currentView={currentView}
-          onViewChange={setCurrentView}
+          onViewChange={handleViewChange}
           onExport={handleExport}
         />
         
