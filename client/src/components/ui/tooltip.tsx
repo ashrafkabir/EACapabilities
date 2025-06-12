@@ -92,20 +92,18 @@ export function Tooltip({
     };
   }, []);
 
-  const getArrowClasses = () => {
-    const base = "absolute w-2 h-2 bg-gray-900 dark:bg-gray-100 transform rotate-45";
-    
+  const getTransformClasses = () => {
     switch (side) {
       case "top":
-        return cn(base, "bottom-[-4px] left-1/2 -translate-x-1/2");
+        return "transform -translate-x-1/2 -translate-y-full";
       case "bottom":
-        return cn(base, "top-[-4px] left-1/2 -translate-x-1/2");
+        return "transform -translate-x-1/2";
       case "left":
-        return cn(base, "right-[-4px] top-1/2 -translate-y-1/2");
+        return "transform -translate-x-full -translate-y-1/2";
       case "right":
-        return cn(base, "left-[-4px] top-1/2 -translate-y-1/2");
+        return "transform -translate-y-1/2";
       default:
-        return base;
+        return "transform -translate-x-1/2 -translate-y-full";
     }
   };
 
@@ -126,8 +124,8 @@ export function Tooltip({
         <div
           ref={tooltipRef}
           className={cn(
-            "fixed z-50 px-3 py-2 text-sm text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded-md shadow-lg",
-            maxWidth,
+            "fixed z-50 px-3 py-2 text-sm text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded-md shadow-lg max-w-sm",
+            getTransformClasses(),
             className
           )}
           style={{
@@ -136,7 +134,6 @@ export function Tooltip({
           }}
           role="tooltip"
         >
-          <div className={getArrowClasses()} />
           {content}
         </div>
       )}
@@ -166,14 +163,12 @@ interface DeepDiveTooltipProps {
   };
   children: React.ReactNode;
   side?: "top" | "bottom" | "left" | "right";
-  maxWidth?: string;
 }
 
 export function DeepDiveTooltip({ 
   entity, 
   children, 
-  side = "top",
-  maxWidth = "max-w-sm"
+  side = "top"
 }: DeepDiveTooltipProps) {
   const getTooltipContent = () => {
     const { name, type, count, description, businessCapabilities, technologies, status } = entity;
@@ -289,7 +284,6 @@ export function DeepDiveTooltip({
     <Tooltip 
       content={getTooltipContent()} 
       side={side}
-      maxWidth={maxWidth}
       delayDuration={300}
     >
       {children}

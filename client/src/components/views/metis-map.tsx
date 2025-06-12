@@ -4,7 +4,7 @@ import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 import ExportSummaryModal from "@/components/modals/export-summary-modal";
-import { DeepDiveTooltip } from "@/components/ui/tooltip";
+import { CapabilityTooltip } from "@/components/ui/capability-tooltip";
 
 interface MetisMapProps {
   selectedCapability: string | null;
@@ -1744,19 +1744,18 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
           }
           
           return (
-            <DeepDiveTooltip
+            <CapabilityTooltip
               key={capability.id}
-              entity={{
+              capability={{
                 name: capability.name,
-                type: 'capability' as const,
-                count: itemCount,
-                level: capability.level ?? undefined,
-                level1Capability: capability.level1Capability ?? undefined,
-                level2Capability: capability.level2Capability ?? undefined,
-                level3Capability: capability.level3Capability ?? undefined
+                level: capability.level,
+                level1Capability: capability.level1Capability,
+                level2Capability: capability.level2Capability,
+                level3Capability: capability.level3Capability
               }}
-              side="bottom"
-              maxWidth="max-w-md"
+              count={itemCount}
+              itemLabel={itemLabel}
+              relatedApps={relatedApps}
             >
               <div
                 className={`relative ${colors.bg} rounded-xl border-2 ${colors.border} shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group`}
@@ -2126,7 +2125,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                 </div>
               </div>
             </div>
-            </DeepDiveTooltip>
+            </CapabilityTooltip>
           );
         })}
         </div>
