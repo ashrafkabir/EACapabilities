@@ -70,6 +70,22 @@ export default function StackedMap({
     queryKey: ['/api/applications'],
   });
 
+  const { data: itComponents = [] } = useQuery({
+    queryKey: ['/api/it-components'],
+  });
+
+  const { data: interfaces = [] } = useQuery({
+    queryKey: ['/api/interfaces'],
+  });
+
+  const { data: dataObjects = [] } = useQuery({
+    queryKey: ['/api/data-objects'],
+  });
+
+  const { data: initiatives = [] } = useQuery({
+    queryKey: ['/api/initiatives'],
+  });
+
   const getApplicationsForCapability = (capabilityName: string): Application[] => {
     return applications.filter((app: Application) => 
       app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())

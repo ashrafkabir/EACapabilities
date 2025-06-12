@@ -76,18 +76,26 @@ export default function Dashboard() {
     
     // Set search scope based on active filters and search term
     if (term.trim()) {
-      if (filters.applications && !filters.capabilities) {
-        // Only applications filter is active
-        setSearchScope(`Application: ${term}`);
-      } else if (filters.components && !filters.capabilities && !filters.applications) {
-        // Only components filter is active
-        setSearchScope(`Component: ${term}`);
+      const enabledFilters = Object.entries(filters).filter(([_, enabled]) => enabled);
+      
+      if (enabledFilters.length === 1) {
+        const [filterType] = enabledFilters[0];
+        if (filterType === 'applications') {
+          setSearchScope(`Application: ${term}`);
+        } else if (filterType === 'components') {
+          setSearchScope(`IT Component: ${term}`);
+        } else if (filterType === 'interfaces') {
+          setSearchScope(`Interface: ${term}`);
+        } else if (filterType === 'dataObjects') {
+          setSearchScope(`Data Object: ${term}`);
+        } else if (filterType === 'initiatives') {
+          setSearchScope(`Initiative: ${term}`);
+        } else {
+          setSearchScope(`Search: ${term} (${filterType})`);
+        }
       } else {
         // General search across enabled filters
-        const activeFilters = Object.entries(filters)
-          .filter(([_, enabled]) => enabled)
-          .map(([type, _]) => type)
-          .join(', ');
+        const activeFilters = enabledFilters.map(([type, _]) => type).join(', ');
         setSearchScope(`Search: ${term} (${activeFilters})`);
       }
     } else {
