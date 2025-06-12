@@ -13,6 +13,7 @@ const viewConfig = {
   hierarchy: { icon: List, label: 'Map' },
   heatmap: { icon: Grid3x3, label: 'Heatmap' },
   dashboard: { icon: BarChart3, label: 'Dashboard' },
+  model: { icon: Settings, label: 'Model' },
 };
 
 export default function TopBar({ currentView, onViewChange, onExport }: TopBarProps) {
@@ -49,9 +50,7 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
             <Download className="w-4 h-4" />
             <span>Export</span>
           </Button>
-          <Button variant="ghost" size="sm">
-            <Settings className="w-4 h-4" />
-          </Button>
+
         </div>
       </div>
     </div>

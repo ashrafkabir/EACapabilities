@@ -6,10 +6,11 @@ import MetisMap from "@/components/views/metis-map";
 import StackedMap from "@/components/views/stacked-map";
 import HeatmapView from "@/components/views/heatmap-view";
 import DashboardView from "@/components/views/dashboard-view";
+import ModelView from "@/components/views/model-view";
 import DetailModal from "@/components/modals/detail-modal";
 import type { BusinessCapability } from "@shared/schema";
 
-export type ViewType = 'network' | 'hierarchy' | 'heatmap' | 'dashboard';
+export type ViewType = 'network' | 'hierarchy' | 'heatmap' | 'dashboard' | 'model';
 
 export interface EntityReference {
   type: 'capability' | 'application' | 'component' | 'dataObject' | 'interface';
