@@ -148,6 +148,18 @@ export default function StackedMap({
       }
     });
     
+    // Also consider applications connected via interfaces that use these data objects
+    const dataObjectNames = matchingDataObjects.map(obj => obj.name);
+    interfaces.forEach((iface: any) => {
+      // Check if interface references any of the matching data objects
+      if (iface.dataObjects && dataObjectNames.some(objName => 
+        iface.dataObjects.toLowerCase().includes(objName.toLowerCase())
+      )) {
+        if (iface.sourceApplication) linkedApps.add(iface.sourceApplication);
+        if (iface.targetApplication) linkedApps.add(iface.targetApplication);
+      }
+    });
+    
     return applications.filter((app: Application) => 
       linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
     );
