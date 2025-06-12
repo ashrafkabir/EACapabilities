@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import type { BusinessCapability } from '@shared/schema';
 
 interface StackedMapProps {
@@ -11,24 +9,35 @@ interface StackedMapProps {
   selectedCapability: string | null;
 }
 
-interface CapabilityNode extends BusinessCapability {
-  children?: CapabilityNode[];
-  color?: string;
+interface CapabilityColumn {
+  level1Name: string;
+  level1Id: string;
+  level2Groups: {
+    level2Name: string;
+    level2Id: string;
+    level3Items: BusinessCapability[];
+  }[];
 }
 
-// Color scheme for different capability domains
-const colorSchemes = [
-  'bg-orange-400 text-white',
-  'bg-orange-500 text-white', 
-  'bg-cyan-400 text-white',
-  'bg-blue-600 text-white',
-  'bg-slate-800 text-white',
-  'bg-purple-400 text-white',
-  'bg-purple-500 text-white',
-  'bg-purple-300 text-white',
-  'bg-purple-600 text-white',
-  'bg-gray-400 text-white',
+// Base colors for level 1 capability domains
+const baseColors = [
+  { bg: 'bg-orange-400', text: 'text-white', rgb: '251, 146, 60' },
+  { bg: 'bg-orange-500', text: 'text-white', rgb: '249, 115, 22' },
+  { bg: 'bg-cyan-400', text: 'text-white', rgb: '34, 211, 238' },
+  { bg: 'bg-blue-600', text: 'text-white', rgb: '37, 99, 235' },
+  { bg: 'bg-slate-800', text: 'text-white', rgb: '30, 41, 59' },
+  { bg: 'bg-purple-400', text: 'text-white', rgb: '196, 181, 253' },
+  { bg: 'bg-purple-500', text: 'text-white', rgb: '168, 85, 247' },
+  { bg: 'bg-purple-600', text: 'text-white', rgb: '147, 51, 234' },
+  { bg: 'bg-gray-400', text: 'text-white', rgb: '156, 163, 175' },
+  { bg: 'bg-indigo-500', text: 'text-white', rgb: '99, 102, 241' },
 ];
+
+// Generate faded colors for nested levels
+const getFadedColor = (baseRgb: string, level: number): string => {
+  const opacity = level === 1 ? 1 : level === 2 ? 0.7 : 0.5;
+  return `rgba(${baseRgb}, ${opacity})`;
+};
 
 export default function StackedMap({ 
   capabilities, 
@@ -36,210 +45,162 @@ export default function StackedMap({
   searchTerm,
   selectedCapability 
 }: StackedMapProps) {
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [parentCapability, setParentCapability] = useState<string | null>(null);
-  const [breadcrumb, setBreadcrumb] = useState<string[]>([]);
 
-  // Build hierarchy from flat capabilities list
-  const buildHierarchy = (caps: BusinessCapability[]): CapabilityNode[] => {
-    const nodes: CapabilityNode[] = caps.map(cap => ({ ...cap, children: [] }));
-    const nodeMap = new Map<string, CapabilityNode>();
+  // Build columnar hierarchy from flat capabilities list using the new level fields
+  const buildColumnarHierarchy = (caps: BusinessCapability[]): CapabilityColumn[] => {
+    const columnMap = new Map<string, CapabilityColumn>();
     
-    nodes.forEach(node => {
-      nodeMap.set(node.id, node);
-    });
-
-    const roots: CapabilityNode[] = [];
-    
-    nodes.forEach(node => {
-      if (node.parentId) {
-        const parent = nodeMap.get(node.parentId);
-        if (parent) {
-          parent.children = parent.children || [];
-          parent.children.push(node);
-        } else {
-          roots.push(node);
-        }
-      } else {
-        roots.push(node);
-      }
-    });
-
-    return roots;
-  };
-
-  // Get capabilities for current view
-  const getCurrentCapabilities = (): CapabilityNode[] => {
-    const hierarchy = buildHierarchy(capabilities);
-    
-    if (currentLevel === 1) {
-      return hierarchy.filter(cap => cap.level === 1);
-    }
-    
-    if (parentCapability) {
-      const parent = capabilities.find(cap => cap.id === parentCapability);
-      if (parent) {
-        return capabilities
-          .filter(cap => cap.parentId === parentCapability)
-          .map(cap => ({ ...cap, children: [] }));
-      }
-    }
-    
-    return [];
-  };
-
-  const currentCapabilities = getCurrentCapabilities();
-
-  // Filter capabilities based on search
-  const filteredCapabilities = currentCapabilities.filter(cap =>
-    cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cap.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Assign colors to capabilities - ensure we spread all properties
-  const capabilitiesWithColors = filteredCapabilities.map((cap, index) => ({
-    id: cap.id,
-    name: cap.name,
-    displayName: cap.displayName,
-    hierarchy: cap.hierarchy,
-    parentId: cap.parentId,
-    level: cap.level,
-    level1: cap.level1,
-    level2: cap.level2,
-    level3: cap.level3,
-    level1Capability: cap.level1Capability,
-    level2Capability: cap.level2Capability,
-    level3Capability: cap.level3Capability,
-    mappedLevel1Capability: cap.mappedLevel1Capability,
-    mappedToLifesciencesCapabilities: cap.mappedToLifesciencesCapabilities,
-    createdAt: cap.createdAt,
-    children: cap.children,
-    color: colorSchemes[index % colorSchemes.length]
-  }));
-
-  const handleCapabilityClick = (capability: CapabilityNode) => {
-    const hasChildren = capabilities.some(cap => cap.parentId === capability.id);
-    
-    if (hasChildren && currentLevel < 3) {
-      // Navigate deeper
-      setParentCapability(capability.id);
-      setCurrentLevel(currentLevel + 1);
-      setBreadcrumb([...breadcrumb, capability.name]);
-    } else {
-      // Show details
-      onCapabilitySelect(capability);
-    }
-  };
-
-  const handleBackClick = () => {
-    if (currentLevel > 1) {
-      const newBreadcrumb = [...breadcrumb];
-      newBreadcrumb.pop();
-      setBreadcrumb(newBreadcrumb);
+    caps.forEach(cap => {
+      // Use the new level1Capability field from reprocessed data
+      const level1Name = cap.level1Capability || 'Unknown';
+      const level2Name = cap.level2Capability || '';
+      const level3Name = cap.level3Capability || '';
       
-      if (currentLevel === 2) {
-        setParentCapability(null);
-        setCurrentLevel(1);
-      } else {
-        // Find parent of current parent
-        const currentParent = capabilities.find(cap => cap.id === parentCapability);
-        if (currentParent) {
-          setParentCapability(currentParent.parentId || null);
-          setCurrentLevel(currentLevel - 1);
+      // Get or create level 1 column
+      if (!columnMap.has(level1Name)) {
+        columnMap.set(level1Name, {
+          level1Name,
+          level1Id: `level1-${level1Name}`,
+          level2Groups: []
+        });
+      }
+      
+      const column = columnMap.get(level1Name)!;
+      
+      // Handle level 2 grouping
+      if (level2Name) {
+        let level2Group = column.level2Groups.find(g => g.level2Name === level2Name);
+        if (!level2Group) {
+          level2Group = {
+            level2Name,
+            level2Id: `level2-${level1Name}-${level2Name}`,
+            level3Items: []
+          };
+          column.level2Groups.push(level2Group);
+        }
+        
+        // Add level 3 items (actual capabilities)
+        if (level3Name) {
+          level2Group.level3Items.push(cap);
         }
       }
-    }
+    });
+    
+    return Array.from(columnMap.values());
+  };
+
+  const columnarCapabilities = buildColumnarHierarchy(capabilities);
+
+  // Filter based on search
+  const filteredColumns = columnarCapabilities.filter(column => {
+    if (column.level1Name.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+    
+    // Check if any nested capabilities match
+    return column.level2Groups.some(level2Group => {
+      if (level2Group.level2Name.toLowerCase().includes(searchTerm.toLowerCase())) return true;
+      return level2Group.level3Items.some(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  });
+
+  const handleCapabilityClick = (capability: BusinessCapability) => {
+    onCapabilitySelect(capability);
   };
 
   // Get application count for a capability
   const getApplicationCount = (capabilityId: string): number => {
-    // This would typically come from an API call
-    // For now, return a placeholder count
     return Math.floor(Math.random() * 20) + 1;
+  };
+
+  // Render a capability card with appropriate styling
+  const renderCapabilityCard = (
+    name: string, 
+    id: string, 
+    colorInfo: any, 
+    level: number, 
+    capability?: BusinessCapability
+  ) => {
+    const applicationCount = capability ? getApplicationCount(capability.id) : 0;
+    const bgStyle = level === 1 ? colorInfo.bg : '';
+    const textStyle = level === 1 ? colorInfo.text : 'text-white';
+    const customBg = level > 1 ? { backgroundColor: getFadedColor(colorInfo.rgb, level) } : {};
+    
+    return (
+      <Card
+        key={id}
+        className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 ${
+          selectedCapability === id 
+            ? 'ring-2 ring-blue-500 border-blue-500' 
+            : 'border-gray-200 dark:border-gray-700'
+        } mb-2`}
+        onClick={() => capability && handleCapabilityClick(capability)}
+      >
+        <CardContent 
+          className={`p-3 h-20 flex flex-col justify-between ${bgStyle} ${textStyle}`}
+          style={customBg}
+        >
+          <div>
+            <h3 className="font-semibold text-xs leading-tight mb-1">
+              {name}
+            </h3>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="text-xs opacity-90">
+              {capability ? `${applicationCount} apps` : ''}
+            </div>
+            {capability && <Eye className="h-3 w-3 opacity-90" />}
+          </div>
+        </CardContent>
+      </Card>
+    );
   };
 
   return (
     <div className="h-full flex flex-col">
-      {/* Header with breadcrumb */}
+      {/* Header */}
       <div className="flex items-center gap-4 p-4 border-b bg-gray-50 dark:bg-gray-800">
-        {currentLevel > 1 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleBackClick}
-            className="flex items-center gap-2"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </Button>
-        )}
-        
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-          <span>Level {currentLevel}</span>
-          {breadcrumb.length > 0 && (
-            <>
-              <span>/</span>
-              <span className="font-medium">{breadcrumb.join(' / ')}</span>
-            </>
-          )}
+          <span>Capability Map</span>
         </div>
         
         <div className="ml-auto text-sm text-gray-500">
-          {filteredCapabilities.length} capabilities
+          {filteredColumns.length} capability domains
         </div>
       </div>
 
-      {/* Stacked capability grid */}
+      {/* Columnar capability layout */}
       <div className="flex-1 overflow-auto p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {capabilitiesWithColors.map((capability) => {
-            const hasChildren = capabilities.some(cap => cap.parentId === capability.id);
-            const applicationCount = getApplicationCount(capability.id);
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          {filteredColumns.map((column, columnIndex) => {
+            const colorInfo = baseColors[columnIndex % baseColors.length];
             
             return (
-              <Card
-                key={capability.id}
-                className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 ${
-                  selectedCapability === capability.id 
-                    ? 'ring-2 ring-blue-500 border-blue-500' 
-                    : 'border-gray-200 dark:border-gray-700'
-                }`}
-                onClick={() => handleCapabilityClick(capability)}
-              >
-                <CardContent className={`p-4 h-32 flex flex-col justify-between ${capability.color}`}>
-                  <div>
-                    <h3 className="font-semibold text-sm leading-tight mb-1">
-                      {capability.name}
-                    </h3>
-                    {capability.displayName && (
-                      <p className="text-xs opacity-90 line-clamp-2">
-                        {capability.displayName}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="text-xs opacity-90">
-                      {applicationCount} apps
-                    </div>
+              <div key={column.level1Id} className="flex flex-col">
+                {/* Level 1 Capability Header */}
+                {renderCapabilityCard(column.level1Name, column.level1Id, colorInfo, 1)}
+                
+                {/* Level 2 Groups */}
+                {column.level2Groups.map((level2Group) => (
+                  <div key={level2Group.level2Id} className="ml-2">
+                    {/* Level 2 Capability */}
+                    {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
                     
-                    <div className="flex items-center gap-1">
-                      {hasChildren ? (
-                        <div className="text-xs opacity-90">
-                          {capabilities.filter(cap => cap.parentId === capability.id).length} sub-caps
-                        </div>
-                      ) : (
-                        <Eye className="h-3 w-3 opacity-90" />
-                      )}
-                    </div>
+                    {/* Level 3 Capabilities (actual items) */}
+                    {level2Group.level3Items.map((level3Cap) => (
+                      <div key={level3Cap.id} className="ml-2">
+                        {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
+                      </div>
+                    ))}
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
             );
           })}
         </div>
 
-        {filteredCapabilities.length === 0 && (
+        {filteredColumns.length === 0 && (
           <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
             <div className="text-center">
               <p className="text-lg mb-2">No capabilities found</p>
