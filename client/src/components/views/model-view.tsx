@@ -105,6 +105,15 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     return getApplicationsForCapability(capabilityName).length;
   };
 
+  const getInitiativesLinkedToCapability = (capabilityName: string): any[] => {
+    return initiatives.filter((init: any) => {
+      if (init.businessCapabilities) {
+        return init.businessCapabilities.toLowerCase().includes(capabilityName.toLowerCase());
+      }
+      return false;
+    });
+  };
+
   // Helper functions to find applications linked to different entity types
   const getApplicationsLinkedToITComponent = (componentName: string): Application[] => {
     const matchingComponents = itComponents.filter((comp: any) => 
@@ -335,9 +344,12 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
                 );
               } else if (entityLinkedApps.length > 0) {
                 const capabilityApps = getApplicationsForCapability(item.name);
-                return capabilityApps.some(app => 
+                const hasLinkedApps = capabilityApps.some(app => 
                   entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                 );
+                // Also check if this capability has linked initiatives
+                const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
+                return hasLinkedApps || hasLinkedInitiatives;
               } else {
                 // General search, search capability names
                 return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
@@ -376,9 +388,12 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
                   );
                 } else {
                   const capabilityApps = getApplicationsForCapability(item.name);
-                  return capabilityApps.some(app => 
+                  const hasLinkedApps = capabilityApps.some(app => 
                     entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                   );
+                  // Also check if this capability has linked initiatives
+                  const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
+                  return hasLinkedApps || hasLinkedInitiatives;
                 }
               })
             }))
