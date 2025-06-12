@@ -4,7 +4,6 @@ import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 import ExportSummaryModal from "@/components/modals/export-summary-modal";
-import { CapabilityTooltip } from "@/components/ui/capability-tooltip";
 
 interface MetisMapProps {
   selectedCapability: string | null;
@@ -1744,27 +1743,15 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
           }
           
           return (
-            <CapabilityTooltip
+            <div
               key={capability.id}
-              capability={{
-                name: capability.name,
-                level: capability.level,
-                level1Capability: capability.level1Capability,
-                level2Capability: capability.level2Capability,
-                level3Capability: capability.level3Capability
+              className={`relative ${colors.bg} rounded-xl border-2 ${colors.border} shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group`}
+              onClick={(e) => {
+                console.log('Card clicked for capability:', capability.name);
+                e.preventDefault();
+                handleCapabilityClick(capability);
               }}
-              count={itemCount}
-              itemLabel={itemLabel}
-              relatedApps={relatedApps}
             >
-              <div
-                className={`relative ${colors.bg} rounded-xl border-2 ${colors.border} shadow-lg hover:shadow-xl transition-all duration-200 cursor-pointer group`}
-                onClick={(e) => {
-                  console.log('Card clicked for capability:', capability.name);
-                  e.preventDefault();
-                  handleCapabilityClick(capability);
-                }}
-              >
               {/* Hover tooltip for heatmap information */}
               {heatmapFilters.showColors && heatmapFilters.metric !== 'none' && relatedApps.length > 0 && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 bg-black text-white text-xs rounded-lg px-3 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 w-64">
@@ -2125,7 +2112,6 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                 </div>
               </div>
             </div>
-            </CapabilityTooltip>
           );
         })}
         </div>
