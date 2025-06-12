@@ -47,12 +47,12 @@ const baseColors = [
   { bg: 'bg-indigo-500', text: 'text-white', rgb: '99, 102, 241' },
 ];
 
-// Generate faded colors for nested levels with better contrast
+// Generate faded colors for nested levels with better visual hierarchy
 const getFadedColor = (baseRgb: string, level: number): string => {
   if (level === 1) return `rgb(${baseRgb})`;
   
-  // For better text contrast, make level 2 and 3 backgrounds much lighter
-  const opacity = level === 2 ? 0.25 : 0.15;
+  // Progressive fading: level 2 = 60%, level 3 = 35%
+  const opacity = level === 2 ? 0.6 : 0.35;
   return `rgba(${baseRgb}, ${opacity})`;
 };
 
@@ -326,7 +326,8 @@ export default function StackedMap({
     if (level === 1) {
       return colorInfo.text;
     } else {
-      return 'text-gray-800 dark:text-gray-100';
+      // Use white text for better contrast on the darker faded backgrounds
+      return 'text-white dark:text-white';
     }
   };
 
@@ -353,20 +354,20 @@ export default function StackedMap({
         onClick={() => capability && handleCapabilityClick(capability)}
       >
         <CardContent 
-          className={`p-2 h-16 flex flex-col justify-between ${bgStyle} ${textStyle}`}
+          className={`p-1.5 h-12 flex flex-col justify-between ${bgStyle} ${textStyle}`}
           style={customBg}
         >
           <div>
-            <h3 className="font-semibold text-xs leading-tight mb-1">
+            <h3 className="font-medium text-xs leading-tight">
               {name}
             </h3>
           </div>
           
           <div className="flex items-center justify-between">
-            <div className="text-xs opacity-75">
+            <div className="text-xs opacity-90">
               {capability ? `${applicationCount} apps` : ''}
             </div>
-            {capability && <Eye className="h-3 w-3 opacity-75" />}
+            {capability && <Eye className="h-3 w-3 opacity-90" />}
           </div>
         </CardContent>
       </Card>
@@ -377,11 +378,11 @@ export default function StackedMap({
     <Button
       variant="outline"
       size="sm"
-      className="w-full h-16 mb-1 border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
+      className="w-full h-12 mb-1 border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
       onClick={onClick}
     >
-      <div className="flex items-center justify-center gap-2">
-        <Plus className="h-4 w-4" />
+      <div className="flex items-center justify-center gap-1">
+        <Plus className="h-3 w-3" />
         <span className="text-xs">+{count} more</span>
       </div>
     </Button>
@@ -435,7 +436,7 @@ export default function StackedMap({
 
       {/* Horizontal scrollable columnar layout */}
       <div className="flex-1 overflow-auto">
-        <div className="flex gap-4 p-6 min-w-max">
+        <div className="flex gap-3 p-4 min-w-max">
           {filteredColumns.map((column, columnIndex) => {
             const colorInfo = baseColors[columnIndex % baseColors.length];
             const isColumnExpanded = expandedColumns.has(column.level1Id);
@@ -443,7 +444,7 @@ export default function StackedMap({
             const hiddenLevel2Count = Math.max(0, column.level2Groups.length - MAX_ITEMS_PER_LEVEL);
             
             return (
-              <div key={column.level1Id} className="flex flex-col w-64 min-w-64">
+              <div key={column.level1Id} className="flex flex-col w-56 min-w-56">
                 {/* Level 1 Capability Header */}
                 {renderCapabilityCard(column.level1Name, column.level1Id, colorInfo, 1)}
                 
@@ -454,20 +455,20 @@ export default function StackedMap({
                   const hiddenLevel3Count = Math.max(0, level2Group.level3Items.length - MAX_ITEMS_PER_LEVEL);
                   
                   return (
-                    <div key={level2Group.level2Id} className="ml-2">
+                    <div key={level2Group.level2Id} className="ml-1">
                       {/* Level 2 Capability */}
                       {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
                       
                       {/* Level 3 Capabilities */}
                       {visibleLevel3Items.map((level3Cap) => (
-                        <div key={level3Cap.id} className="ml-2">
+                        <div key={level3Cap.id} className="ml-1">
                           {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
                         </div>
                       ))}
                       
                       {/* Level 3 Expand Button */}
                       {!isLevel2Expanded && hiddenLevel3Count > 0 && (
-                        <div className="ml-2">
+                        <div className="ml-1">
                           {renderExpandButton(hiddenLevel3Count, () => handleExpandLevel2Group(level2Group.level2Id))}
                         </div>
                       )}
@@ -477,7 +478,7 @@ export default function StackedMap({
                 
                 {/* Level 2 Expand Button */}
                 {!isColumnExpanded && hiddenLevel2Count > 0 && (
-                  <div className="ml-2">
+                  <div className="ml-1">
                     {renderExpandButton(hiddenLevel2Count, () => handleExpandColumn(column.level1Id))}
                   </div>
                 )}
