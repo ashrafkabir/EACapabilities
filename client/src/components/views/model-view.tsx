@@ -431,21 +431,26 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
                   const hiddenLevel3Count = Math.max(0, level2Group.level3Items.length - MAX_ITEMS_PER_LEVEL);
                   
                   return (
-                    <div key={level2Group.level2Id} className="ml-1">
+                    <div key={level2Group.level2Id} className="ml-2 mt-1 border-l-2 border-white/30 pl-2">
                       {/* Level 2 Capability */}
                       {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
                       
-                      {/* Level 3 Capabilities */}
-                      {visibleLevel3Items.map((level3Cap) => (
-                        <div key={level3Cap.id} className="ml-1">
-                          {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
-                        </div>
-                      ))}
-                      
-                      {/* Level 3 Expand Button */}
-                      {!isLevel2Expanded && hiddenLevel3Count > 0 && (
-                        <div className="ml-1">
-                          {renderExpandButton(hiddenLevel3Count, () => handleExpandLevel2Group(level2Group.level2Id))}
+                      {/* Level 3 Capabilities Container */}
+                      {(visibleLevel3Items.length > 0 || (!isLevel2Expanded && hiddenLevel3Count > 0)) && (
+                        <div className="ml-2 mt-1 border-l-2 border-white/20 pl-2">
+                          {/* Level 3 Capabilities */}
+                          {visibleLevel3Items.map((level3Cap) => (
+                            <div key={level3Cap.id}>
+                              {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
+                            </div>
+                          ))}
+                          
+                          {/* Level 3 Expand Button */}
+                          {!isLevel2Expanded && hiddenLevel3Count > 0 && (
+                            <div>
+                              {renderExpandButton(hiddenLevel3Count, () => handleExpandLevel2Group(level2Group.level2Id))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -454,7 +459,7 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
                 
                 {/* Level 2 Expand Button */}
                 {!isColumnExpanded && hiddenLevel2Count > 0 && (
-                  <div className="ml-1">
+                  <div className="ml-2 mt-1 border-l-2 border-white/30 pl-2">
                     {renderExpandButton(hiddenLevel2Count, () => handleExpandColumn(column.level1Id))}
                   </div>
                 )}
