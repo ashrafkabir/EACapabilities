@@ -34,6 +34,10 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [applicationSearchTerm, setApplicationSearchTerm] = useState("");
   const [selectedApplications, setSelectedApplications] = useState<Set<string>>(new Set());
+  const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
+  const [expandedLevel2Groups, setExpandedLevel2Groups] = useState<Set<string>>(new Set());
+
+  const MAX_ITEMS_PER_LEVEL = 3;
 
   const queryClient = useQueryClient();
 
@@ -191,6 +195,26 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
     }
   };
 
+  const handleExpandColumn = (columnId: string) => {
+    const newExpanded = new Set(expandedColumns);
+    if (newExpanded.has(columnId)) {
+      newExpanded.delete(columnId);
+    } else {
+      newExpanded.add(columnId);
+    }
+    setExpandedColumns(newExpanded);
+  };
+
+  const handleExpandLevel2Group = (groupId: string) => {
+    const newExpanded = new Set(expandedLevel2Groups);
+    if (newExpanded.has(groupId)) {
+      newExpanded.delete(groupId);
+    } else {
+      newExpanded.add(groupId);
+    }
+    setExpandedLevel2Groups(newExpanded);
+  };
+
   const handleCapabilitySelect = (capabilityId: string) => {
     setSelectedCapability(capabilityId);
   };
@@ -228,6 +252,20 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
     return matchesSearch && notAlreadyMapped;
   });
 
+  const renderExpandButton = (count: number, onClick: () => void) => (
+    <Button
+      variant="outline"
+      size="sm"
+      className="w-full h-12 mb-1 border-2 border-dashed border-gray-300 bg-gray-50 hover:bg-gray-100"
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-center gap-1">
+        <Plus className="h-3 w-3" />
+        <span className="text-xs">+{count} more</span>
+      </div>
+    </Button>
+  );
+
   const renderCapabilityCard = (
     name: string, 
     id: string, 
@@ -237,37 +275,106 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
   ) => {
     const applications = capability ? getApplicationsForCapability(capability.name) : [];
     const isSelected = selectedCapability === id;
+    const appCount = getRollupCount(capability || { name, level } as BusinessCapability);
     
     return (
       <Card 
         key={id} 
-        className={`mb-1 cursor-pointer transition-all duration-200 hover:shadow-md border-2 h-auto min-h-[60px] ${
+        className={`mb-1 cursor-pointer transition-all duration-200 hover:shadow-md border-2 h-12 ${
           isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200'
         }`}
         onClick={() => handleCapabilitySelect(id)}
       >
-        <CardContent className="p-3">
-          <div className={`rounded-lg p-3 ${getBackgroundColor(level, colorInfo)} ${getTextColor(level)}`}>
-            <div className="flex justify-between items-start gap-2">
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-sm leading-tight truncate">
-                  {name}
-                </h4>
-                <p className="text-xs opacity-90 mt-1">
-                  {getRollupCount(capability || { name, level } as BusinessCapability)} apps
-                </p>
-              </div>
+        <CardContent className="p-0 h-full">
+          <div className={`rounded-lg px-3 py-2 h-full flex items-center justify-between ${getBackgroundColor(level, colorInfo)} ${getTextColor(level)}`}>
+            <div className="flex-1 min-w-0">
+              <h4 className="font-medium text-sm leading-tight truncate">
+                {name}
+              </h4>
             </div>
-            
-            {isSelected && applications.length > 0 && (
-              <div className="mt-3 space-y-1">
-                {applications.slice(0, 5).map((app: Application) => (
+            <div className="flex items-center gap-2 ml-2">
+              <Badge variant="secondary" className="text-xs bg-white/20 text-inherit border-none">
+                {appCount}
+              </Badge>
+              {isSelected && (
+                <div className="flex gap-1">
+                  <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 bg-white/20 hover:bg-white/30"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Add Applications to {name}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <Input
+                          placeholder="Search applications..."
+                          value={applicationSearchTerm}
+                          onChange={(e) => setApplicationSearchTerm(e.target.value)}
+                        />
+                        
+                        <div className="max-h-64 overflow-y-auto space-y-2">
+                          {filteredApplicationsForAdd.map((app: Application) => (
+                            <div key={app.id} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                checked={selectedApplications.has(app.id)}
+                                onChange={(e) => {
+                                  const newSet = new Set(selectedApplications);
+                                  if (e.target.checked) {
+                                    newSet.add(app.id);
+                                  } else {
+                                    newSet.delete(app.id);
+                                  }
+                                  setSelectedApplications(newSet);
+                                }}
+                              />
+                              <span className="text-sm">{app.name}</span>
+                            </div>
+                          ))}
+                          {filteredApplicationsForAdd.length === 0 && (
+                            <div className="text-sm text-gray-500 text-center py-4">
+                              No applications available to add
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="flex justify-end space-x-2">
+                          <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button 
+                            onClick={handleAddApplications}
+                            disabled={selectedApplications.size === 0 || addApplicationMutation.isPending}
+                          >
+                            {addApplicationMutation.isPending ? 'Adding...' : `Add ${selectedApplications.size} Applications`}
+                          </Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {isSelected && applications.length > 0 && (
+            <div className="px-3 py-2 bg-white/10 border-t border-white/20">
+              <div className="space-y-1 max-h-32 overflow-y-auto">
+                {applications.map((app: Application) => (
                   <div key={app.id} className="flex items-center justify-between bg-white/20 rounded px-2 py-1">
                     <span className="text-xs truncate flex-1">{app.name}</span>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-6 w-6 p-0 text-red-500 hover:text-red-700 hover:bg-red-100/20"
+                      className="h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-red-100/20"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleRemoveApplication(app.id);
@@ -277,82 +384,9 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
                     </Button>
                   </div>
                 ))}
-                {applications.length > 5 && (
-                  <div className="text-xs opacity-75">
-                    +{applications.length - 5} more applications
-                  </div>
-                )}
               </div>
-            )}
-            
-            {isSelected && (
-              <div className="mt-3">
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="w-full h-8 text-xs"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      Add Applications
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-lg">
-                    <DialogHeader>
-                      <DialogTitle>Add Applications to {name}</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4">
-                      <Input
-                        placeholder="Search applications..."
-                        value={applicationSearchTerm}
-                        onChange={(e) => setApplicationSearchTerm(e.target.value)}
-                      />
-                      
-                      <div className="max-h-64 overflow-y-auto space-y-2">
-                        {filteredApplicationsForAdd.map((app: Application) => (
-                          <div key={app.id} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={selectedApplications.has(app.id)}
-                              onChange={(e) => {
-                                const newSet = new Set(selectedApplications);
-                                if (e.target.checked) {
-                                  newSet.add(app.id);
-                                } else {
-                                  newSet.delete(app.id);
-                                }
-                                setSelectedApplications(newSet);
-                              }}
-                            />
-                            <span className="text-sm">{app.name}</span>
-                          </div>
-                        ))}
-                        {filteredApplicationsForAdd.length === 0 && (
-                          <div className="text-sm text-gray-500 text-center py-4">
-                            No applications available to add
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex justify-end space-x-2">
-                        <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                          Cancel
-                        </Button>
-                        <Button 
-                          onClick={handleAddApplications}
-                          disabled={selectedApplications.size === 0 || addApplicationMutation.isPending}
-                        >
-                          {addApplicationMutation.isPending ? 'Adding...' : `Add ${selectedApplications.size} Applications`}
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     );
@@ -381,6 +415,9 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
         <div className="flex gap-3 p-4 min-w-max">
           {filteredColumns.map((column: ColumnData, columnIndex: number) => {
             const colorInfo = baseColors[columnIndex % baseColors.length];
+            const isColumnExpanded = expandedColumns.has(column.level1Id);
+            const visibleLevel2Groups = isColumnExpanded ? column.level2Groups : column.level2Groups.slice(0, MAX_ITEMS_PER_LEVEL);
+            const hiddenLevel2Count = Math.max(0, column.level2Groups.length - MAX_ITEMS_PER_LEVEL);
             
             return (
               <div key={column.level1Id} className="flex flex-col w-56 min-w-56">
@@ -388,19 +425,39 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
                 {renderCapabilityCard(column.level1Name, column.level1Id, colorInfo, 1)}
                 
                 {/* Level 2 Groups */}
-                {column.level2Groups.map((level2Group) => (
-                  <div key={level2Group.level2Id} className="ml-1">
-                    {/* Level 2 Capability */}
-                    {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
-                    
-                    {/* Level 3 Capabilities */}
-                    {level2Group.level3Items.map((level3Cap) => (
-                      <div key={level3Cap.id} className="ml-1">
-                        {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
-                      </div>
-                    ))}
+                {visibleLevel2Groups.map((level2Group) => {
+                  const isLevel2Expanded = expandedLevel2Groups.has(level2Group.level2Id);
+                  const visibleLevel3Items = isLevel2Expanded ? level2Group.level3Items : level2Group.level3Items.slice(0, MAX_ITEMS_PER_LEVEL);
+                  const hiddenLevel3Count = Math.max(0, level2Group.level3Items.length - MAX_ITEMS_PER_LEVEL);
+                  
+                  return (
+                    <div key={level2Group.level2Id} className="ml-1">
+                      {/* Level 2 Capability */}
+                      {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
+                      
+                      {/* Level 3 Capabilities */}
+                      {visibleLevel3Items.map((level3Cap) => (
+                        <div key={level3Cap.id} className="ml-1">
+                          {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
+                        </div>
+                      ))}
+                      
+                      {/* Level 3 Expand Button */}
+                      {!isLevel2Expanded && hiddenLevel3Count > 0 && (
+                        <div className="ml-1">
+                          {renderExpandButton(hiddenLevel3Count, () => handleExpandLevel2Group(level2Group.level2Id))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+                
+                {/* Level 2 Expand Button */}
+                {!isColumnExpanded && hiddenLevel2Count > 0 && (
+                  <div className="ml-1">
+                    {renderExpandButton(hiddenLevel2Count, () => handleExpandColumn(column.level1Id))}
                   </div>
-                ))}
+                )}
               </div>
             );
           })}
