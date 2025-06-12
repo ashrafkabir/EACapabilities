@@ -1,0 +1,652 @@
+[
+  {
+    "id": "68b1488b-8711-451f-ad15-49ba4fee3b0e",
+    "name": "Accounting",
+    "oldLevel": 2,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Finance / Accounting and Financial Close"
+  },
+  {
+    "id": "7209c00f-b6ce-4d69-9750-f3310d675498",
+    "name": "Accounts Payable",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "Accounts Payable",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Accounting and Financial Close / Accounts Payable"
+  },
+  {
+    "id": "63de9901-6528-4e04-bba5-1f6c3d0bc798",
+    "name": "Financial Accounting",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Finance / Accounting and Financial Close"
+  },
+  {
+    "id": "56fcd5c1-1548-483e-949e-6f77fff2a2e7",
+    "name": "Fixed Assets and PP&E",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "Asset Accounting",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Accounting and Financial Close / Asset Accounting"
+  },
+  {
+    "id": "aa2ce050-95a6-4111-a2f9-324289dd398d",
+    "name": "Lease Management",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Real Estate Management",
+    "newLevel3": "Financial Lease Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Real Estate Management / Financial Lease Management"
+  },
+  {
+    "id": "e1bff863-4285-439e-b096-64a7a80559c0",
+    "name": "Management Accounting",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "Management Accounting",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Accounting and Financial Close / Management Accounting"
+  },
+  {
+    "id": "87642148-f429-4c3a-84bb-7ad9ca713841",
+    "name": "Management Reporting",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "Financial Reporting",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Accounting and Financial Close / Financial Reporting"
+  },
+  {
+    "id": "cd6dce18-061e-4280-bf4c-57e09f57080c",
+    "name": "Revenue Management",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "Revenue Accounting",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Accounting and Financial Close / Revenue Accounting"
+  },
+  {
+    "id": "fb7b8f4b-6613-41f9-ae2d-afd83dbc042c",
+    "name": "Travel & Expense Management",
+    "oldLevel": 3,
+    "newLevel1": "Finance",
+    "newLevel2": "Travel Management",
+    "newLevel3": "Travel and Expense Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Travel Management / Travel and Expense Management"
+  },
+  {
+    "id": "f2fab90d-fb87-4d41-b6be-5aac108becb6",
+    "name": "Benefits Management",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Benefits Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Benefits Management"
+  },
+  {
+    "id": "d9c0198f-1269-451d-bfd8-73de2b935e4b",
+    "name": "Capital Expenditure Requests",
+    "oldLevel": 2,
+    "newLevel1": "Finance",
+    "newLevel2": "Corporate Finance",
+    "newLevel3": "Capital Investment",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Corporate Finance / Capital Investment"
+  },
+  {
+    "id": "12ba5e03-ec7d-4286-9515-cf791007d2ed",
+    "name": "Collaborations & Touchpoints",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "Business Process Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / Business Process Management"
+  },
+  {
+    "id": "37122cc1-8657-41bb-b2ab-4a91f260c6b0",
+    "name": "Compensation Management",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Compensation Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Compensation Management"
+  },
+  {
+    "id": "e049697d-2f74-47d8-be4b-8f260f46b117",
+    "name": "Consolidations and External Reporting",
+    "oldLevel": 2,
+    "newLevel1": "Finance",
+    "newLevel2": "Accounting and Financial Close",
+    "newLevel3": "Financial Consolidation",
+    "newLevel": 3,
+    "lifesciencesPath": "Finance / Accounting and Financial Close / Financial Consolidation"
+  },
+  {
+    "id": "33a3a462-2a38-450d-b21f-32e15cf6e0c0",
+    "name": "Core HR",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Core HR",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Core HR"
+  },
+  {
+    "id": "7f355e52-0979-4203-8b81-6f8dbcc1a488",
+    "name": "Database",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "IT Architecture Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / IT Architecture Management"
+  },
+  {
+    "id": "dfc60de3-2351-4368-b8cd-a706f37eef04",
+    "name": "Enable Business Transactions",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "Business Process Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / Business Process Management"
+  },
+  {
+    "id": "0063f68f-820d-412f-b88d-223053471802",
+    "name": "Financial Planning & Analytics",
+    "oldLevel": 2,
+    "newLevel1": "Finance",
+    "newLevel2": "Financial Planning and Analysis",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Finance / Financial Planning and Analysis"
+  },
+  {
+    "id": "29dd0433-f8f7-4182-b258-6a72e0b0107f",
+    "name": "Foundational Capabilities",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "Business Process Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / Business Process Management"
+  },
+  {
+    "id": "5c91aa8a-3639-408c-8889-5f089f9529e7",
+    "name": "Master Data Management",
+    "oldLevel": 3,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "Information Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / Information Management"
+  },
+  {
+    "id": "32648133-f231-443c-9d80-16a4cf7688fe",
+    "name": "Headcount Planning",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Workforce Planning and Analytics",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Workforce Planning and Analytics"
+  },
+  {
+    "id": "e2df61de-9240-4472-9e58-64c6f57ae794",
+    "name": "HR Operations Management",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Core HR",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Core HR"
+  },
+  {
+    "id": "16d4318a-3255-4b86-8c66-97fc53de7d08",
+    "name": "Integration",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "IT Architecture Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / IT Architecture Management"
+  },
+  {
+    "id": "4407fd27-9db3-4fa7-b565-70c5aa4606eb",
+    "name": "IOPS Enterprise Support",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Manufacturing IT",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Manufacturing IT"
+  },
+  {
+    "id": "d56ba7fa-500c-459e-8cd7-12182a6c68dd",
+    "name": "Infrastructure Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Manufacturing IT",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Manufacturing IT"
+  },
+  {
+    "id": "c308521f-5a57-4dbc-bd03-f678c2d30e9f",
+    "name": "IOPS Plant Management",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Plant Operations",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Plant Operations"
+  },
+  {
+    "id": "695bc906-4fcf-4449-9523-066e847d0763",
+    "name": "IOPS Product Development",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Product Development",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Product Development"
+  },
+  {
+    "id": "fd935f53-6397-46d3-9fb6-dc1a9220a167",
+    "name": "Change Control",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Product Development",
+    "newLevel3": "Change Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Product Development / Change Management"
+  },
+  {
+    "id": "aba99074-c5a9-4373-a754-d9eda0f62c2a",
+    "name": "Document Control",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Product Development",
+    "newLevel3": "Document Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Product Development / Document Management"
+  },
+  {
+    "id": "3c59e25e-df69-4f82-a6b0-8985c6eac1d8",
+    "name": "Product Specification Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Product Development",
+    "newLevel3": "Specification Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Product Development / Specification Management"
+  },
+  {
+    "id": "f009de25-9586-4216-a89a-2bb695538822",
+    "name": "IOPS Product Manufacturing",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Production Planning and Execution",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Production Planning and Execution"
+  },
+  {
+    "id": "864f9a15-009e-461b-acd5-7f37fbe7d9c5",
+    "name": "IOPS Quality Assurance",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Quality Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Quality Management"
+  },
+  {
+    "id": "61f0db60-0986-45b2-972c-6afb0076ad26",
+    "name": "Calibration Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Quality Management",
+    "newLevel3": "Calibration Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Quality Management / Calibration Management"
+  },
+  {
+    "id": "cda9b7bb-4a5f-4a64-8db8-4050f7e951ef",
+    "name": "Quality Risk Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Quality Management",
+    "newLevel3": "Quality Risk Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Quality Management / Quality Risk Management"
+  },
+  {
+    "id": "363ca1f2-24a7-4c29-8a60-01c070a39da6",
+    "name": "IOPS Quality Control",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Quality Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Quality Management"
+  },
+  {
+    "id": "d5fe7993-37ba-4df1-b631-90946028058b",
+    "name": "Environmental Monitoring",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Quality Management",
+    "newLevel3": "Testing Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Quality Management / Testing Management"
+  },
+  {
+    "id": "3b996b0f-1109-4b67-91a8-eb2cad91c511",
+    "name": "Sample Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Quality Management",
+    "newLevel3": "Sample Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Manufacturing / Quality Management / Sample Management"
+  },
+  {
+    "id": "00c9829c-9023-4a35-9af7-92a57f773f12",
+    "name": "IOPS Supply Chain Management",
+    "oldLevel": 2,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Production Planning and Execution",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Production Planning and Execution"
+  },
+  {
+    "id": "8b1fea15-986c-4ba2-a58b-acb6fa5afaeb",
+    "name": "Inventory Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Inventory and Warehouse Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Inventory and Warehouse Management"
+  },
+  {
+    "id": "f4e55d45-bad7-4175-a142-41307cc7c2df",
+    "name": "Warehouse Management",
+    "oldLevel": 3,
+    "newLevel1": "Manufacturing",
+    "newLevel2": "Inventory and Warehouse Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Manufacturing / Inventory and Warehouse Management"
+  },
+  {
+    "id": "6ea0e1e4-afe1-4644-af23-ca571483b37a",
+    "name": "IT Enterprise Architecture",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "IT Architecture Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / IT Architecture Management"
+  },
+  {
+    "id": "52d9a0ed-9018-459a-b532-2e3c3f59002b",
+    "name": "Maintain and Enhance Ethics & Compliance",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Enterprise Risk and Compliance",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Enterprise Risk and Compliance"
+  },
+  {
+    "id": "a28b4bce-4aa0-494c-ba29-aed0b621352c",
+    "name": "Manage Corporate Governance & Services",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Corporate Governance",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Corporate Governance"
+  },
+  {
+    "id": "7054bac1-14e6-4f0d-a6ea-c0f3cd05c0a9",
+    "name": "Manage Corporate Security",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Information Security",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Information Security"
+  },
+  {
+    "id": "f1f33b33-0722-408c-a89b-71e3205635a3",
+    "name": "Physical Security",
+    "oldLevel": 3,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Information Security",
+    "newLevel3": "Physical Security",
+    "newLevel": 3,
+    "lifesciencesPath": "Governance, Risk and Compliance / Information Security / Physical Security"
+  },
+  {
+    "id": "aabc2e2a-0a88-45d8-b8a1-8dcd40dfb727",
+    "name": "Manage Data Privacy",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Data Protection",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Data Protection"
+  },
+  {
+    "id": "21ee8f93-cf67-48ca-8278-6252e7415fef",
+    "name": "IT Risk Management",
+    "oldLevel": 3,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Enterprise Risk and Compliance",
+    "newLevel3": "IT Risk Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Governance, Risk and Compliance / Enterprise Risk and Compliance / IT Risk Management"
+  },
+  {
+    "id": "68aec87d-3886-4fd9-b3f7-6ad2d8405c16",
+    "name": "Manage Government & Industry Relationships",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Regulatory Affairs",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Regulatory Affairs"
+  },
+  {
+    "id": "e6e46a01-75c1-4059-9d43-2ae5db40d74b",
+    "name": "Manage Records",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Records Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Records Management"
+  },
+  {
+    "id": "d11b44b8-6f27-49b8-8154-0c39e5fb97c3",
+    "name": "Payroll",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Payroll Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Payroll Management"
+  },
+  {
+    "id": "bb1d588d-7de7-414d-92f3-8b9002e99d23",
+    "name": "Time and Attendance",
+    "oldLevel": 3,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Time and Attendance Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Time and Attendance Management"
+  },
+  {
+    "id": "5a76d888-a3d2-4125-992f-e431062b5842",
+    "name": "Power Management",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "IT Architecture Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / IT Architecture Management"
+  },
+  {
+    "id": "a539c1cf-f81a-4361-b024-e5ac8249a78b",
+    "name": "Protect Intellectual Property",
+    "oldLevel": 2,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Intellectual Property Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Governance, Risk and Compliance / Intellectual Property Management"
+  },
+  {
+    "id": "63692239-4025-4439-a46a-20a13af5324d",
+    "name": "Patent Management",
+    "oldLevel": 3,
+    "newLevel1": "Governance, Risk and Compliance",
+    "newLevel2": "Intellectual Property Management",
+    "newLevel3": "Patent Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Governance, Risk and Compliance / Intellectual Property Management / Patent Management"
+  },
+  {
+    "id": "6825b971-8cd5-457c-b05c-5d20ad8062ea",
+    "name": "Purchasing",
+    "oldLevel": 2,
+    "newLevel1": "Sourcing and Procurement",
+    "newLevel2": "Operational Procurement",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Sourcing and Procurement / Operational Procurement"
+  },
+  {
+    "id": "4715caa9-dec0-4aeb-a7a5-51442a72a2f9",
+    "name": "Real Estate & Facilities Management",
+    "oldLevel": 2,
+    "newLevel1": "Asset Management",
+    "newLevel2": "Asset Lifecycle Delivery",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Asset Management / Asset Lifecycle Delivery"
+  },
+  {
+    "id": "bdab0a48-463d-4df2-b552-05dffd49c7bb",
+    "name": "Sourcing",
+    "oldLevel": 2,
+    "newLevel1": "Sourcing and Procurement",
+    "newLevel2": "Procurement Strategy",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Sourcing and Procurement / Procurement Strategy"
+  },
+  {
+    "id": "c201642c-11c9-4a17-bf1e-fc791f94f99d",
+    "name": "Talent Acquisition",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Talent Acquisition",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Talent Acquisition"
+  },
+  {
+    "id": "b4d2a3db-ff3b-4615-b09a-e7c25eee5cd2",
+    "name": "Talent Development",
+    "oldLevel": 2,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Talent Development",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Human Resources / Talent Development"
+  },
+  {
+    "id": "5d78fa5d-e13f-4d0c-98d0-8aa160ddc649",
+    "name": "Learning Management",
+    "oldLevel": 3,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Talent Development",
+    "newLevel3": "Learning Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Human Resources / Talent Development / Learning Management"
+  },
+  {
+    "id": "8962949a-7ee9-4fe9-8a3e-d7ac77de01bc",
+    "name": "Performance Management",
+    "oldLevel": 3,
+    "newLevel1": "Human Resources",
+    "newLevel2": "Talent Development",
+    "newLevel3": "Performance Management",
+    "newLevel": 3,
+    "lifesciencesPath": "Human Resources / Talent Development / Performance Management"
+  },
+  {
+    "id": "13890b88-b23a-414d-bb1a-c964b9a1fd8d",
+    "name": "Tax",
+    "oldLevel": 2,
+    "newLevel1": "Finance",
+    "newLevel2": "Tax Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Finance / Tax Management"
+  },
+  {
+    "id": "29663c17-8e4d-418a-99dd-27e67252daa8",
+    "name": "Touchpoints & Collaborations",
+    "oldLevel": 2,
+    "newLevel1": "Enterprise Strategy",
+    "newLevel2": "Business Process Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Enterprise Strategy / Business Process Management"
+  },
+  {
+    "id": "e5462d27-abbe-4f62-ae99-ea2d539f583d",
+    "name": "Treasury Management",
+    "oldLevel": 2,
+    "newLevel1": "Finance",
+    "newLevel2": "Treasury Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Finance / Treasury Management"
+  },
+  {
+    "id": "f5b450d8-90b6-4560-ad86-c94564a5f63b",
+    "name": "Vendor Management",
+    "oldLevel": 2,
+    "newLevel1": "Sourcing and Procurement",
+    "newLevel2": "Supplier Management",
+    "newLevel3": "",
+    "newLevel": 2,
+    "lifesciencesPath": "Sourcing and Procurement / Supplier Management"
+  }
+]
