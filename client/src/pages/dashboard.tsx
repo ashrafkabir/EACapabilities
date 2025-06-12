@@ -98,7 +98,7 @@ export default function Dashboard() {
         return (
           <ModelView 
             searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
+            selectedCapability={selectedCapability}
           />
         );
       default:

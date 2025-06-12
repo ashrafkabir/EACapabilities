@@ -13,7 +13,7 @@ import type { BusinessCapability, Application } from "@shared/schema";
 
 interface ModelViewProps {
   searchTerm: string;
-  onSearchChange: (term: string) => void;
+  selectedCapability: string | null;
 }
 
 interface ColumnData {
@@ -28,8 +28,7 @@ interface ColumnData {
   }[];
 }
 
-export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps) {
-  const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
+export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability }: ModelViewProps) {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [applicationSearchTerm, setApplicationSearchTerm] = useState("");
@@ -148,10 +147,10 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
   }, [capabilities, allApplications]);
 
   const filteredColumns = useMemo(() => {
-    if (!localSearchTerm.trim()) return processedData;
+    if (!searchTerm.trim()) return processedData;
     
     return processedData.filter((column: ColumnData) => {
-      const searchLower = localSearchTerm.toLowerCase();
+      const searchLower = searchTerm.toLowerCase();
       
       if (column.level1Name.toLowerCase().includes(searchLower)) return true;
       
@@ -162,7 +161,7 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
         );
       });
     });
-  }, [processedData, localSearchTerm]);
+  }, [processedData, searchTerm]);
 
   const baseColors = [
     { bg: 'bg-blue-500', text: 'text-white' },
@@ -398,21 +397,6 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
 
   return (
     <div className="flex flex-col h-full">
-      {/* Search Bar */}
-      <div className="bg-background border-b border-border p-4">
-        <div className="relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Search capabilities..."
-            value={localSearchTerm}
-            onChange={(e) => {
-              setLocalSearchTerm(e.target.value);
-              onSearchChange(e.target.value);
-            }}
-            className="pl-10"
-          />
-        </div>
-      </div>
 
       {/* Horizontal scrollable columnar layout */}
       <div className="flex-1 overflow-auto">

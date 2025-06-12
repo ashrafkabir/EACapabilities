@@ -64,7 +64,6 @@ export default function StackedMap({
 }: StackedMapProps) {
   const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
   const [expandedLevel2Groups, setExpandedLevel2Groups] = useState<Set<string>>(new Set());
-  const [localSearchTerm, setLocalSearchTerm] = useState('');
 
   const MAX_ITEMS_PER_LEVEL = 5;
 
