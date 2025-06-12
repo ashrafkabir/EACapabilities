@@ -129,7 +129,7 @@ export default function StackedMap({
         column.level1Id = cap.id;
       }
       
-      if (level2Name && cap.level >= 2) {
+      if (level2Name && cap.level && cap.level >= 2) {
         let level2Group = column.level2Groups.find(g => g.level2Name === level2Name);
         if (!level2Group) {
           level2Group = {
@@ -194,15 +194,14 @@ export default function StackedMap({
       );
     }
 
-    if (searchScope.startsWith('Search:')) {
-      const searchTerm = searchScope.replace('Search: ', '').toLowerCase();
+    if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
+      const searchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
       return capabilities.filter(cap => {
         // Search through applications to find capabilities that contain matching applications
         const capApplications = getApplicationsForCapability(cap.name);
         return capApplications.some(app => 
-          app.name.toLowerCase().includes(searchTerm) ||
-          app.domain?.toLowerCase().includes(searchTerm)
-        );
+          app.name.toLowerCase().includes(searchTerm)
+        ) || cap.name.toLowerCase().includes(searchTerm);
       });
     }
 

@@ -73,10 +73,23 @@ export default function Dashboard() {
 
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
-    // If searching for applications, set search scope
+    
+    // Set search scope based on active filters and search term
     if (term.trim()) {
-      // Check if the search matches an application name to set appropriate scope
-      setSearchScope(`Search: ${term}`);
+      if (filters.applications && !filters.capabilities) {
+        // Only applications filter is active
+        setSearchScope(`Application: ${term}`);
+      } else if (filters.components && !filters.capabilities && !filters.applications) {
+        // Only components filter is active
+        setSearchScope(`Component: ${term}`);
+      } else {
+        // General search across enabled filters
+        const activeFilters = Object.entries(filters)
+          .filter(([_, enabled]) => enabled)
+          .map(([type, _]) => type)
+          .join(', ');
+        setSearchScope(`Search: ${term} (${activeFilters})`);
+      }
     } else {
       setSearchScope(null);
     }
@@ -94,6 +107,25 @@ export default function Dashboard() {
     setSelectedCapability(capability.id);
     // Clear any open entity detail when selecting from sidebar
     setSelectedEntity(null);
+  };
+
+  const handleFiltersChange = (newFilters: typeof filters) => {
+    setFilters(newFilters);
+    
+    // Update search scope if there's an active search term
+    if (searchTerm.trim()) {
+      if (newFilters.applications && !newFilters.capabilities) {
+        setSearchScope(`Application: ${searchTerm}`);
+      } else if (newFilters.components && !newFilters.capabilities && !newFilters.applications) {
+        setSearchScope(`Component: ${searchTerm}`);
+      } else {
+        const activeFilters = Object.entries(newFilters)
+          .filter(([_, enabled]) => enabled)
+          .map(([type, _]) => type)
+          .join(', ');
+        setSearchScope(`Search: ${searchTerm} (${activeFilters})`);
+      }
+    }
   };
 
   const renderCurrentView = () => {
@@ -157,7 +189,7 @@ export default function Dashboard() {
         onSearchChange={handleSearchChange}
         searchTerm={searchTerm}
         filters={filters}
-        onFiltersChange={setFilters}
+        onFiltersChange={handleFiltersChange}
         selectedCapability={selectedCapability}
         searchScope={searchScope}
       />
