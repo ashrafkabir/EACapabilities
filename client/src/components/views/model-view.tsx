@@ -30,7 +30,7 @@ interface ColumnData {
   }[];
 }
 
-export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability, searchScope }: ModelViewProps) {
+export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability, selectedITComponent, searchScope }: ModelViewProps) {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [applicationSearchTerm, setApplicationSearchTerm] = useState("");
@@ -280,12 +280,51 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
   }, [capabilities, allApplications]);
 
   const filteredColumns = useMemo(() => {
-    if (!searchScope && !searchTerm.trim()) return processedData;
+    if (!searchScope && !searchTerm.trim() && !selectedITComponent) return processedData;
     
     let filtered = processedData;
     
-    // Filter by search scope first
-    if (searchScope) {
+    // Filter by selectedITComponent first
+    if (selectedITComponent) {
+      const entityLinkedApps = getApplicationsLinkedToITComponent(selectedITComponent);
+      
+      filtered = processedData.filter((column: ColumnData) => {
+        const hasLinkedCapabilities = column.level2Groups.some(group => 
+          group.level3Items.some(item => {
+            const capabilityApps = getApplicationsForCapability(item.name);
+            const hasLinkedApps = capabilityApps.some(app => 
+              entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
+            );
+            return hasLinkedApps;
+          })
+        );
+        return hasLinkedCapabilities;
+      });
+      
+      // Filter the internal structure to show complete hierarchy
+      filtered = filtered.map(column => ({
+        ...column,
+        level2Groups: column.level2Groups.filter(group => {
+          return group.level3Items.some(item => {
+            const capabilityApps = getApplicationsForCapability(item.name);
+            return capabilityApps.some(app => 
+              entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
+            );
+          });
+        }).map(group => ({
+          ...group,
+          level3Items: group.level3Items.filter(item => {
+            const capabilityApps = getApplicationsForCapability(item.name);
+            return capabilityApps.some(app => 
+              entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
+            );
+          })
+        }))
+      }));
+    }
+    
+    // Filter by search scope
+    else if (searchScope) {
       if (searchScope.startsWith('Business Capability:')) {
         const capabilityPath = searchScope.replace('Business Capability: ', '');
         const pathParts = capabilityPath.split('/');
@@ -457,7 +496,7 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     }
     
     return filtered;
-  }, [processedData, searchTerm, searchScope, itComponents, interfaces, dataObjects, initiatives]);
+  }, [processedData, searchTerm, searchScope, selectedITComponent, itComponents, interfaces, dataObjects, initiatives]);
 
   const baseColors = [
     { bg: 'bg-blue-500', text: 'text-white' },

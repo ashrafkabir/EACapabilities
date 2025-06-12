@@ -36,7 +36,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   const [exportSummaryData, setExportSummaryData] = useState<any>(null);
   const [expandedCapability, setExpandedCapability] = useState<BusinessCapability | null>(null);
   const [expandedApplication, setExpandedApplication] = useState<Application | null>(null);
-  const [selectedITComponent, setSelectedITComponent] = useState<string | null>(parentSelectedITComponent || null);
+  const [selectedITComponent, setSelectedITComponent] = useState<string | null>(parentSelectedITComponent ?? null);
   const [selectedInterface, setSelectedInterface] = useState<string | null>(null);
   const [selectedDataObject, setSelectedDataObject] = useState<string | null>(null);
   const [selectedInitiative, setSelectedInitiative] = useState<string | null>(null);
@@ -48,9 +48,9 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   // Sync parent selectedITComponent with internal state
   useEffect(() => {
     if (parentSelectedITComponent !== selectedITComponent) {
-      setSelectedITComponent(parentSelectedITComponent);
+      setSelectedITComponent(parentSelectedITComponent ?? null);
     }
-  }, [parentSelectedITComponent]);
+  }, [parentSelectedITComponent, selectedITComponent]);
 
   const handleITComponentClick = (componentName: string) => {
     setSelectedITComponent(componentName);
