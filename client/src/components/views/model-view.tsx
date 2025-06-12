@@ -280,13 +280,15 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
     return (
       <Card 
         key={id} 
-        className={`mb-1 cursor-pointer transition-all duration-200 hover:shadow-md border-2 h-12 ${
+        className={`mb-1 cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
+          isSelected && applications.length > 0 ? 'h-auto' : 'h-12'
+        } ${
           isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200'
         }`}
         onClick={() => handleCapabilitySelect(id)}
       >
-        <CardContent className="p-0 h-full">
-          <div className={`rounded-lg px-3 py-2 h-full flex items-center justify-between ${getBackgroundColor(level, colorInfo)} ${getTextColor(level)}`}>
+        <CardContent className="p-0">
+          <div className={`rounded-t-lg px-3 py-2 h-12 flex items-center justify-between ${getBackgroundColor(level, colorInfo)} ${getTextColor(level)}`}>
             <div className="flex-1 min-w-0">
               <h4 className="font-medium text-sm leading-tight truncate">
                 {name}
@@ -366,24 +368,26 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
           </div>
           
           {isSelected && applications.length > 0 && (
-            <div className="px-3 py-2 bg-white/10 border-t border-white/20">
-              <div className="space-y-1 max-h-32 overflow-y-auto">
-                {applications.map((app: Application) => (
-                  <div key={app.id} className="flex items-center justify-between bg-white/20 rounded px-2 py-1">
-                    <span className="text-xs truncate flex-1">{app.name}</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-red-100/20"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveApplication(app.id);
-                      }}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ))}
+            <div className="bg-white/5 border-t border-white/20 rounded-b-lg">
+              <div className="px-3 py-2">
+                <div className="space-y-1 max-h-40 overflow-y-auto">
+                  {applications.map((app: Application) => (
+                    <div key={app.id} className="flex items-center justify-between bg-white/10 rounded px-2 py-1.5 text-gray-800 dark:text-white">
+                      <span className="text-xs truncate flex-1 font-medium">{app.name}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-5 w-5 p-0 text-red-600 hover:text-red-800 hover:bg-red-100/30 ml-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveApplication(app.id);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
