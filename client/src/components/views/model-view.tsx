@@ -114,6 +114,22 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     });
   };
 
+  const getApplicationsWithITComponents = (): Application[] => {
+    const appsWithComponents = new Set<string>();
+    
+    itComponents.forEach((comp: any) => {
+      if (comp.applications) {
+        comp.applications.split(',').forEach((appName: string) => {
+          appsWithComponents.add(appName.trim());
+        });
+      }
+    });
+    
+    return allApplications.filter((app: Application) => 
+      appsWithComponents.has(app.name) || appsWithComponents.has(app.displayName || '')
+    );
+  };
+
   // Helper functions to find applications linked to different entity types
   const getApplicationsLinkedToITComponent = (componentName: string): Application[] => {
     const matchingComponents = itComponents.filter((comp: any) => 
@@ -324,8 +340,11 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
         
         // First get all applications linked to the searched entity
         let entityLinkedApps: Application[] = [];
+        let showAllCapabilitiesWithITComponents = false;
+        
         if (searchScope.startsWith('IT Component:')) {
-          entityLinkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
+          // For IT Component search, show all capabilities where applications have ANY IT components
+          showAllCapabilitiesWithITComponents = true;
         } else if (searchScope.startsWith('Interface:')) {
           entityLinkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
         } else if (searchScope.startsWith('Data Object:')) {
