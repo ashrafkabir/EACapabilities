@@ -94,7 +94,7 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
     </div>
   );
 
-  const renderCapabilityDetails = (capability: BusinessCapability) => (
+  const renderCapabilityDetails = (capability: BusinessCapability & { applicationsWithPaths?: Array<{ application: Application; paths: string[] }> }) => (
     <div className="space-y-6">
       <div>
         <h3 className="font-medium text-foreground mb-3">Capability Information</h3>
@@ -130,6 +130,63 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
             </div>
           )}
         </dl>
+      </div>
+
+      <div>
+        <h3 className="font-medium text-foreground mb-3">
+          Applications ({capability.applicationsWithPaths?.length || relatedApplications.length})
+        </h3>
+        <div className="space-y-2">
+          {capability.applicationsWithPaths && capability.applicationsWithPaths.length > 0 ? (
+            <div className="grid gap-3">
+              {capability.applicationsWithPaths.map(({ application: app, paths }) => (
+                <div key={app.id} className="p-4 bg-muted/50 rounded-lg border">
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <div className="font-medium text-sm">{app.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1">{app.description || 'No description'}</div>
+                    </div>
+                    <Badge variant="secondary" className="text-xs">
+                      {app.technicalSuitability || 'Not assessed'}
+                    </Badge>
+                  </div>
+                  
+                  <div className="mt-3">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Capability Paths:</div>
+                    {paths.map((path, idx) => (
+                      <div key={idx} className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded mb-1">
+                        {path}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : relatedApplications.length > 0 ? (
+            <div className="grid gap-2">
+              {relatedApplications.slice(0, 10).map((app: Application) => (
+                <div key={app.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div>
+                    <div className="font-medium text-sm">{app.name}</div>
+                    <div className="text-xs text-muted-foreground">{app.description || 'No description'}</div>
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {app.technicalSuitability || 'Not assessed'}
+                  </Badge>
+                </div>
+              ))}
+              {relatedApplications.length > 10 && (
+                <div className="text-sm text-muted-foreground text-center py-2">
+                  ... and {relatedApplications.length - 10} more applications
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground py-4 text-center">
+              No applications found for this capability
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
