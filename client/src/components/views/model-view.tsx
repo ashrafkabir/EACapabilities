@@ -379,7 +379,7 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
       {/* Horizontal scrollable columnar layout */}
       <div className="flex-1 overflow-auto">
         <div className="flex gap-3 p-4 min-w-max">
-          {filteredColumns.map((column: ColumnData, columnIndex) => {
+          {filteredColumns.map((column: ColumnData, columnIndex: number) => {
             const colorInfo = baseColors[columnIndex % baseColors.length];
             
             return (

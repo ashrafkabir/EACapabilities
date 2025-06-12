@@ -94,6 +94,13 @@ export default function Dashboard() {
             onEntitySelect={handleEntitySelect}
           />
         );
+      case 'model':
+        return (
+          <ModelView 
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+        );
       default:
         return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
     }
