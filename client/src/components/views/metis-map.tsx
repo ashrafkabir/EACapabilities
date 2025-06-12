@@ -25,9 +25,6 @@ interface HeatmapFilters {
 }
 
 export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect, filters }: MetisMapProps) {
-  const [navigationStack, setNavigationStack] = useState<{id: string | null, name: string, level: number}[]>([
-    { id: null, name: 'Root', level: 0 }
-  ]);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -1065,17 +1062,6 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     // Get the exact capabilities visible in the current map view
     let currentCapabilities: any[] = [];
     
-    // Get capabilities to display based on current navigation position
-    const currentNav = navigationStack[navigationStack.length - 1];
-    
-    if (currentNav.id === null) {
-      // At root level - show top-level capabilities (those without parents)
-      currentCapabilities = allCapabilities.filter(cap => !cap.parentId);
-    } else {
-      // Show children of the current capability
-      currentCapabilities = allCapabilities.filter(cap => cap.parentId === currentNav.id);
-    }
-
     if (selectedITComponent) {
       // When IT component is selected, find its related applications and their capabilities
       const component = itComponents.find(comp => comp.name === selectedITComponent);
@@ -1586,58 +1572,10 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     };
   }, []);
 
-  // Dynamic navigation functions
-  const handleCapabilityClick = (capability: BusinessCapability) => {
-    console.log('Card clicked for capability:', capability.name);
-    console.log('Capability clicked:', capability.name, 'Current level:', navigationStack.length);
-    
-    // Check if this capability has children
-    const children = allCapabilities.filter(cap => cap.parentId === capability.id);
-    console.log('Found children:', children.length, 'for capability:', capability.name);
-    
-    if (children.length > 0) {
-      // Navigate to this capability's children
-      console.log('Navigating to:', capability.name, 'New level will be:', navigationStack.length + 1);
-      setNavigationStack(prev => [...prev, { 
-        id: capability.id, 
-        name: capability.name, 
-        level: navigationStack.length + 1 
-      }]);
-      console.log('State after navigation - Level:', navigationStack.length + 1, 'Parent:', capability.name);
-    } else {
-      // Show details for leaf capability
-      console.log('Showing details for capability:', capability.name);
-      onEntitySelect({
-        type: 'capability',
-        id: capability.id,
-        data: capability
-      });
-    }
-  };
-
-  const handleGoBack = () => {
-    if (navigationStack.length > 1) {
-      setNavigationStack(prev => prev.slice(0, -1));
-    }
-  };
-
-  // Get capabilities to display based on current navigation position
-  const capabilitiesToShow = useMemo(() => {
-    const currentNav = navigationStack[navigationStack.length - 1];
-    
-    if (currentNav.id === null) {
-      // At root level - show top-level capabilities (those without parents)
-      return allCapabilities.filter(cap => !cap.parentId);
-    } else {
-      // Show children of the current capability
-      return allCapabilities.filter(cap => cap.parentId === currentNav.id);
-    }
-  }, [allCapabilities, navigationStack]);
-
   return (
     <div className="w-full h-full overflow-auto bg-slate-50 dark:bg-slate-900 p-6">
       {/* Navigation breadcrumb */}
-      {navigationStack.length > 1 && (
+      {currentLevel > 1 && (
         <div className="mb-6 flex items-center gap-2 bg-white dark:bg-slate-800 px-4 py-2 rounded-lg shadow-md w-fit">
           <button
             onClick={handleGoBack}
@@ -1647,12 +1585,13 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
             Back
           </button>
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <span>Level {navigationStack.length}</span>
-            <span>•</span>
-            <span className="font-medium">{navigationStack[navigationStack.length - 1].name}</span>
-          </div>
-        </div>
-      )}
+            <span>Level {currentLevel}</span>
+            {selectedParent && (
+              <>
+                <span>•</span>
+                <span className="font-medium">{selectedParent}</span>
+              </>
+            )}
           </div>
         </div>
       )}
