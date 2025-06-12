@@ -9,7 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { BusinessCapability } from "@shared/schema";
 
 interface SidebarProps {
-  onCapabilitySelect: (capabilityId: string) => void;
+  onCapabilitySelect: (capability: BusinessCapability) => void;
   onSearchChange: (term: string) => void;
   searchTerm: string;
   filters: {
@@ -22,6 +22,7 @@ interface SidebarProps {
   };
   onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
+  searchScope?: string | null;
 }
 
 interface CapabilityNode extends BusinessCapability {

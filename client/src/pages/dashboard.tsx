@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
+  const [searchScope, setSearchScope] = useState<string | null>(null); // Unified search scope across all tabs
   const [filters, setFilters] = useState({
     capabilities: true,
     applications: true,
@@ -66,7 +67,33 @@ export default function Dashboard() {
     // Reset search and navigation when switching tabs
     setSearchTerm('');
     setSelectedCapability(null);
+    setSearchScope(null);
     setCurrentView(view);
+  };
+
+  const handleSearchChange = (term: string) => {
+    setSearchTerm(term);
+    // If searching for applications, set search scope
+    if (term.trim()) {
+      // Check if the search matches an application name to set appropriate scope
+      setSearchScope(`Search: ${term}`);
+    } else {
+      setSearchScope(null);
+    }
+  };
+
+  const handleCapabilityTreeSelect = (capability: BusinessCapability) => {
+    // Build the capability path for search scope
+    const capabilityPath = [
+      capability.level1Capability,
+      capability.level2Capability,
+      capability.level3Capability
+    ].filter(Boolean).join('/');
+    
+    setSearchScope(`Business Capability: ${capabilityPath}`);
+    setSelectedCapability(capability.id);
+    // Clear any open entity detail when selecting from sidebar
+    setSelectedEntity(null);
   };
 
   const renderCurrentView = () => {
@@ -96,6 +123,7 @@ export default function Dashboard() {
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
             filters={filters}
+            searchScope={searchScope}
           />
         );
       case 'dashboard':
@@ -105,6 +133,7 @@ export default function Dashboard() {
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
             filters={filters}
+            searchScope={searchScope}
           />
         );
       case 'model':
@@ -112,6 +141,7 @@ export default function Dashboard() {
           <ModelView 
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
+            searchScope={searchScope}
           />
         );
       default:
@@ -122,12 +152,13 @@ export default function Dashboard() {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar
-        onCapabilitySelect={handleCapabilitySelect}
-        onSearchChange={setSearchTerm}
+        onCapabilitySelect={handleCapabilityTreeSelect}
+        onSearchChange={handleSearchChange}
         searchTerm={searchTerm}
         filters={filters}
         onFiltersChange={setFilters}
         selectedCapability={selectedCapability}
+        searchScope={searchScope}
       />
       
       <div className="flex-1 flex flex-col">

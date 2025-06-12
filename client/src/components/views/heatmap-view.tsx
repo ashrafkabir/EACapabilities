@@ -30,6 +30,7 @@ interface HeatmapViewProps {
     dataObjects: boolean;
     initiatives: boolean;
   };
+  searchScope: string | null;
 }
 
 export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapability, filters }: HeatmapViewProps) {
