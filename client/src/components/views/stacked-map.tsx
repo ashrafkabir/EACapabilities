@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Eye, Plus, Search, X } from 'lucide-react';
-import type { BusinessCapability } from '@shared/schema';
+import type { BusinessCapability, Application } from '@shared/schema';
 
 interface StackedMapProps {
   capabilities: BusinessCapability[];
@@ -58,6 +59,11 @@ export default function StackedMap({
   const [localSearchTerm, setLocalSearchTerm] = useState('');
 
   const MAX_ITEMS_PER_LEVEL = 5;
+
+  // Fetch applications data for real application counting
+  const { data: applications = [] } = useQuery<Application[]>({
+    queryKey: ['/api/applications'],
+  });
 
   // Build columnar hierarchy from flat capabilities list using the new level fields
   const buildColumnarHierarchy = (caps: BusinessCapability[]): CapabilityColumn[] => {
@@ -150,8 +156,92 @@ export default function StackedMap({
 
   const filteredColumns = getFilteredColumns(columnarCapabilities, activeSearchTerm);
 
+  // Get all applications for a capability and its nested capabilities with hierarchy paths
+  const getNestedApplicationsWithPaths = (capability: BusinessCapability): Array<{
+    application: Application;
+    paths: string[];
+  }> => {
+    const results: Array<{ application: Application; paths: string[] }> = [];
+    const addedApps = new Set<string>();
+    
+    // Helper function to add applications with their capability path
+    const addApplicationsForCapability = (cap: BusinessCapability, pathPrefix: string[] = []) => {
+      const apps = getApplicationsForCapability(cap.name);
+      const currentPath = [...pathPrefix, cap.name];
+      
+      apps.forEach(app => {
+        if (!addedApps.has(app.id)) {
+          addedApps.add(app.id);
+          results.push({
+            application: app,
+            paths: [currentPath.join(' → ')]
+          });
+        } else {
+          // Application already exists, add this path
+          const existing = results.find(r => r.application.id === app.id);
+          if (existing && !existing.paths.includes(currentPath.join(' → '))) {
+            existing.paths.push(currentPath.join(' → '));
+          }
+        }
+      });
+    };
+    
+    // Add direct applications for this capability
+    addApplicationsForCapability(capability);
+    
+    // Add applications from nested capabilities
+    if (capability.level === 1) {
+      const nestedCaps = capabilities.filter(cap => 
+        cap.level1Capability === capability.level1Capability && cap.level !== 1
+      );
+      nestedCaps.forEach(nestedCap => {
+        const pathPrefix = [capability.name];
+        if (nestedCap.level === 2) {
+          addApplicationsForCapability(nestedCap, pathPrefix);
+        } else if (nestedCap.level === 3) {
+          // Find the level 2 parent for proper path
+          const level2Parent = capabilities.find(cap => 
+            cap.level === 2 && 
+            cap.level1Capability === nestedCap.level1Capability &&
+            cap.level2Capability === nestedCap.level2Capability
+          );
+          if (level2Parent) {
+            addApplicationsForCapability(nestedCap, [capability.name, level2Parent.name]);
+          } else {
+            addApplicationsForCapability(nestedCap, pathPrefix);
+          }
+        }
+      });
+    } else if (capability.level === 2) {
+      const level3Caps = capabilities.filter(cap => 
+        cap.level1Capability === capability.level1Capability && 
+        cap.level2Capability === capability.level2Capability && 
+        cap.level === 3
+      );
+      const level1Parent = capabilities.find(cap => 
+        cap.level === 1 && cap.level1Capability === capability.level1Capability
+      );
+      const pathPrefix = level1Parent ? [level1Parent.name, capability.name] : [capability.name];
+      
+      level3Caps.forEach(level3Cap => {
+        addApplicationsForCapability(level3Cap, pathPrefix);
+      });
+    }
+    
+    return results;
+  };
+
   const handleCapabilityClick = (capability: BusinessCapability) => {
-    onCapabilitySelect(capability);
+    // Get all applications with their paths for this capability
+    const applicationsWithPaths = getNestedApplicationsWithPaths(capability);
+    
+    // Create a detailed capability object with applications
+    const detailedCapability = {
+      ...capability,
+      applicationsWithPaths
+    };
+    
+    onCapabilitySelect(detailedCapability);
   };
 
   const handleExpandColumn = (columnId: string) => {
@@ -174,9 +264,53 @@ export default function StackedMap({
     setExpandedLevel2Groups(newExpanded);
   };
 
-  // Get application count for a capability
-  const getApplicationCount = (capabilityId: string): number => {
-    return Math.floor(Math.random() * 20) + 1;
+  // Get real application count by matching capability names in application business capabilities
+  const getApplicationsForCapability = (capabilityName: string): Application[] => {
+    return applications.filter(app => 
+      app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
+    );
+  };
+
+  // Get aggregated application count for a capability including all nested capabilities
+  const getAggregatedApplicationCount = (capabilityId: string, level: number): number => {
+    const capability = capabilities.find(cap => cap.id === capabilityId);
+    if (!capability) return 0;
+    
+    const capabilityName = capability.name;
+    const directApps = getApplicationsForCapability(capabilityName);
+    
+    if (level === 3) {
+      // Level 3 capabilities show their direct application count
+      return directApps.length;
+    }
+    
+    let totalCount = directApps.length;
+    
+    if (level === 1) {
+      // Level 1: sum applications from all level 2 and level 3 under this level 1
+      const nestedCaps = capabilities.filter(cap => 
+        cap.level1Capability === capability.level1Capability && cap.level !== 1
+      );
+      
+      nestedCaps.forEach(nestedCap => {
+        const nestedApps = getApplicationsForCapability(nestedCap.name);
+        totalCount += nestedApps.length;
+      });
+    } else if (level === 2) {
+      // Level 2: sum applications from all level 3 under this level 2
+      const level3Caps = capabilities.filter(cap => 
+        cap.level1Capability === capability.level1Capability && 
+        cap.level2Capability === capability.level2Capability && 
+        cap.level === 3
+      );
+      
+      level3Caps.forEach(level3Cap => {
+        const level3Apps = getApplicationsForCapability(level3Cap.name);
+        totalCount += level3Apps.length;
+      });
+    }
+    
+    return totalCount;
   };
 
   // Get appropriate text color based on background and level
@@ -198,7 +332,7 @@ export default function StackedMap({
     level: number, 
     capability?: BusinessCapability
   ) => {
-    const applicationCount = capability ? getApplicationCount(capability.id) : 0;
+    const applicationCount = capability ? getAggregatedApplicationCount(capability.id, level) : 0;
     const bgStyle = level === 1 ? colorInfo.bg : '';
     const textStyle = getTextColor(level, colorInfo);
     const customBg = level > 1 ? { backgroundColor: getFadedColor(colorInfo.rgb, level) } : {};
