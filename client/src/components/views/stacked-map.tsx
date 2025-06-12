@@ -340,39 +340,31 @@ export default function StackedMap({
                  searchScope.startsWith('IT Component:') || searchScope.startsWith('Interface:') ||
                  searchScope.startsWith('Data Object:') || searchScope.startsWith('Initiative:')) {
         const scopeSearchTerm = searchScope.replace(/^(Search|Application|IT Component|Interface|Data Object|Initiative): /, '').toLowerCase();
+        
+        // First get all applications linked to the searched entity
+        let entityLinkedApps: Application[] = [];
+        if (searchScope.startsWith('IT Component:')) {
+          entityLinkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
+        } else if (searchScope.startsWith('Interface:')) {
+          entityLinkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
+        } else if (searchScope.startsWith('Data Object:')) {
+          entityLinkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm);
+        } else if (searchScope.startsWith('Initiative:')) {
+          entityLinkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm);
+        }
+        
         filtered = columnarCapabilities.filter((column: CapabilityColumn) => {
-          return column.level2Groups.some(group => 
+          // Check if this column has any capabilities with linked applications
+          const hasLinkedCapabilities = column.level2Groups.some(group => 
             group.level3Items.some(item => {
-              let linkedApps: Application[] = [];
-              
               if (searchScope.startsWith('Application:')) {
-                linkedApps = getApplicationsForCapability(item.name).filter(app => 
+                return getApplicationsForCapability(item.name).some(app => 
                   app.name.toLowerCase().includes(scopeSearchTerm)
                 );
-              } else if (searchScope.startsWith('IT Component:')) {
-                linkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
-                // Check if this capability has any of these linked applications
+              } else if (entityLinkedApps.length > 0) {
                 const capabilityApps = getApplicationsForCapability(item.name);
-                linkedApps = capabilityApps.filter(app => 
-                  linkedApps.some(linkedApp => linkedApp.id === app.id)
-                );
-              } else if (searchScope.startsWith('Interface:')) {
-                linkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
-                const capabilityApps = getApplicationsForCapability(item.name);
-                linkedApps = capabilityApps.filter(app => 
-                  linkedApps.some(linkedApp => linkedApp.id === app.id)
-                );
-              } else if (searchScope.startsWith('Data Object:')) {
-                linkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm);
-                const capabilityApps = getApplicationsForCapability(item.name);
-                linkedApps = capabilityApps.filter(app => 
-                  linkedApps.some(linkedApp => linkedApp.id === app.id)
-                );
-              } else if (searchScope.startsWith('Initiative:')) {
-                linkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm);
-                const capabilityApps = getApplicationsForCapability(item.name);
-                linkedApps = capabilityApps.filter(app => 
-                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                return capabilityApps.some(app => 
+                  entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                 );
               } else {
                 // General search, search capability names
@@ -380,11 +372,46 @@ export default function StackedMap({
                        group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
                        item.name.toLowerCase().includes(scopeSearchTerm);
               }
-              
-              return linkedApps.length > 0;
             })
           );
+          return hasLinkedCapabilities;
         });
+        
+        // For entity-linked searches, also filter the internal structure to show complete hierarchy
+        if (entityLinkedApps.length > 0 || searchScope.startsWith('Application:')) {
+          filtered = filtered.map(column => ({
+            ...column,
+            level2Groups: column.level2Groups.filter(group => {
+              // Keep L2 groups that have L3 items with linked applications
+              return group.level3Items.some(item => {
+                if (searchScope.startsWith('Application:')) {
+                  return getApplicationsForCapability(item.name).some(app => 
+                    app.name.toLowerCase().includes(scopeSearchTerm)
+                  );
+                } else {
+                  const capabilityApps = getApplicationsForCapability(item.name);
+                  return capabilityApps.some(app => 
+                    entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
+                  );
+                }
+              });
+            }).map(group => ({
+              ...group,
+              level3Items: group.level3Items.filter(item => {
+                if (searchScope.startsWith('Application:')) {
+                  return getApplicationsForCapability(item.name).some(app => 
+                    app.name.toLowerCase().includes(scopeSearchTerm)
+                  );
+                } else {
+                  const capabilityApps = getApplicationsForCapability(item.name);
+                  return capabilityApps.some(app => 
+                    entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
+                  );
+                }
+              })
+            }))
+          }));
+        }
       }
     }
 
