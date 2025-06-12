@@ -103,7 +103,9 @@ export default function StackedMap({
     const linkedApps = new Set<string>();
     matchingComponents.forEach((comp: any) => {
       if (comp.applications) {
-        comp.applications.split(',').forEach((appName: string) => {
+        // Split by both comma and forward slash to handle different delimiters
+        const delimiters = /[,/]/;
+        comp.applications.split(delimiters).forEach((appName: string) => {
           linkedApps.add(appName.trim());
         });
       }
@@ -204,7 +206,9 @@ export default function StackedMap({
     
     itComponents.forEach((comp: any) => {
       if (comp.applications) {
-        comp.applications.split(',').forEach((appName: string) => {
+        // Split by both comma and forward slash to handle different delimiters
+        const delimiters = /[,/]/;
+        comp.applications.split(delimiters).forEach((appName: string) => {
           appsWithComponents.add(appName.trim());
         });
       }
