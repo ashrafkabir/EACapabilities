@@ -211,13 +211,23 @@ export default function StackedMap({
           return false;
         });
       } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
-        const searchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
+        const scopeSearchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
         filtered = filtered.filter(cap => {
-          // Search through applications to find capabilities that contain matching applications
+          // For application search, look through applications mapped to capabilities
+          if (searchScope.startsWith('Application:')) {
+            const capApplications = getApplicationsForCapability(cap.name);
+            return capApplications.some(app => 
+              app.name.toLowerCase().includes(scopeSearchTerm)
+            );
+          }
+          // For general search, search both capability names and applications
           const capApplications = getApplicationsForCapability(cap.name);
           return capApplications.some(app => 
-            app.name.toLowerCase().includes(searchTerm)
-          ) || cap.name.toLowerCase().includes(searchTerm);
+            app.name.toLowerCase().includes(scopeSearchTerm)
+          ) || cap.name.toLowerCase().includes(scopeSearchTerm) ||
+               cap.level1Capability?.toLowerCase().includes(scopeSearchTerm) ||
+               cap.level2Capability?.toLowerCase().includes(scopeSearchTerm) ||
+               cap.level3Capability?.toLowerCase().includes(scopeSearchTerm);
         });
       }
     }
