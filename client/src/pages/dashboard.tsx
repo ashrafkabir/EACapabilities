@@ -7,6 +7,7 @@ import StackedMap from "@/components/views/stacked-map";
 import HeatmapView from "@/components/views/heatmap-view";
 import DashboardView from "@/components/views/dashboard-view";
 import DetailModal from "@/components/modals/detail-modal";
+import type { BusinessCapability } from "@shared/schema";
 
 export type ViewType = 'network' | 'hierarchy' | 'heatmap' | 'dashboard';
 
@@ -32,7 +33,7 @@ export default function Dashboard() {
   });
 
   // Fetch business capabilities for stacked map
-  const { data: capabilities = [] } = useQuery({
+  const { data: capabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
     enabled: currentView === 'hierarchy'
   });
@@ -76,7 +77,7 @@ export default function Dashboard() {
           <StackedMap
             capabilities={capabilities}
             selectedCapability={selectedCapability}
-            onCapabilitySelect={(cap) => handleEntitySelect({ type: 'capability', id: cap.id, data: cap })}
+            onCapabilitySelect={(cap: BusinessCapability) => handleEntitySelect({ type: 'capability', id: cap.id, data: cap })}
             searchTerm={searchTerm}
           />
         );

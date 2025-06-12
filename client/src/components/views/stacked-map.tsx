@@ -96,9 +96,24 @@ export default function StackedMap({
     cap.displayName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Assign colors to capabilities
+  // Assign colors to capabilities - ensure we spread all properties
   const capabilitiesWithColors = filteredCapabilities.map((cap, index) => ({
-    ...cap,
+    id: cap.id,
+    name: cap.name,
+    displayName: cap.displayName,
+    hierarchy: cap.hierarchy,
+    parentId: cap.parentId,
+    level: cap.level,
+    level1: cap.level1,
+    level2: cap.level2,
+    level3: cap.level3,
+    level1Capability: cap.level1Capability,
+    level2Capability: cap.level2Capability,
+    level3Capability: cap.level3Capability,
+    mappedLevel1Capability: cap.mappedLevel1Capability,
+    mappedToLifesciencesCapabilities: cap.mappedToLifesciencesCapabilities,
+    createdAt: cap.createdAt,
+    children: cap.children,
     color: colorSchemes[index % colorSchemes.length]
   }));
 
