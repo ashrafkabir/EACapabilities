@@ -52,12 +52,35 @@ export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapabi
       
       return {
         ...heatmapData,
-        data: heatmapData.data.filter(item => 
-          pathParts.some(part => item.capability.toLowerCase().includes(part.toLowerCase()))
-        ),
-        capabilities: heatmapData.capabilities.filter(cap => 
-          pathParts.some(part => cap.toLowerCase().includes(part.toLowerCase()))
-        )
+        data: heatmapData.data.filter(item => {
+          // Check if capability matches the exact hierarchical path
+          const capParts = item.capability.split('/').map(p => p.trim());
+          if (pathParts.length === 1) {
+            return capParts[0]?.toLowerCase() === pathParts[0].toLowerCase();
+          } else if (pathParts.length === 2) {
+            return capParts[0]?.toLowerCase() === pathParts[0].toLowerCase() &&
+                   capParts[1]?.toLowerCase() === pathParts[1].toLowerCase();
+          } else if (pathParts.length === 3) {
+            return capParts[0]?.toLowerCase() === pathParts[0].toLowerCase() &&
+                   capParts[1]?.toLowerCase() === pathParts[1].toLowerCase() &&
+                   capParts[2]?.toLowerCase() === pathParts[2].toLowerCase();
+          }
+          return false;
+        }),
+        capabilities: heatmapData.capabilities.filter(cap => {
+          const capParts = cap.split('/').map(p => p.trim());
+          if (pathParts.length === 1) {
+            return capParts[0]?.toLowerCase() === pathParts[0].toLowerCase();
+          } else if (pathParts.length === 2) {
+            return capParts[0]?.toLowerCase() === pathParts[0].toLowerCase() &&
+                   capParts[1]?.toLowerCase() === pathParts[1].toLowerCase();
+          } else if (pathParts.length === 3) {
+            return capParts[0]?.toLowerCase() === pathParts[0].toLowerCase() &&
+                   capParts[1]?.toLowerCase() === pathParts[1].toLowerCase() &&
+                   capParts[2]?.toLowerCase() === pathParts[2].toLowerCase();
+          }
+          return false;
+        })
       };
     }
 

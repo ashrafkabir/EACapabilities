@@ -185,13 +185,29 @@ export default function StackedMap({
       const capabilityPath = searchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
       
-      return capabilities.filter(cap => 
-        pathParts.some(part => 
-          cap.level1Capability?.toLowerCase().includes(part.toLowerCase()) ||
-          cap.level2Capability?.toLowerCase().includes(part.toLowerCase()) ||
-          cap.name.toLowerCase().includes(part.toLowerCase())
-        )
-      );
+      return capabilities.filter(cap => {
+        // Build the full path for this capability
+        const capPath = [cap.level1Capability, cap.level2Capability, cap.level3Capability].filter(Boolean);
+        
+        // Check if this capability is part of the selected hierarchy path
+        // The capability should match the path from root to the selected level
+        if (pathParts.length === 1) {
+          // Level 1 selection - show all capabilities under this L1
+          return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase();
+        } else if (pathParts.length === 2) {
+          // Level 2 selection - show all capabilities under this L1/L2 path
+          return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                 cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase();
+        } else if (pathParts.length === 3) {
+          // Level 3 selection - show this specific capability and its parent levels
+          return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                 cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
+                 (cap.level3Capability?.toLowerCase() === pathParts[2].toLowerCase() || 
+                  (cap.level !== null && cap.level < 3));
+        }
+        
+        return false;
+      });
     }
 
     if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {

@@ -159,16 +159,53 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
         const pathParts = capabilityPath.split('/');
         
         filtered = processedData.filter((column: ColumnData) => {
-          return pathParts.some(part => 
-            column.level1Name.toLowerCase().includes(part.toLowerCase()) ||
-            column.level2Groups.some(group => 
-              group.level2Name.toLowerCase().includes(part.toLowerCase()) ||
-              group.level3Items.some(item => 
-                item.name.toLowerCase().includes(part.toLowerCase())
-              )
-            )
-          );
+          // Check if this column matches the selected hierarchy path
+          if (pathParts.length === 1) {
+            // Level 1 selection - show only this L1 column
+            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase();
+          } else if (pathParts.length === 2) {
+            // Level 2 selection - show column if it contains this L1/L2 path
+            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase() &&
+                   column.level2Groups.some(group => 
+                     group.level2Name.toLowerCase() === pathParts[1].toLowerCase()
+                   );
+          } else if (pathParts.length === 3) {
+            // Level 3 selection - show column if it contains this exact L1/L2/L3 path
+            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase() &&
+                   column.level2Groups.some(group => 
+                     group.level2Name.toLowerCase() === pathParts[1].toLowerCase() &&
+                     group.level3Items.some(item => 
+                       item.name.toLowerCase() === pathParts[2].toLowerCase()
+                     )
+                   );
+          }
+          return false;
         });
+        
+        // Also filter the level2Groups and level3Items within matching columns
+        filtered = filtered.map(column => ({
+          ...column,
+          level2Groups: column.level2Groups.filter(group => {
+            if (pathParts.length === 1) {
+              return true; // Show all L2 groups under the selected L1
+            } else if (pathParts.length === 2) {
+              return group.level2Name.toLowerCase() === pathParts[1].toLowerCase();
+            } else if (pathParts.length === 3) {
+              return group.level2Name.toLowerCase() === pathParts[1].toLowerCase();
+            }
+            return false;
+          }).map(group => ({
+            ...group,
+            level3Items: group.level3Items.filter(item => {
+              if (pathParts.length <= 2) {
+                return true; // Show all L3 items under the selected L1/L2
+              } else if (pathParts.length === 3) {
+                return item.name.toLowerCase() === pathParts[2].toLowerCase();
+              }
+              return false;
+            })
+          }))
+        }));
       } else if (searchScope.startsWith('Search:')) {
         const searchTerm = searchScope.replace('Search: ', '').toLowerCase();
         filtered = processedData.filter((column: ColumnData) => {
