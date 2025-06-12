@@ -383,8 +383,7 @@ export default function StackedMap({
         let showAllCapabilitiesWithITComponents = false;
         
         if (searchScope.startsWith('IT Component:')) {
-          // For IT Component search, show all capabilities where applications have ANY IT components
-          showAllCapabilitiesWithITComponents = true;
+          entityLinkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
         } else if (searchScope.startsWith('Interface:')) {
           entityLinkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
         } else if (searchScope.startsWith('Data Object:')) {
@@ -401,16 +400,6 @@ export default function StackedMap({
                 return getApplicationsForCapability(item.name).some(app => 
                   app.name.toLowerCase().includes(scopeSearchTerm)
                 );
-              } else if (showAllCapabilitiesWithITComponents) {
-                // For IT Component search, show all capabilities with applications that have ANY IT components
-                const capabilityApps = getApplicationsForCapability(item.name);
-                const appsWithITComponents = getApplicationsWithITComponents();
-                const hasAppsWithComponents = capabilityApps.some(app => 
-                  appsWithITComponents.some(compApp => compApp.id === app.id)
-                );
-                // Also check if this capability has linked initiatives
-                const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
-                return hasAppsWithComponents || hasLinkedInitiatives;
               } else if (entityLinkedApps.length > 0) {
                 const capabilityApps = getApplicationsForCapability(item.name);
                 const hasLinkedApps = capabilityApps.some(app => 
@@ -431,7 +420,7 @@ export default function StackedMap({
         });
         
         // For entity-linked searches, also filter the internal structure to show complete hierarchy
-        if (entityLinkedApps.length > 0 || searchScope.startsWith('Application:') || showAllCapabilitiesWithITComponents) {
+        if (entityLinkedApps.length > 0 || searchScope.startsWith('Application:')) {
           filtered = filtered.map(column => ({
             ...column,
             level2Groups: column.level2Groups.filter(group => {
@@ -455,14 +444,6 @@ export default function StackedMap({
                   return getApplicationsForCapability(item.name).some(app => 
                     app.name.toLowerCase().includes(scopeSearchTerm)
                   );
-                } else if (showAllCapabilitiesWithITComponents) {
-                  const capabilityApps = getApplicationsForCapability(item.name);
-                  const appsWithITComponents = getApplicationsWithITComponents();
-                  const hasAppsWithComponents = capabilityApps.some(app => 
-                    appsWithITComponents.some(compApp => compApp.id === app.id)
-                  );
-                  const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
-                  return hasAppsWithComponents || hasLinkedInitiatives;
                 } else {
                   const capabilityApps = getApplicationsForCapability(item.name);
                   const hasLinkedApps = capabilityApps.some(app => 
