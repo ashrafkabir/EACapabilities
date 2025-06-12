@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/topbar";
 import MetisMap from "@/components/views/metis-map";
-import HierarchyView from "@/components/views/hierarchy-view";
+import StackedMap from "@/components/views/stacked-map";
 import HeatmapView from "@/components/views/heatmap-view";
 import DashboardView from "@/components/views/dashboard-view";
 import DetailModal from "@/components/modals/detail-modal";
@@ -28,6 +29,12 @@ export default function Dashboard() {
     interfaces: true,
     dataObjects: true,
     initiatives: true,
+  });
+
+  // Fetch business capabilities for stacked map
+  const { data: capabilities = [] } = useQuery({
+    queryKey: ['/api/business-capabilities'],
+    enabled: currentView === 'hierarchy'
   });
 
   const handleEntitySelect = (entity: EntityReference) => {
@@ -66,9 +73,10 @@ export default function Dashboard() {
         );
       case 'hierarchy':
         return (
-          <HierarchyView
+          <StackedMap
+            capabilities={capabilities}
             selectedCapability={selectedCapability}
-            onEntitySelect={handleEntitySelect}
+            onCapabilitySelect={(cap) => handleEntitySelect({ type: 'capability', id: cap.id, data: cap })}
             searchTerm={searchTerm}
           />
         );
