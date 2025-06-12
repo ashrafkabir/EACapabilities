@@ -67,10 +67,7 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
   // Mutation for removing application-capability relationships
   const removeApplicationMutation = useMutation({
     mutationFn: async ({ applicationId, capabilityName }: { applicationId: string; capabilityName: string }) => {
-      return apiRequest(`/api/applications/${applicationId}/capabilities`, {
-        method: 'DELETE',
-        body: JSON.stringify({ capabilityName }),
-      });
+      return apiRequest(`/api/applications/${applicationId}/capabilities`, 'DELETE', { capabilityName });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/capabilities'] });
@@ -80,7 +77,7 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
 
   const getApplicationsForCapability = (capabilityName: string): Application[] => {
     return allApplications.filter((app: Application) => 
-      app.relToBusinessCapability?.toLowerCase().includes(capabilityName.toLowerCase())
+      app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
     );
   };
 
@@ -226,7 +223,7 @@ export default function ModelView({ searchTerm, onSearchChange }: ModelViewProps
     
     const selectedCapabilityData = capabilities.find((cap: BusinessCapability) => cap.id === selectedCapability);
     const notAlreadyMapped = !selectedCapabilityData || 
-      !app.relToBusinessCapability?.toLowerCase().includes(selectedCapabilityData.name.toLowerCase());
+      !app.businessCapabilities?.toLowerCase().includes(selectedCapabilityData.name.toLowerCase());
     
     return matchesSearch && notAlreadyMapped;
   });

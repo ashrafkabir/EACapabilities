@@ -46,6 +46,10 @@ interface IStorage {
   getDashboardMetrics(): Promise<any>;
   getHeatmapData(metric?: string): Promise<any>;
   searchEntities(query: string, type?: string): Promise<any>;
+  
+  // Application-Capability relationship methods
+  addApplicationCapabilityRelationship(applicationId: string, capabilityName: string): Promise<void>;
+  removeApplicationCapabilityRelationship(applicationId: string, capabilityName: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -236,6 +240,56 @@ export class DatabaseStorage implements IStorage {
     }
     
     return results;
+  }
+
+  async addApplicationCapabilityRelationship(applicationId: string, capabilityName: string): Promise<void> {
+    // Get the current application
+    const [application] = await db.select().from(applications).where(eq(applications.id, applicationId));
+    if (!application) {
+      throw new Error(`Application with id ${applicationId} not found`);
+    }
+
+    // Get current business capabilities
+    const currentCapabilities = application.businessCapabilities || '';
+    
+    // Check if capability is already mapped
+    if (currentCapabilities.toLowerCase().includes(capabilityName.toLowerCase())) {
+      return; // Already mapped, no need to add again
+    }
+
+    // Add the new capability
+    const updatedCapabilities = currentCapabilities 
+      ? `${currentCapabilities}, ${capabilityName}`
+      : capabilityName;
+
+    // Update the application
+    await db.update(applications)
+      .set({ businessCapabilities: updatedCapabilities })
+      .where(eq(applications.id, applicationId));
+  }
+
+  async removeApplicationCapabilityRelationship(applicationId: string, capabilityName: string): Promise<void> {
+    // Get the current application
+    const [application] = await db.select().from(applications).where(eq(applications.id, applicationId));
+    if (!application) {
+      throw new Error(`Application with id ${applicationId} not found`);
+    }
+
+    // Get current business capabilities
+    const currentCapabilities = application.businessCapabilities || '';
+    
+    // Remove the capability (case-insensitive)
+    const capabilitiesList = currentCapabilities
+      .split(',')
+      .map(cap => cap.trim())
+      .filter(cap => cap.toLowerCase() !== capabilityName.toLowerCase());
+
+    const updatedCapabilities = capabilitiesList.join(', ');
+
+    // Update the application
+    await db.update(applications)
+      .set({ businessCapabilities: updatedCapabilities })
+      .where(eq(applications.id, applicationId));
   }
 }
 

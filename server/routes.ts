@@ -196,6 +196,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add application-capability relationship
+  app.post("/api/applications/:applicationId/capabilities", async (req, res) => {
+    try {
+      const { applicationId } = req.params;
+      const { capabilityName } = req.body;
+      
+      if (!capabilityName) {
+        return res.status(400).json({ error: "Capability name is required" });
+      }
+
+      await storage.addApplicationCapabilityRelationship(applicationId, capabilityName);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error adding application-capability relationship:", error);
+      res.status(500).json({ error: "Failed to add relationship" });
+    }
+  });
+
+  // Remove application-capability relationship
+  app.delete("/api/applications/:applicationId/capabilities", async (req, res) => {
+    try {
+      const { applicationId } = req.params;
+      const { capabilityName } = req.body;
+      
+      if (!capabilityName) {
+        return res.status(400).json({ error: "Capability name is required" });
+      }
+
+      await storage.removeApplicationCapabilityRelationship(applicationId, capabilityName);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error removing application-capability relationship:", error);
+      res.status(500).json({ error: "Failed to remove relationship" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
