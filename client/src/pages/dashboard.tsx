@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/topbar";
-import MetisMap from "@/components/views/metis-map";
+import MetisMapDynamic from "@/components/views/metis-map-dynamic";
 import HierarchyView from "@/components/views/hierarchy-view";
 import HeatmapView from "@/components/views/heatmap-view";
 import DashboardView from "@/components/views/dashboard-view";
@@ -57,7 +57,7 @@ export default function Dashboard() {
     switch (currentView) {
       case 'network':
         return (
-          <MetisMap
+          <MetisMapDynamic
             selectedCapability={selectedCapability}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
@@ -85,7 +85,7 @@ export default function Dashboard() {
           />
         );
       default:
-        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
+        return <MetisMapDynamic selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
     }
   };
 
