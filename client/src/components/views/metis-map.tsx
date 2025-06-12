@@ -25,6 +25,9 @@ interface HeatmapFilters {
 }
 
 export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect, filters }: MetisMapProps) {
+  const [navigationStack, setNavigationStack] = useState<{id: string | null, name: string, level: number}[]>([
+    { id: null, name: 'Root', level: 0 }
+  ]);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -1062,6 +1065,17 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
     // Get the exact capabilities visible in the current map view
     let currentCapabilities: any[] = [];
     
+    // Get capabilities to display based on current navigation position
+    const currentNav = navigationStack[navigationStack.length - 1];
+    
+    if (currentNav.id === null) {
+      // At root level - show top-level capabilities (those without parents)
+      currentCapabilities = allCapabilities.filter(cap => !cap.parentId);
+    } else {
+      // Show children of the current capability
+      currentCapabilities = allCapabilities.filter(cap => cap.parentId === currentNav.id);
+    }
+
     if (selectedITComponent) {
       // When IT component is selected, find its related applications and their capabilities
       const component = itComponents.find(comp => comp.name === selectedITComponent);
