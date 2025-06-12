@@ -38,9 +38,12 @@ const baseColors = [
   { bg: 'bg-indigo-500', text: 'text-white', rgb: '99, 102, 241' },
 ];
 
-// Generate faded colors for nested levels
+// Generate faded colors for nested levels with better contrast
 const getFadedColor = (baseRgb: string, level: number): string => {
-  const opacity = level === 1 ? 1 : level === 2 ? 0.7 : 0.5;
+  if (level === 1) return `rgb(${baseRgb})`;
+  
+  // For better text contrast, make level 2 and 3 backgrounds much lighter
+  const opacity = level === 2 ? 0.25 : 0.15;
   return `rgba(${baseRgb}, ${opacity})`;
 };
 
@@ -176,6 +179,17 @@ export default function StackedMap({
     return Math.floor(Math.random() * 20) + 1;
   };
 
+  // Get appropriate text color based on background and level
+  const getTextColor = (level: number, colorInfo: any) => {
+    if (level === 1) {
+      // Level 1 uses predefined text colors
+      return colorInfo.text;
+    } else {
+      // For faded levels (2 and 3), use darker text for better contrast
+      return 'text-gray-800 dark:text-gray-100';
+    }
+  };
+
   // Render a capability card with appropriate styling
   const renderCapabilityCard = (
     name: string, 
@@ -186,7 +200,7 @@ export default function StackedMap({
   ) => {
     const applicationCount = capability ? getApplicationCount(capability.id) : 0;
     const bgStyle = level === 1 ? colorInfo.bg : '';
-    const textStyle = level === 1 ? colorInfo.text : 'text-white';
+    const textStyle = getTextColor(level, colorInfo);
     const customBg = level > 1 ? { backgroundColor: getFadedColor(colorInfo.rgb, level) } : {};
     
     return (
@@ -210,10 +224,10 @@ export default function StackedMap({
           </div>
           
           <div className="flex items-center justify-between">
-            <div className="text-xs opacity-90">
+            <div className="text-xs opacity-75">
               {capability ? `${applicationCount} apps` : ''}
             </div>
-            {capability && <Eye className="h-3 w-3 opacity-90" />}
+            {capability && <Eye className="h-3 w-3 opacity-75" />}
           </div>
         </CardContent>
       </Card>
