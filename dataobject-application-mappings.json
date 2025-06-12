@@ -1,0 +1,27 @@
+[
+  {
+    "dataObjectName": "Candidate",
+    "originalApplications": "Beamery Talent CRM;LinkedIn Recruiter",
+    "mappedApplications": "Beamery Talent CRM"
+  },
+  {
+    "dataObjectName": "Employee",
+    "originalApplications": "Graebel globalCONNECT;Maven Clinic Platform;Sedgwick",
+    "mappedApplications": "Graebel globalCONNECT"
+  },
+  {
+    "dataObjectName": "Invoice",
+    "originalApplications": "Digital Business Hub;EY Global Tax Platform 1.0",
+    "mappedApplications": "Digital Business Hub;EY Global Tax Platform"
+  },
+  {
+    "dataObjectName": "Site Monitoring",
+    "originalApplications": "ODR (CST Dashboard);Veeva - CTMS",
+    "mappedApplications": "Dash"
+  },
+  {
+    "dataObjectName": "Study Enrollment",
+    "originalApplications": "Clinical Operational Repository (ODR)",
+    "mappedApplications": "Clinical Operational Repository (ODR)"
+  }
+]

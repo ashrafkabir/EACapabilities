@@ -4,23 +4,59 @@ import { eq } from 'drizzle-orm';
 import fs from 'fs';
 import path from 'path';
 
-// Simple fuzzy matching function
+// Enhanced fuzzy matching function
 function fuzzyMatch(str1: string, str2: string): number {
-  const s1 = str1.toLowerCase().trim();
-  const s2 = str2.toLowerCase().trim();
+  const s1 = normalizeString(str1);
+  const s2 = normalizeString(str2);
   
   // Exact match
   if (s1 === s2) return 1.0;
   
   // Check if one string contains the other
-  if (s1.includes(s2) || s2.includes(s1)) return 0.8;
+  if (s1.includes(s2) || s2.includes(s1)) return 0.9;
+  
+  // Check for partial word matches
+  const words1 = s1.split(/\s+/);
+  const words2 = s2.split(/\s+/);
+  const commonWords = words1.filter(word => words2.includes(word));
+  
+  if (commonWords.length > 0) {
+    const wordMatchRatio = (commonWords.length * 2) / (words1.length + words2.length);
+    if (wordMatchRatio > 0.5) return 0.8;
+  }
+  
+  // Check for acronym matches (e.g., "CTMS" vs "Clinical Trial Management System")
+  if (isAcronymMatch(s1, s2)) return 0.75;
   
   // Calculate Levenshtein distance ratio
   const maxLength = Math.max(s1.length, s2.length);
+  if (maxLength === 0) return 0;
+  
   const distance = levenshteinDistance(s1, s2);
   const similarity = 1 - (distance / maxLength);
   
   return similarity;
+}
+
+function normalizeString(str: string): string {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s]/g, ' ')  // Replace special chars with spaces
+    .replace(/\s+/g, ' ')      // Normalize whitespace
+    .trim();
+}
+
+function isAcronymMatch(str1: string, str2: string): boolean {
+  const [shorter, longer] = str1.length < str2.length ? [str1, str2] : [str2, str1];
+  
+  if (shorter.length < 3 || longer.length < shorter.length * 2) return false;
+  
+  const longerWords = longer.split(/\s+/);
+  if (longerWords.length < shorter.length) return false;
+  
+  const acronym = longerWords.map(word => word[0]).join('');
+  return acronym === shorter;
 }
 
 function levenshteinDistance(str1: string, str2: string): number {
@@ -102,7 +138,7 @@ async function findBestApplicationMatch(applicationName: string, allApplications
   if (!applicationName || applicationName.trim() === '') return null;
   
   let bestMatch = null;
-  let bestScore = 0.6; // Minimum threshold for matching
+  let bestScore = 0.5; // Lowered threshold for better matching
   
   for (const app of allApplications) {
     const score = fuzzyMatch(applicationName, app.name);

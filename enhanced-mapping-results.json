@@ -1,0 +1,62 @@
+[
+  {
+    "dataObjectName": "Candidate",
+    "originalApplications": "Beamery Talent CRM;LinkedIn Recruiter",
+    "mappedApplications": "Beamery Talent CRM",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "Employee",
+    "originalApplications": "Graebel globalCONNECT;Maven Clinic Platform;Sedgwick",
+    "mappedApplications": "Graebel globalCONNECT",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "eTMF Document Tracking",
+    "originalApplications": "Veeva - eTMF (Track)",
+    "mappedApplications": "GPS-Veeva-Safety Document Management System",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "Invoice",
+    "originalApplications": "Digital Business Hub;EY Global Tax Platform 1.0",
+    "mappedApplications": "Digital Business Hub;EY Global Tax Platform",
+    "mappingCount": 2
+  },
+  {
+    "dataObjectName": "QMOD",
+    "originalApplications": "Veeva - QMOD",
+    "mappedApplications": "IOPS Veeva Vault QMS",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "Quality Event Management Data",
+    "originalApplications": "Veeva - QMOD",
+    "mappedApplications": "IOPS Veeva Vault QMS",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "QMOD Report",
+    "originalApplications": "Veeva - QMOD",
+    "mappedApplications": "IOPS Veeva Vault QMS",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "Site Monitoring",
+    "originalApplications": "ODR (CST Dashboard);Veeva - CTMS",
+    "mappedApplications": "Dash;CTMS Request Management",
+    "mappingCount": 2
+  },
+  {
+    "dataObjectName": "Study Enrollment",
+    "originalApplications": "Clinical Operational Repository (ODR)",
+    "mappedApplications": "Clinical Operational Repository (ODR)",
+    "mappingCount": 1
+  },
+  {
+    "dataObjectName": "Tracker",
+    "originalApplications": "Veeva - QMOD",
+    "mappedApplications": "IOPS Veeva Vault QMS",
+    "mappingCount": 1
+  }
+]
