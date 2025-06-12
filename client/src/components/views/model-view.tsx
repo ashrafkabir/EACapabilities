@@ -14,6 +14,7 @@ import type { BusinessCapability, Application } from "@shared/schema";
 interface ModelViewProps {
   searchTerm: string;
   selectedCapability: string | null;
+  selectedITComponent?: string | null;
   searchScope: string | null;
 }
 

@@ -76,6 +76,10 @@ export default function Dashboard() {
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
     
+    // Reset selections when search changes
+    setSelectedCapability(null);
+    setSelectedITComponent(null);
+    
     // Set search scope based on active filters and search term
     if (term.trim()) {
       const enabledFilters = Object.entries(filters).filter(([_, enabled]) => enabled);
@@ -86,6 +90,7 @@ export default function Dashboard() {
           setSearchScope(`Application: ${term}`);
         } else if (filterType === 'components') {
           setSearchScope(`IT Component: ${term}`);
+          setSelectedITComponent(term); // Set selected IT component for seamless navigation
         } else if (filterType === 'interfaces') {
           setSearchScope(`Interface: ${term}`);
         } else if (filterType === 'dataObjects') {
@@ -144,6 +149,7 @@ export default function Dashboard() {
         return (
           <MetisMap
             selectedCapability={selectedCapability}
+            selectedITComponent={selectedITComponent}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
             filters={filters}
@@ -184,6 +190,7 @@ export default function Dashboard() {
           <ModelView 
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
+            selectedITComponent={selectedITComponent}
             searchScope={searchScope}
           />
         );

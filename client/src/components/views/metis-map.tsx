@@ -7,6 +7,7 @@ import ExportSummaryModal from "@/components/modals/export-summary-modal";
 
 interface MetisMapProps {
   selectedCapability: string | null;
+  selectedITComponent?: string | null;
   searchTerm: string;
   onEntitySelect: (entity: EntityReference) => void;
   filters: {
@@ -24,7 +25,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, searchTerm, onEntitySelect, filters }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect, filters }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -35,7 +36,7 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const [exportSummaryData, setExportSummaryData] = useState<any>(null);
   const [expandedCapability, setExpandedCapability] = useState<BusinessCapability | null>(null);
   const [expandedApplication, setExpandedApplication] = useState<Application | null>(null);
-  const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
+  const [selectedITComponent, setSelectedITComponent] = useState<string | null>(parentSelectedITComponent || null);
   const [selectedInterface, setSelectedInterface] = useState<string | null>(null);
   const [selectedDataObject, setSelectedDataObject] = useState<string | null>(null);
   const [selectedInitiative, setSelectedInitiative] = useState<string | null>(null);
@@ -43,6 +44,13 @@ export default function MetisMap({ selectedCapability, searchTerm, onEntitySelec
   const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
     queryKey: ['/api/business-capabilities'],
   });
+
+  // Sync parent selectedITComponent with internal state
+  useEffect(() => {
+    if (parentSelectedITComponent !== selectedITComponent) {
+      setSelectedITComponent(parentSelectedITComponent);
+    }
+  }, [parentSelectedITComponent]);
 
   const handleITComponentClick = (componentName: string) => {
     setSelectedITComponent(componentName);
