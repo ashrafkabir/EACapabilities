@@ -287,7 +287,7 @@ export default function StackedMap({
     }).filter(Boolean) as CapabilityColumn[];
   };
 
-  const filteredColumns = getFilteredColumns(columnarCapabilities, searchTerm);
+  const filteredColumns = searchScope ? columnarCapabilities : getFilteredColumns(columnarCapabilities, searchTerm);
 
   const getAllApplicationsForCapability = (capability: BusinessCapability): { application: Application; paths: string[] }[] => {
     const results: { application: Application; paths: string[] }[] = [];
