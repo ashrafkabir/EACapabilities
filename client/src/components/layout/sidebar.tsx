@@ -91,7 +91,7 @@ export default function Sidebar({
           style={{ paddingLeft: `${level * 12 + 8}px` }}
           onClick={() => {
             if (!hasChildren || level === 0) {
-              onCapabilitySelect(node.id);
+              onCapabilitySelect(node);
             }
             if (hasChildren) {
               toggleNode(node.id);

@@ -34,9 +34,10 @@ interface DashboardViewProps {
     dataObjects: boolean;
     initiatives: boolean;
   };
+  searchScope: string | null;
 }
 
-export default function DashboardView({ onEntitySelect, searchTerm, selectedCapability, filters }: DashboardViewProps) {
+export default function DashboardView({ onEntitySelect, searchTerm, selectedCapability, filters, searchScope }: DashboardViewProps) {
   const { data: metrics, isLoading } = useQuery<DashboardMetrics>({
     queryKey: ['/api/dashboard/metrics'],
   });

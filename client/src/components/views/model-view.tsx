@@ -14,6 +14,7 @@ import type { BusinessCapability, Application } from "@shared/schema";
 interface ModelViewProps {
   searchTerm: string;
   selectedCapability: string | null;
+  searchScope: string | null;
 }
 
 interface ColumnData {
@@ -28,7 +29,7 @@ interface ColumnData {
   }[];
 }
 
-export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability }: ModelViewProps) {
+export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability, searchScope }: ModelViewProps) {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [applicationSearchTerm, setApplicationSearchTerm] = useState("");

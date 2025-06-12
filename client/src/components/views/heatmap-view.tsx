@@ -33,7 +33,7 @@ interface HeatmapViewProps {
   searchScope: string | null;
 }
 
-export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapability, filters }: HeatmapViewProps) {
+export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapability, filters, searchScope }: HeatmapViewProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [selectedMetric, setSelectedMetric] = useState('applicationCount');
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
