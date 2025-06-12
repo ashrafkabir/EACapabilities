@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ interface StackedMapProps {
   onCapabilitySelect: (cap: BusinessCapability) => void;
   searchTerm: string;
   selectedCapability: string | null;
+  searchScope: string | null;
 }
 
 interface CapabilityColumn {
@@ -56,7 +57,8 @@ export default function StackedMap({
   capabilities, 
   onCapabilitySelect, 
   searchTerm,
-  selectedCapability 
+  selectedCapability,
+  searchScope
 }: StackedMapProps) {
   const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
   const [expandedLevel2Groups, setExpandedLevel2Groups] = useState<Set<string>>(new Set());
@@ -175,7 +177,39 @@ export default function StackedMap({
     return sortedColumns;
   };
 
-  const columnarCapabilities = buildColumnarHierarchy(capabilities);
+  // Filter capabilities based on search scope
+  const filteredCapabilities = useMemo(() => {
+    if (!searchScope) return capabilities;
+    
+    if (searchScope.startsWith('Business Capability:')) {
+      const capabilityPath = searchScope.replace('Business Capability: ', '');
+      const pathParts = capabilityPath.split('/');
+      
+      return capabilities.filter(cap => 
+        pathParts.some(part => 
+          cap.level1Capability?.toLowerCase().includes(part.toLowerCase()) ||
+          cap.level2Capability?.toLowerCase().includes(part.toLowerCase()) ||
+          cap.name.toLowerCase().includes(part.toLowerCase())
+        )
+      );
+    }
+
+    if (searchScope.startsWith('Search:')) {
+      const searchTerm = searchScope.replace('Search: ', '').toLowerCase();
+      return capabilities.filter(cap => {
+        // Search through applications to find capabilities that contain matching applications
+        const capApplications = getApplicationsForCapability(cap.name);
+        return capApplications.some(app => 
+          app.name.toLowerCase().includes(searchTerm) ||
+          app.domain?.toLowerCase().includes(searchTerm)
+        );
+      });
+    }
+
+    return capabilities;
+  }, [capabilities, searchScope, applications]);
+
+  const columnarCapabilities = buildColumnarHierarchy(filteredCapabilities);
 
   // Filter and rebuild hierarchy based on search
   const getFilteredColumns = (columns: CapabilityColumn[], searchTerm: string): CapabilityColumn[] => {

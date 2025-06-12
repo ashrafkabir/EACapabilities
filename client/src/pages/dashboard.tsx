@@ -114,6 +114,7 @@ export default function Dashboard() {
             selectedCapability={selectedCapability}
             onCapabilitySelect={(cap: BusinessCapability) => handleEntitySelect({ type: 'capability', id: cap.id, data: cap })}
             searchTerm={searchTerm}
+            searchScope={searchScope}
           />
         );
       case 'heatmap':
