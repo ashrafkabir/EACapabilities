@@ -24,6 +24,7 @@ export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
+  const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
   const [searchScope, setSearchScope] = useState<string | null>(null); // Unified search scope across all tabs
   const [filters, setFilters] = useState({
     capabilities: true,
@@ -67,6 +68,7 @@ export default function Dashboard() {
     // Reset search and navigation when switching tabs
     setSearchTerm('');
     setSelectedCapability(null);
+    setSelectedITComponent(null);
     setSearchScope(null);
     setCurrentView(view);
   };
