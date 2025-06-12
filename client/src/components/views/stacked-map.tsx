@@ -251,42 +251,53 @@ export default function StackedMap({
       });
     };
     
-    addApplicationsForCapability(capability);
+    // Build complete hierarchy path for the clicked capability
+    const getCompleteCapabilityPath = (cap: BusinessCapability): string[] => {
+      const path: string[] = [];
+      
+      // Add Level 1
+      if (cap.level1Capability) {
+        path.push(cap.level1Capability);
+      }
+      
+      // Add Level 2
+      if (cap.level2Capability && cap.level2Capability !== cap.level1Capability) {
+        path.push(cap.level2Capability);
+      }
+      
+      // Add Level 3 (the actual capability name)
+      if (cap.level === 3) {
+        path.push(cap.name);
+      }
+      
+      return path;
+    };
+    
+    // Add direct applications for this capability with complete path
+    const directPath = getCompleteCapabilityPath(capability);
+    addApplicationsForCapability(capability, directPath.slice(0, -1));
     
     if (capability.level === 1) {
+      // For Level 1, get all nested capabilities
       const nestedCaps = capabilities.filter(cap => 
         cap.level1Capability === capability.level1Capability && cap.level !== 1
       );
+      
       nestedCaps.forEach(nestedCap => {
-        const pathPrefix = [capability.name];
-        if (nestedCap.level === 2) {
-          addApplicationsForCapability(nestedCap, pathPrefix);
-        } else if (nestedCap.level === 3) {
-          const level2Parent = capabilities.find(cap => 
-            cap.level === 2 && 
-            cap.level1Capability === nestedCap.level1Capability &&
-            cap.level2Capability === nestedCap.level2Capability
-          );
-          if (level2Parent) {
-            addApplicationsForCapability(nestedCap, [capability.name, level2Parent.name]);
-          } else {
-            addApplicationsForCapability(nestedCap, pathPrefix);
-          }
-        }
+        const nestedPath = getCompleteCapabilityPath(nestedCap);
+        addApplicationsForCapability(nestedCap, nestedPath.slice(0, -1));
       });
     } else if (capability.level === 2) {
+      // For Level 2, get all Level 3 under it
       const level3Caps = capabilities.filter(cap => 
         cap.level1Capability === capability.level1Capability && 
         cap.level2Capability === capability.level2Capability && 
         cap.level === 3
       );
-      const level1Parent = capabilities.find(cap => 
-        cap.level === 1 && cap.level1Capability === capability.level1Capability
-      );
-      const pathPrefix = level1Parent ? [level1Parent.name, capability.name] : [capability.name];
       
       level3Caps.forEach(level3Cap => {
-        addApplicationsForCapability(level3Cap, pathPrefix);
+        const level3Path = getCompleteCapabilityPath(level3Cap);
+        addApplicationsForCapability(level3Cap, level3Path.slice(0, -1));
       });
     }
     
@@ -325,9 +336,12 @@ export default function StackedMap({
   const getTextColor = (level: number, colorInfo: any) => {
     if (level === 1) {
       return colorInfo.text;
-    } else {
-      // Use white text for better contrast on the darker faded backgrounds
+    } else if (level === 2) {
+      // For 60% opacity backgrounds, use white text for good contrast
       return 'text-white dark:text-white';
+    } else {
+      // For 35% opacity backgrounds, use darker text for better readability
+      return 'text-gray-800 dark:text-white';
     }
   };
 
