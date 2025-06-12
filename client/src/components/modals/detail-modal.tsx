@@ -134,7 +134,7 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
 
       <div>
         <h3 className="font-medium text-foreground mb-3">
-          Applications ({capability.applicationsWithPaths?.length || relatedApplications.length})
+          Applications ({capability.applicationsWithPaths?.length || (relatedApplications?.length || 0)})
         </h3>
         <div className="space-y-2">
           {capability.applicationsWithPaths && capability.applicationsWithPaths.length > 0 ? (
@@ -162,7 +162,7 @@ export default function DetailModal({ entity, onClose }: DetailModalProps) {
                 </div>
               ))}
             </div>
-          ) : relatedApplications.length > 0 ? (
+          ) : relatedApplications && relatedApplications.length > 0 ? (
             <div className="grid gap-2">
               {relatedApplications.slice(0, 10).map((app: Application) => (
                 <div key={app.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">

@@ -20,21 +20,29 @@ interface CapabilityColumn {
     level2Name: string;
     level2Id: string;
     level3Items: BusinessCapability[];
-    expanded: boolean;
+    expanded?: boolean;
   }[];
-  expanded: boolean;
+  expanded?: boolean;
 }
 
-// Base colors for level 1 capability domains
+// Color palette for different capability domains
 const baseColors = [
-  { bg: 'bg-orange-400', text: 'text-white', rgb: '251, 146, 60' },
-  { bg: 'bg-orange-500', text: 'text-white', rgb: '249, 115, 22' },
-  { bg: 'bg-cyan-400', text: 'text-white', rgb: '34, 211, 238' },
-  { bg: 'bg-blue-600', text: 'text-white', rgb: '37, 99, 235' },
-  { bg: 'bg-slate-800', text: 'text-white', rgb: '30, 41, 59' },
-  { bg: 'bg-purple-400', text: 'text-white', rgb: '196, 181, 253' },
+  { bg: 'bg-blue-500', text: 'text-white', rgb: '59, 130, 246' },
+  { bg: 'bg-green-500', text: 'text-white', rgb: '34, 197, 94' },
   { bg: 'bg-purple-500', text: 'text-white', rgb: '168, 85, 247' },
-  { bg: 'bg-purple-600', text: 'text-white', rgb: '147, 51, 234' },
+  { bg: 'bg-orange-500', text: 'text-white', rgb: '249, 115, 22' },
+  { bg: 'bg-pink-500', text: 'text-white', rgb: '236, 72, 153' },
+  { bg: 'bg-teal-500', text: 'text-white', rgb: '20, 184, 166' },
+  { bg: 'bg-red-500', text: 'text-white', rgb: '239, 68, 68' },
+  { bg: 'bg-yellow-500', text: 'text-black', rgb: '234, 179, 8' },
+  { bg: 'bg-cyan-500', text: 'text-white', rgb: '6, 182, 212' },
+  { bg: 'bg-violet-500', text: 'text-white', rgb: '139, 92, 246' },
+  { bg: 'bg-emerald-500', text: 'text-white', rgb: '16, 185, 129' },
+  { bg: 'bg-rose-500', text: 'text-white', rgb: '244, 63, 94' },
+  { bg: 'bg-amber-500', text: 'text-black', rgb: '245, 158, 11' },
+  { bg: 'bg-lime-500', text: 'text-black', rgb: '132, 204, 22' },
+  { bg: 'bg-sky-500', text: 'text-white', rgb: '14, 165, 233' },
+  { bg: 'bg-fuchsia-500', text: 'text-white', rgb: '217, 70, 239' },
   { bg: 'bg-gray-400', text: 'text-white', rgb: '156, 163, 175' },
   { bg: 'bg-indigo-500', text: 'text-white', rgb: '99, 102, 241' },
 ];
@@ -65,17 +73,61 @@ export default function StackedMap({
     queryKey: ['/api/applications'],
   });
 
-  // Build columnar hierarchy from flat capabilities list using the new level fields
+  // Get real application count by matching capability names in application business capabilities
+  const getApplicationsForCapability = (capabilityName: string): Application[] => {
+    return applications.filter(app => 
+      app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
+    );
+  };
+
+  // Get aggregated application count for a capability including all nested capabilities
+  const getAggregatedApplicationCount = (capabilityId: string, level: number): number => {
+    const capability = capabilities.find(cap => cap.id === capabilityId);
+    if (!capability) return 0;
+    
+    const capabilityName = capability.name;
+    const directApps = getApplicationsForCapability(capabilityName);
+    
+    if (level === 3) {
+      return directApps.length;
+    }
+    
+    let totalCount = directApps.length;
+    
+    if (level === 1) {
+      const nestedCaps = capabilities.filter(cap => 
+        cap.level1Capability === capability.level1Capability && cap.level !== 1
+      );
+      
+      nestedCaps.forEach(nestedCap => {
+        const nestedApps = getApplicationsForCapability(nestedCap.name);
+        totalCount += nestedApps.length;
+      });
+    } else if (level === 2) {
+      const level3Caps = capabilities.filter(cap => 
+        cap.level1Capability === capability.level1Capability && 
+        cap.level2Capability === capability.level2Capability && 
+        cap.level === 3
+      );
+      
+      level3Caps.forEach(level3Cap => {
+        const level3Apps = getApplicationsForCapability(level3Cap.name);
+        totalCount += level3Apps.length;
+      });
+    }
+    
+    return totalCount;
+  };
+
+  // Build columnar hierarchy from flat capabilities list
   const buildColumnarHierarchy = (caps: BusinessCapability[]): CapabilityColumn[] => {
     const columnMap = new Map<string, CapabilityColumn>();
     
     caps.forEach(cap => {
-      // Use the new level1Capability field from reprocessed data
       const level1Name = cap.level1Capability || 'Unknown';
       const level2Name = cap.level2Capability || '';
       const level3Name = cap.level3Capability || '';
       
-      // Get or create level 1 column
       if (!columnMap.has(level1Name)) {
         columnMap.set(level1Name, {
           level1Name,
@@ -87,7 +139,6 @@ export default function StackedMap({
       
       const column = columnMap.get(level1Name)!;
       
-      // Handle level 2 grouping
       if (level2Name) {
         let level2Group = column.level2Groups.find(g => g.level2Name === level2Name);
         if (!level2Group) {
@@ -100,19 +151,40 @@ export default function StackedMap({
           column.level2Groups.push(level2Group);
         }
         
-        // Add level 3 items (actual capabilities)
         if (level3Name && level2Group) {
           level2Group.level3Items.push(cap);
         }
       }
     });
     
-    return Array.from(columnMap.values());
+    // Sort columns by application count descending
+    const sortedColumns = Array.from(columnMap.values()).sort((a, b) => {
+      const aCount = getAggregatedApplicationCount(a.level1Id, 1);
+      const bCount = getAggregatedApplicationCount(b.level1Id, 1);
+      return bCount - aCount;
+    });
+    
+    // Sort level 2 groups and level 3 items by application count
+    sortedColumns.forEach(column => {
+      column.level2Groups.sort((a, b) => {
+        const aCount = getAggregatedApplicationCount(a.level2Id, 2);
+        const bCount = getAggregatedApplicationCount(b.level2Id, 2);
+        return bCount - aCount;
+      });
+      
+      column.level2Groups.forEach(group => {
+        group.level3Items.sort((a, b) => {
+          const aCount = getAggregatedApplicationCount(a.id, 3);
+          const bCount = getAggregatedApplicationCount(b.id, 3);
+          return bCount - aCount;
+        });
+      });
+    });
+    
+    return sortedColumns;
   };
 
   const columnarCapabilities = buildColumnarHierarchy(capabilities);
-
-  // Use local search term for filtering, fallback to prop searchTerm
   const activeSearchTerm = localSearchTerm || searchTerm;
 
   // Filter and rebuild hierarchy based on search
@@ -121,19 +193,15 @@ export default function StackedMap({
 
     const search = searchTerm.toLowerCase();
     return columns.map(column => {
-      // Check if level 1 matches
       const level1Matches = column.level1Name.toLowerCase().includes(search);
       
-      // Filter level 2 groups
       const filteredLevel2Groups = column.level2Groups.map(level2Group => {
         const level2Matches = level2Group.level2Name.toLowerCase().includes(search);
         
-        // Filter level 3 items
         const filteredLevel3Items = level2Group.level3Items.filter(item =>
           level1Matches || level2Matches || item.name.toLowerCase().includes(search)
         );
         
-        // Include level 2 group if it matches or has matching level 3 items
         if (level1Matches || level2Matches || filteredLevel3Items.length > 0) {
           return {
             ...level2Group,
@@ -143,7 +211,6 @@ export default function StackedMap({
         return null;
       }).filter(Boolean) as typeof column.level2Groups;
       
-      // Include column if level 1 matches or has matching nested items
       if (level1Matches || filteredLevel2Groups.length > 0) {
         return {
           ...column,
@@ -164,7 +231,6 @@ export default function StackedMap({
     const results: Array<{ application: Application; paths: string[] }> = [];
     const addedApps = new Set<string>();
     
-    // Helper function to add applications with their capability path
     const addApplicationsForCapability = (cap: BusinessCapability, pathPrefix: string[] = []) => {
       const apps = getApplicationsForCapability(cap.name);
       const currentPath = [...pathPrefix, cap.name];
@@ -177,7 +243,6 @@ export default function StackedMap({
             paths: [currentPath.join(' → ')]
           });
         } else {
-          // Application already exists, add this path
           const existing = results.find(r => r.application.id === app.id);
           if (existing && !existing.paths.includes(currentPath.join(' → '))) {
             existing.paths.push(currentPath.join(' → '));
@@ -186,10 +251,8 @@ export default function StackedMap({
       });
     };
     
-    // Add direct applications for this capability
     addApplicationsForCapability(capability);
     
-    // Add applications from nested capabilities
     if (capability.level === 1) {
       const nestedCaps = capabilities.filter(cap => 
         cap.level1Capability === capability.level1Capability && cap.level !== 1
@@ -199,7 +262,6 @@ export default function StackedMap({
         if (nestedCap.level === 2) {
           addApplicationsForCapability(nestedCap, pathPrefix);
         } else if (nestedCap.level === 3) {
-          // Find the level 2 parent for proper path
           const level2Parent = capabilities.find(cap => 
             cap.level === 2 && 
             cap.level1Capability === nestedCap.level1Capability &&
@@ -232,15 +294,11 @@ export default function StackedMap({
   };
 
   const handleCapabilityClick = (capability: BusinessCapability) => {
-    // Get all applications with their paths for this capability
     const applicationsWithPaths = getNestedApplicationsWithPaths(capability);
-    
-    // Create a detailed capability object with applications
     const detailedCapability = {
       ...capability,
       applicationsWithPaths
     };
-    
     onCapabilitySelect(detailedCapability);
   };
 
@@ -264,67 +322,14 @@ export default function StackedMap({
     setExpandedLevel2Groups(newExpanded);
   };
 
-  // Get real application count by matching capability names in application business capabilities
-  const getApplicationsForCapability = (capabilityName: string): Application[] => {
-    return applications.filter(app => 
-      app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
-    );
-  };
-
-  // Get aggregated application count for a capability including all nested capabilities
-  const getAggregatedApplicationCount = (capabilityId: string, level: number): number => {
-    const capability = capabilities.find(cap => cap.id === capabilityId);
-    if (!capability) return 0;
-    
-    const capabilityName = capability.name;
-    const directApps = getApplicationsForCapability(capabilityName);
-    
-    if (level === 3) {
-      // Level 3 capabilities show their direct application count
-      return directApps.length;
-    }
-    
-    let totalCount = directApps.length;
-    
-    if (level === 1) {
-      // Level 1: sum applications from all level 2 and level 3 under this level 1
-      const nestedCaps = capabilities.filter(cap => 
-        cap.level1Capability === capability.level1Capability && cap.level !== 1
-      );
-      
-      nestedCaps.forEach(nestedCap => {
-        const nestedApps = getApplicationsForCapability(nestedCap.name);
-        totalCount += nestedApps.length;
-      });
-    } else if (level === 2) {
-      // Level 2: sum applications from all level 3 under this level 2
-      const level3Caps = capabilities.filter(cap => 
-        cap.level1Capability === capability.level1Capability && 
-        cap.level2Capability === capability.level2Capability && 
-        cap.level === 3
-      );
-      
-      level3Caps.forEach(level3Cap => {
-        const level3Apps = getApplicationsForCapability(level3Cap.name);
-        totalCount += level3Apps.length;
-      });
-    }
-    
-    return totalCount;
-  };
-
-  // Get appropriate text color based on background and level
   const getTextColor = (level: number, colorInfo: any) => {
     if (level === 1) {
-      // Level 1 uses predefined text colors
       return colorInfo.text;
     } else {
-      // For faded levels (2 and 3), use darker text for better contrast
       return 'text-gray-800 dark:text-gray-100';
     }
   };
 
-  // Render a capability card with appropriate styling
   const renderCapabilityCard = (
     name: string, 
     id: string, 
@@ -368,7 +373,6 @@ export default function StackedMap({
     );
   };
 
-  // Render expand button
   const renderExpandButton = (count: number, onClick: () => void) => (
     <Button
       variant="outline"
@@ -454,7 +458,7 @@ export default function StackedMap({
                       {/* Level 2 Capability */}
                       {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
                       
-                      {/* Level 3 Capabilities (actual items) */}
+                      {/* Level 3 Capabilities */}
                       {visibleLevel3Items.map((level3Cap) => (
                         <div key={level3Cap.id} className="ml-2">
                           {renderCapabilityCard(level3Cap.name, level3Cap.id, colorInfo, 3, level3Cap)}
@@ -486,7 +490,7 @@ export default function StackedMap({
           <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
             <div className="text-center">
               <p className="text-lg mb-2">No capabilities found</p>
-              {searchTerm && (
+              {activeSearchTerm && (
                 <p className="text-sm">Try adjusting your search terms</p>
               )}
             </div>
