@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Eye, Plus, Search, X } from 'lucide-react';
 import type { BusinessCapability, Application } from '@shared/schema';
 
 interface StackedMapProps {
   capabilities: BusinessCapability[];
-  onCapabilitySelect: (cap: BusinessCapability) => void;
+  onCapabilitySelect: (capability: BusinessCapability) => void;
   searchTerm: string;
   selectedCapability: string | null;
 }
@@ -24,6 +25,7 @@ interface CapabilityColumn {
   expanded?: boolean;
 }
 
+// Color palette for different capability domains
 const baseColors = [
   { bg: 'bg-blue-500', text: 'text-white', rgb: '59, 130, 246' },
   { bg: 'bg-green-500', text: 'text-white', rgb: '34, 197, 94' },
@@ -47,7 +49,9 @@ const baseColors = [
 
 // Generate faded colors for nested levels with better visual hierarchy
 const getFadedColor = (baseRgb: string, level: number): string => {
-  if (level === 1) return '';
+  if (level === 1) return `rgb(${baseRgb})`;
+  
+  // Progressive fading: level 2 = 60%, level 3 = 35%
   const opacity = level === 2 ? 0.6 : 0.35;
   return `rgba(${baseRgb}, ${opacity})`;
 };
@@ -68,28 +72,35 @@ export default function StackedMap({
     queryKey: ['/api/applications'],
   });
 
+  // Get real application count by matching capability names in application business capabilities
   const getApplicationsForCapability = (capabilityName: string): Application[] => {
-    return applications.filter((app: Application) => 
+    return applications.filter(app => 
       app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
     );
   };
 
-  const getApplicationCountForCapability = (capabilityName: string): number => {
-    return getApplicationsForCapability(capabilityName).length;
-  };
-
+  // Get aggregated application count for a capability including all nested capabilities
   const getAggregatedApplicationCount = (capabilityId: string, level: number): number => {
     const capability = capabilities.find(cap => cap.id === capabilityId);
     if (!capability) return 0;
-
-    let count = getApplicationCountForCapability(capability.name);
+    
+    const capabilityName = capability.name;
+    const directApps = getApplicationsForCapability(capabilityName);
+    
+    if (level === 3) {
+      return directApps.length;
+    }
+    
+    let totalCount = directApps.length;
     
     if (level === 1) {
       const nestedCaps = capabilities.filter(cap => 
         cap.level1Capability === capability.level1Capability && cap.level !== 1
       );
+      
       nestedCaps.forEach(nestedCap => {
-        count += getApplicationCountForCapability(nestedCap.name);
+        const nestedApps = getApplicationsForCapability(nestedCap.name);
+        totalCount += nestedApps.length;
       });
     } else if (level === 2) {
       const level3Caps = capabilities.filter(cap => 
@@ -97,49 +108,46 @@ export default function StackedMap({
         cap.level2Capability === capability.level2Capability && 
         cap.level === 3
       );
+      
       level3Caps.forEach(level3Cap => {
-        count += getApplicationCountForCapability(level3Cap.name);
+        const level3Apps = getApplicationsForCapability(level3Cap.name);
+        totalCount += level3Apps.length;
       });
     }
     
-    return count;
+    return totalCount;
   };
 
+  // Build columnar hierarchy from flat capabilities list
   const buildColumnarHierarchy = (caps: BusinessCapability[]): CapabilityColumn[] => {
     const columnMap = new Map<string, CapabilityColumn>();
     
     caps.forEach(cap => {
-      const level1Name = cap.level1Capability || cap.name;
-      const level2Name = cap.level2Capability;
-      const level3Name = cap.level === 3 ? cap.name : null;
+      const level1Name = cap.level1Capability || 'Unknown';
+      const level2Name = cap.level2Capability || '';
+      const level3Name = cap.level3Capability || '';
       
       if (!columnMap.has(level1Name)) {
         columnMap.set(level1Name, {
           level1Name,
-          level1Id: cap.level === 1 ? cap.id : '',
-          level2Groups: []
+          level1Id: `level1-${level1Name}`,
+          level2Groups: [],
+          expanded: false
         });
       }
       
       const column = columnMap.get(level1Name)!;
       
-      if (cap.level === 1) {
-        column.level1Id = cap.id;
-      }
-      
-      if (level2Name && cap.level >= 2) {
+      if (level2Name) {
         let level2Group = column.level2Groups.find(g => g.level2Name === level2Name);
         if (!level2Group) {
           level2Group = {
             level2Name,
-            level2Id: cap.level === 2 ? cap.id : '',
-            level3Items: []
+            level2Id: `level2-${level1Name}-${level2Name}`,
+            level3Items: [],
+            expanded: false
           };
           column.level2Groups.push(level2Group);
-        }
-        
-        if (cap.level === 2) {
-          level2Group.level2Id = cap.id;
         }
         
         if (level3Name && level2Group) {
@@ -176,6 +184,7 @@ export default function StackedMap({
   };
 
   const columnarCapabilities = buildColumnarHierarchy(capabilities);
+  const activeSearchTerm = searchTerm;
 
   // Filter and rebuild hierarchy based on search
   const getFilteredColumns = (columns: CapabilityColumn[], searchTerm: string): CapabilityColumn[] => {
@@ -211,12 +220,16 @@ export default function StackedMap({
     }).filter(Boolean) as CapabilityColumn[];
   };
 
-  const filteredColumns = getFilteredColumns(columnarCapabilities, searchTerm);
+  const filteredColumns = getFilteredColumns(columnarCapabilities, activeSearchTerm);
 
-  const getAllApplicationsForCapability = (capability: BusinessCapability): { application: Application; paths: string[] }[] => {
-    const results: { application: Application; paths: string[] }[] = [];
+  // Get all applications for a capability and its nested capabilities with hierarchy paths
+  const getNestedApplicationsWithPaths = (capability: BusinessCapability): Array<{
+    application: Application;
+    paths: string[];
+  }> => {
+    const results: Array<{ application: Application; paths: string[] }> = [];
     const addedApps = new Set<string>();
-
+    
     const addApplicationsForCapability = (cap: BusinessCapability, pathPrefix: string[] = []) => {
       const apps = getApplicationsForCapability(cap.name);
       const currentPath = [...pathPrefix, cap.name];
@@ -236,7 +249,7 @@ export default function StackedMap({
         }
       });
     };
-
+    
     // Build complete hierarchy path for the clicked capability
     const getCompleteCapabilityPath = (cap: BusinessCapability): string[] => {
       const path: string[] = [];
@@ -290,6 +303,15 @@ export default function StackedMap({
     return results;
   };
 
+  const handleCapabilityClick = (capability: BusinessCapability) => {
+    const applicationsWithPaths = getNestedApplicationsWithPaths(capability);
+    const detailedCapability = {
+      ...capability,
+      applicationsWithPaths
+    };
+    onCapabilitySelect(detailedCapability);
+  };
+
   const handleExpandColumn = (columnId: string) => {
     const newExpanded = new Set(expandedColumns);
     if (newExpanded.has(columnId)) {
@@ -329,33 +351,36 @@ export default function StackedMap({
     level: number, 
     capability?: BusinessCapability
   ) => {
-    const appCount = getAggregatedApplicationCount(id, level);
+    const applicationCount = capability ? getAggregatedApplicationCount(capability.id, level) : 0;
+    const bgStyle = level === 1 ? colorInfo.bg : '';
+    const textStyle = getTextColor(level, colorInfo);
+    const customBg = level > 1 ? { backgroundColor: getFadedColor(colorInfo.rgb, level) } : {};
     
     return (
-      <Card 
-        key={id} 
-        className="mb-1 cursor-pointer transition-all duration-200 hover:shadow-md border-2 border-gray-200 h-12"
-        onClick={() => {
-          const cap = capability || capabilities.find(c => c.id === id);
-          if (cap) onCapabilitySelect(cap);
-        }}
+      <Card
+        key={id}
+        className={`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg border-2 ${
+          selectedCapability === id 
+            ? 'ring-2 ring-blue-500 border-blue-500' 
+            : 'border-gray-200 dark:border-gray-700'
+        } mb-1`}
+        onClick={() => capability && handleCapabilityClick(capability)}
       >
-        <CardContent className="p-0 h-full">
-          <div 
-            className={`rounded-lg px-3 py-2 h-full flex items-center justify-between ${getTextColor(level, colorInfo)}`}
-            style={{
-              backgroundColor: level === 1 ? '' : getFadedColor(colorInfo.rgb, level)
-            }}
-            {...(level === 1 && { className: `rounded-lg px-3 py-2 h-full flex items-center justify-between ${colorInfo.bg} ${colorInfo.text}` })}
-          >
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-sm leading-tight truncate">
-                {name}
-              </h4>
+        <CardContent 
+          className={`p-1.5 h-12 flex flex-col justify-between ${bgStyle} ${textStyle}`}
+          style={customBg}
+        >
+          <div>
+            <h3 className="font-medium text-xs leading-tight">
+              {name}
+            </h3>
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div className="text-xs opacity-90">
+              {capability ? `${applicationCount} apps` : ''}
             </div>
-            <div className="text-xs opacity-90 ml-2">
-              {appCount}
-            </div>
+            {capability && <Eye className="h-3 w-3 opacity-90" />}
           </div>
         </CardContent>
       </Card>
@@ -378,6 +403,7 @@ export default function StackedMap({
 
   return (
     <div className="h-full flex flex-col">
+
       {/* Horizontal scrollable columnar layout */}
       <div className="flex-1 overflow-auto">
         <div className="flex gap-3 p-4 min-w-max">
@@ -432,12 +458,12 @@ export default function StackedMap({
         </div>
 
         {filteredColumns.length === 0 && (
-          <div className="flex items-center justify-center h-64">
+          <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
             <div className="text-center">
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No capabilities found</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                Try adjusting your search terms.
-              </p>
+              <p className="text-lg mb-2">No capabilities found</p>
+              {activeSearchTerm && (
+                <p className="text-sm">Try adjusting your search terms</p>
+              )}
             </div>
           </div>
         )}
