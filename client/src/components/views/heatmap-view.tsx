@@ -101,7 +101,7 @@ export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapabi
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    const { data, capabilities, metrics } = filteredHeatmapData;
+    const { data, capabilities, metrics } = filteredHeatmapData!;
 
     if (!capabilities.length || !metrics.length) return;
 

@@ -84,9 +84,16 @@ export default function DashboardView({ onEntitySelect, searchTerm, selectedCapa
     <div className="h-full overflow-auto bg-background">
       <div className="p-6">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-medium text-foreground mb-6">
-            Enterprise Architecture Dashboard
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-medium text-foreground">
+              Enterprise Architecture Dashboard
+            </h2>
+            {searchScope && (
+              <div className="bg-primary/10 border border-primary/20 rounded-md px-3 py-1">
+                <span className="text-sm font-medium text-primary">Filtered by: {searchScope}</span>
+              </div>
+            )}
+          </div>
           
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

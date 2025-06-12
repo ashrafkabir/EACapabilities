@@ -148,21 +148,57 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
   }, [capabilities, allApplications]);
 
   const filteredColumns = useMemo(() => {
-    if (!searchTerm.trim()) return processedData;
+    if (!searchScope && !searchTerm.trim()) return processedData;
     
-    return processedData.filter((column: ColumnData) => {
+    let filtered = processedData;
+    
+    // Filter by search scope first
+    if (searchScope) {
+      if (searchScope.startsWith('Business Capability:')) {
+        const capabilityPath = searchScope.replace('Business Capability: ', '');
+        const pathParts = capabilityPath.split('/');
+        
+        filtered = processedData.filter((column: ColumnData) => {
+          return pathParts.some(part => 
+            column.level1Name.toLowerCase().includes(part.toLowerCase()) ||
+            column.level2Groups.some(group => 
+              group.level2Name.toLowerCase().includes(part.toLowerCase()) ||
+              group.level3Items.some(item => 
+                item.name.toLowerCase().includes(part.toLowerCase())
+              )
+            )
+          );
+        });
+      } else if (searchScope.startsWith('Search:')) {
+        const searchTerm = searchScope.replace('Search: ', '').toLowerCase();
+        filtered = processedData.filter((column: ColumnData) => {
+          return column.level1Name.toLowerCase().includes(searchTerm) ||
+            column.level2Groups.some(group => {
+              return group.level2Name.toLowerCase().includes(searchTerm) ||
+                group.level3Items.some(item => 
+                  item.name.toLowerCase().includes(searchTerm)
+                );
+            });
+        });
+      }
+    }
+    
+    // Apply additional search term filter if present
+    if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase();
-      
-      if (column.level1Name.toLowerCase().includes(searchLower)) return true;
-      
-      return column.level2Groups.some(group => {
-        if (group.level2Name.toLowerCase().includes(searchLower)) return true;
-        return group.level3Items.some(item => 
-          item.name.toLowerCase().includes(searchLower)
-        );
+      filtered = filtered.filter((column: ColumnData) => {
+        return column.level1Name.toLowerCase().includes(searchLower) ||
+          column.level2Groups.some(group => {
+            return group.level2Name.toLowerCase().includes(searchLower) ||
+              group.level3Items.some(item => 
+                item.name.toLowerCase().includes(searchLower)
+              );
+          });
       });
-    });
-  }, [processedData, searchTerm]);
+    }
+    
+    return filtered;
+  }, [processedData, searchTerm, searchScope]);
 
   const baseColors = [
     { bg: 'bg-blue-500', text: 'text-white' },
