@@ -206,22 +206,32 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
             })
           }))
         }));
-      } else if (searchScope.startsWith('Search:')) {
-        const searchTerm = searchScope.replace('Search: ', '').toLowerCase();
+      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
+        const scopeSearchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
         filtered = processedData.filter((column: ColumnData) => {
-          return column.level1Name.toLowerCase().includes(searchTerm) ||
+          // For application search, look through applications mapped to capabilities
+          if (searchScope.startsWith('Application:')) {
+            return column.level2Groups.some(group => 
+              group.level3Items.some(item => {
+                const apps = getApplicationsForCapability(item.name);
+                return apps.some(app => app.name.toLowerCase().includes(scopeSearchTerm));
+              })
+            );
+          }
+          // For general search, search capability names
+          return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
             column.level2Groups.some(group => {
-              return group.level2Name.toLowerCase().includes(searchTerm) ||
+              return group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
                 group.level3Items.some(item => 
-                  item.name.toLowerCase().includes(searchTerm)
+                  item.name.toLowerCase().includes(scopeSearchTerm)
                 );
             });
         });
       }
     }
     
-    // Apply additional search term filter if present
-    if (searchTerm.trim()) {
+    // Apply additional search term filter if present and not already covered by scope
+    if (searchTerm.trim() && (!searchScope || !searchScope.includes(searchTerm))) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter((column: ColumnData) => {
         return column.level1Name.toLowerCase().includes(searchLower) ||
@@ -232,6 +242,23 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
               );
           });
       });
+      
+      // Also filter within the hierarchy for regular search
+      filtered = filtered.map(column => ({
+        ...column,
+        level2Groups: column.level2Groups.filter(group => {
+          return group.level2Name.toLowerCase().includes(searchLower) ||
+                 group.level3Items.some(item => item.name.toLowerCase().includes(searchLower)) ||
+                 column.level1Name.toLowerCase().includes(searchLower);
+        }).map(group => ({
+          ...group,
+          level3Items: group.level3Items.filter(item => 
+            item.name.toLowerCase().includes(searchLower) ||
+            group.level2Name.toLowerCase().includes(searchLower) ||
+            column.level1Name.toLowerCase().includes(searchLower)
+          )
+        }))
+      }));
     }
     
     return filtered;

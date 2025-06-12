@@ -177,52 +177,69 @@ export default function StackedMap({
     return sortedColumns;
   };
 
-  // Filter capabilities based on search scope
+  // Filter capabilities based on search scope and search term
   const filteredCapabilities = useMemo(() => {
-    if (!searchScope) return capabilities;
+    let filtered = capabilities;
     
-    if (searchScope.startsWith('Business Capability:')) {
-      const capabilityPath = searchScope.replace('Business Capability: ', '');
-      const pathParts = capabilityPath.split('/');
-      
-      return capabilities.filter(cap => {
-        // Build the full path for this capability
-        const capPath = [cap.level1Capability, cap.level2Capability, cap.level3Capability].filter(Boolean);
+    // First apply search scope filtering if present
+    if (searchScope) {
+      if (searchScope.startsWith('Business Capability:')) {
+        const capabilityPath = searchScope.replace('Business Capability: ', '');
+        const pathParts = capabilityPath.split('/');
         
-        // Check if this capability is part of the selected hierarchy path
-        // The capability should match the path from root to the selected level
-        if (pathParts.length === 1) {
-          // Level 1 selection - show all capabilities under this L1
-          return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase();
-        } else if (pathParts.length === 2) {
-          // Level 2 selection - show all capabilities under this L1/L2 path
-          return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
-                 cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase();
-        } else if (pathParts.length === 3) {
-          // Level 3 selection - show this specific capability and its parent levels
-          return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
-                 cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
-                 (cap.level3Capability?.toLowerCase() === pathParts[2].toLowerCase() || 
-                  (cap.level !== null && cap.level < 3));
-        }
-        
-        return false;
-      });
+        filtered = filtered.filter(cap => {
+          // Build the full path for this capability
+          const capPath = [cap.level1Capability, cap.level2Capability, cap.level3Capability].filter(Boolean);
+          
+          // Check if this capability is part of the selected hierarchy path
+          // The capability should match the path from root to the selected level
+          if (pathParts.length === 1) {
+            // Level 1 selection - show all capabilities under this L1
+            return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase();
+          } else if (pathParts.length === 2) {
+            // Level 2 selection - show all capabilities under this L1/L2 path
+            return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                   cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase();
+          } else if (pathParts.length === 3) {
+            // Level 3 selection - show this specific capability and its parent levels
+            return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                   cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
+                   (cap.level3Capability?.toLowerCase() === pathParts[2].toLowerCase() || 
+                    (cap.level !== null && cap.level < 3));
+          }
+          
+          return false;
+        });
+      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
+        const searchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
+        filtered = filtered.filter(cap => {
+          // Search through applications to find capabilities that contain matching applications
+          const capApplications = getApplicationsForCapability(cap.name);
+          return capApplications.some(app => 
+            app.name.toLowerCase().includes(searchTerm)
+          ) || cap.name.toLowerCase().includes(searchTerm);
+        });
+      }
     }
-
-    if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
-      const searchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
-      return capabilities.filter(cap => {
-        // Search through applications to find capabilities that contain matching applications
+    
+    // Then apply additional search term filtering if present and not already covered by scope
+    if (searchTerm.trim() && (!searchScope || !searchScope.includes(searchTerm))) {
+      const search = searchTerm.toLowerCase();
+      filtered = filtered.filter(cap => {
+        // Search in capability names and through related applications
         const capApplications = getApplicationsForCapability(cap.name);
-        return capApplications.some(app => 
-          app.name.toLowerCase().includes(searchTerm)
-        ) || cap.name.toLowerCase().includes(searchTerm);
+        return cap.name.toLowerCase().includes(search) ||
+               cap.level1Capability?.toLowerCase().includes(search) ||
+               cap.level2Capability?.toLowerCase().includes(search) ||
+               cap.level3Capability?.toLowerCase().includes(search) ||
+               capApplications.some(app => 
+                 app.name.toLowerCase().includes(search)
+               );
       });
     }
 
-    return capabilities;
-  }, [capabilities, searchScope, applications]);
+    return filtered;
+  }, [capabilities, searchScope, searchTerm, applications]);
 
   const columnarCapabilities = buildColumnarHierarchy(filteredCapabilities);
 
