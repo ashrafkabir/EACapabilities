@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Eye, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Eye, Plus, Search, X } from 'lucide-react';
 import type { BusinessCapability } from '@shared/schema';
 
 interface StackedMapProps {
@@ -51,6 +52,7 @@ export default function StackedMap({
 }: StackedMapProps) {
   const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
   const [expandedLevel2Groups, setExpandedLevel2Groups] = useState<Set<string>>(new Set());
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
 
   const MAX_ITEMS_PER_LEVEL = 5;
 
@@ -101,18 +103,49 @@ export default function StackedMap({
 
   const columnarCapabilities = buildColumnarHierarchy(capabilities);
 
-  // Filter based on search
-  const filteredColumns = columnarCapabilities.filter(column => {
-    if (column.level1Name.toLowerCase().includes(searchTerm.toLowerCase())) return true;
-    
-    // Check if any nested capabilities match
-    return column.level2Groups.some(level2Group => {
-      if (level2Group.level2Name.toLowerCase().includes(searchTerm.toLowerCase())) return true;
-      return level2Group.level3Items.some(item => 
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
-  });
+  // Use local search term for filtering, fallback to prop searchTerm
+  const activeSearchTerm = localSearchTerm || searchTerm;
+
+  // Filter and rebuild hierarchy based on search
+  const getFilteredColumns = (columns: CapabilityColumn[], searchTerm: string): CapabilityColumn[] => {
+    if (!searchTerm) return columns;
+
+    const search = searchTerm.toLowerCase();
+    return columns.map(column => {
+      // Check if level 1 matches
+      const level1Matches = column.level1Name.toLowerCase().includes(search);
+      
+      // Filter level 2 groups
+      const filteredLevel2Groups = column.level2Groups.map(level2Group => {
+        const level2Matches = level2Group.level2Name.toLowerCase().includes(search);
+        
+        // Filter level 3 items
+        const filteredLevel3Items = level2Group.level3Items.filter(item =>
+          level1Matches || level2Matches || item.name.toLowerCase().includes(search)
+        );
+        
+        // Include level 2 group if it matches or has matching level 3 items
+        if (level1Matches || level2Matches || filteredLevel3Items.length > 0) {
+          return {
+            ...level2Group,
+            level3Items: filteredLevel3Items
+          };
+        }
+        return null;
+      }).filter(Boolean) as typeof column.level2Groups;
+      
+      // Include column if level 1 matches or has matching nested items
+      if (level1Matches || filteredLevel2Groups.length > 0) {
+        return {
+          ...column,
+          level2Groups: filteredLevel2Groups
+        };
+      }
+      return null;
+    }).filter(Boolean) as CapabilityColumn[];
+  };
+
+  const filteredColumns = getFilteredColumns(columnarCapabilities, activeSearchTerm);
 
   const handleCapabilityClick = (capability: BusinessCapability) => {
     onCapabilitySelect(capability);
@@ -202,16 +235,49 @@ export default function StackedMap({
     </Button>
   );
 
+  const handleClearSearch = () => {
+    setLocalSearchTerm('');
+  };
+
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
+      {/* Header with Search */}
       <div className="flex items-center gap-4 p-4 border-b bg-gray-50 dark:bg-gray-800">
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
           <span>Capability Map</span>
         </div>
         
-        <div className="ml-auto text-sm text-gray-500">
+        {/* Search Box */}
+        <div className="flex-1 max-w-md mx-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search capabilities..."
+              value={localSearchTerm}
+              onChange={(e) => setLocalSearchTerm(e.target.value)}
+              className="pl-10 pr-10"
+            />
+            {localSearchTerm && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        <div className="text-sm text-gray-500">
           {filteredColumns.length} capability domains
+          {activeSearchTerm && (
+            <span className="ml-2 text-blue-600">
+              (filtered by "{activeSearchTerm}")
+            </span>
+          )}
         </div>
       </div>
 
