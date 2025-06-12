@@ -177,9 +177,12 @@ export default function StackedMap({
     return sortedColumns;
   };
 
-  // Filter capabilities based on search scope and search term
-  const filteredCapabilities = useMemo(() => {
-    let filtered = capabilities;
+  // Build columnar hierarchy first, then filter
+  const columnarCapabilities = buildColumnarHierarchy(capabilities);
+
+  // Filter columns based on search scope and search term
+  const filteredColumnarCapabilities = useMemo(() => {
+    let filtered = columnarCapabilities;
     
     // First apply search scope filtering if present
     if (searchScope) {
@@ -187,71 +190,80 @@ export default function StackedMap({
         const capabilityPath = searchScope.replace('Business Capability: ', '');
         const pathParts = capabilityPath.split('/');
         
-        filtered = filtered.filter(cap => {
-          // Build the full path for this capability
-          const capPath = [cap.level1Capability, cap.level2Capability, cap.level3Capability].filter(Boolean);
-          
-          // Check if this capability is part of the selected hierarchy path
-          // The capability should match the path from root to the selected level
+        filtered = columnarCapabilities.filter((column: CapabilityColumn) => {
+          // Check if this column matches the selected hierarchy path
           if (pathParts.length === 1) {
-            // Level 1 selection - show all capabilities under this L1
-            return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase();
+            // Level 1 selection - show only this L1 column
+            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase();
           } else if (pathParts.length === 2) {
-            // Level 2 selection - show all capabilities under this L1/L2 path
-            return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
-                   cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase();
+            // Level 2 selection - show column if it contains this L1/L2 path
+            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase() &&
+                   column.level2Groups.some(group => 
+                     group.level2Name.toLowerCase() === pathParts[1].toLowerCase()
+                   );
           } else if (pathParts.length === 3) {
-            // Level 3 selection - show this specific capability and its parent levels
-            return cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
-                   cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
-                   (cap.level3Capability?.toLowerCase() === pathParts[2].toLowerCase() || 
-                    (cap.level !== null && cap.level < 3));
+            // Level 3 selection - show column if it contains this exact L1/L2/L3 path
+            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase() &&
+                   column.level2Groups.some(group => 
+                     group.level2Name.toLowerCase() === pathParts[1].toLowerCase() &&
+                     group.level3Items.some(item => 
+                       item.name.toLowerCase() === pathParts[2].toLowerCase()
+                     )
+                   );
           }
-          
           return false;
         });
+        
+        // Also filter the level2Groups and level3Items within matching columns
+        filtered = filtered.map(column => ({
+          ...column,
+          level2Groups: column.level2Groups.filter(group => {
+            if (pathParts.length === 1) {
+              return true; // Show all L2 groups under the selected L1
+            } else if (pathParts.length === 2) {
+              return group.level2Name.toLowerCase() === pathParts[1].toLowerCase();
+            } else if (pathParts.length === 3) {
+              return group.level2Name.toLowerCase() === pathParts[1].toLowerCase();
+            }
+            return false;
+          }).map(group => ({
+            ...group,
+            level3Items: group.level3Items.filter(item => {
+              if (pathParts.length <= 2) {
+                return true; // Show all L3 items under the selected L1/L2
+              } else if (pathParts.length === 3) {
+                return item.name.toLowerCase() === pathParts[2].toLowerCase();
+              }
+              return false;
+            })
+          }))
+        }));
       } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
         const scopeSearchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
-        filtered = filtered.filter(cap => {
+        filtered = columnarCapabilities.filter((column: CapabilityColumn) => {
           // For application search, look through applications mapped to capabilities
           if (searchScope.startsWith('Application:')) {
-            const capApplications = getApplicationsForCapability(cap.name);
-            return capApplications.some(app => 
-              app.name.toLowerCase().includes(scopeSearchTerm)
+            return column.level2Groups.some(group => 
+              group.level3Items.some(item => {
+                const apps = getApplicationsForCapability(item.name);
+                return apps.some(app => app.name.toLowerCase().includes(scopeSearchTerm));
+              })
             );
           }
-          // For general search, search both capability names and applications
-          const capApplications = getApplicationsForCapability(cap.name);
-          return capApplications.some(app => 
-            app.name.toLowerCase().includes(scopeSearchTerm)
-          ) || cap.name.toLowerCase().includes(scopeSearchTerm) ||
-               cap.level1Capability?.toLowerCase().includes(scopeSearchTerm) ||
-               cap.level2Capability?.toLowerCase().includes(scopeSearchTerm) ||
-               cap.level3Capability?.toLowerCase().includes(scopeSearchTerm);
+          // For general search, search capability names
+          return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
+            column.level2Groups.some(group => {
+              return group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
+                group.level3Items.some(item => 
+                  item.name.toLowerCase().includes(scopeSearchTerm)
+                );
+            });
         });
       }
     }
-    
-    // Then apply additional search term filtering if present and not already covered by scope
-    if (searchTerm.trim() && (!searchScope || !searchScope.includes(searchTerm))) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(cap => {
-        // Search in capability names and through related applications
-        const capApplications = getApplicationsForCapability(cap.name);
-        return cap.name.toLowerCase().includes(search) ||
-               cap.level1Capability?.toLowerCase().includes(search) ||
-               cap.level2Capability?.toLowerCase().includes(search) ||
-               cap.level3Capability?.toLowerCase().includes(search) ||
-               capApplications.some(app => 
-                 app.name.toLowerCase().includes(search)
-               );
-      });
-    }
 
     return filtered;
-  }, [capabilities, searchScope, searchTerm, applications]);
-
-  const columnarCapabilities = buildColumnarHierarchy(filteredCapabilities);
+  }, [columnarCapabilities, searchScope, applications]);
 
   // Filter and rebuild hierarchy based on search
   const getFilteredColumns = (columns: CapabilityColumn[], searchTerm: string): CapabilityColumn[] => {
@@ -287,7 +299,7 @@ export default function StackedMap({
     }).filter(Boolean) as CapabilityColumn[];
   };
 
-  const filteredColumns = searchScope ? columnarCapabilities : getFilteredColumns(columnarCapabilities, searchTerm);
+  const filteredColumns = searchScope ? filteredColumnarCapabilities : getFilteredColumns(filteredColumnarCapabilities, searchTerm);
 
   const getAllApplicationsForCapability = (capability: BusinessCapability): { application: Application; paths: string[] }[] => {
     const results: { application: Application; paths: string[] }[] = [];
