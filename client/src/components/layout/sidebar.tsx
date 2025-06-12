@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, ChevronDown, Search, Building, Users, Factory, Layers } from "lucide-react";
+import { ChevronRight, ChevronDown, Search, Building, Users, Factory, Layers, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +50,8 @@ export default function Sidebar({
   searchTerm,
   filters,
   onFiltersChange,
-  selectedCapability
+  selectedCapability,
+  searchScope
 }: SidebarProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
@@ -166,6 +167,22 @@ export default function Sidebar({
 
       {/* Search and Filters */}
       <div className="p-4 border-b border-border space-y-4">
+        {/* Search Scope Indicator */}
+        {searchScope && (
+          <div className="bg-primary/10 border border-primary/20 rounded-md p-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-primary">Current Filter:</span>
+              <button 
+                onClick={() => onSearchChange('')}
+                className="text-primary hover:text-primary/80"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-xs text-primary/80 mt-1 truncate">{searchScope}</p>
+          </div>
+        )}
+        
         <div className="relative">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
           <Input

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as d3 from "d3";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,8 +39,43 @@ export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapabi
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
   const { data: heatmapData, isLoading } = useQuery<HeatmapData>({
-    queryKey: ['/api/heatmap-data', selectedMetric],
+    queryKey: ['/api/heatmap-data', selectedMetric, searchScope],
   });
+
+  // Filter heatmap data based on search scope
+  const filteredHeatmapData = useMemo(() => {
+    if (!heatmapData || !searchScope) return heatmapData;
+
+    if (searchScope.startsWith('Business Capability:')) {
+      const capabilityPath = searchScope.replace('Business Capability: ', '');
+      const pathParts = capabilityPath.split('/');
+      
+      return {
+        ...heatmapData,
+        data: heatmapData.data.filter(item => 
+          pathParts.some(part => item.capability.toLowerCase().includes(part.toLowerCase()))
+        ),
+        capabilities: heatmapData.capabilities.filter(cap => 
+          pathParts.some(part => cap.toLowerCase().includes(part.toLowerCase()))
+        )
+      };
+    }
+
+    if (searchScope.startsWith('Search:')) {
+      const searchTerm = searchScope.replace('Search: ', '').toLowerCase();
+      return {
+        ...heatmapData,
+        data: heatmapData.data.filter(item => 
+          item.capability.toLowerCase().includes(searchTerm)
+        ),
+        capabilities: heatmapData.capabilities.filter(cap => 
+          cap.toLowerCase().includes(searchTerm)
+        )
+      };
+    }
+
+    return heatmapData;
+  }, [heatmapData, searchScope]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -56,7 +91,7 @@ export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapabi
   }, []);
 
   useEffect(() => {
-    if (!heatmapData || !svgRef.current) return;
+    if (!filteredHeatmapData || !svgRef.current) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -66,7 +101,7 @@ export default function HeatmapView({ onEntitySelect, searchTerm, selectedCapabi
     const chartWidth = width - margin.left - margin.right;
     const chartHeight = height - margin.top - margin.bottom;
 
-    const { data, capabilities, metrics } = heatmapData;
+    const { data, capabilities, metrics } = filteredHeatmapData;
 
     if (!capabilities.length || !metrics.length) return;
 
