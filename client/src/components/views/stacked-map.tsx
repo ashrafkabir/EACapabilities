@@ -190,6 +190,15 @@ export default function StackedMap({
     return getApplicationsForCapability(capabilityName).length;
   };
 
+  const getInitiativesLinkedToCapability = (capabilityName: string): any[] => {
+    return initiatives.filter((init: any) => {
+      if (init.businessCapabilities) {
+        return init.businessCapabilities.toLowerCase().includes(capabilityName.toLowerCase());
+      }
+      return false;
+    });
+  };
+
   const getAggregatedApplicationCount = (capabilityId: string, level: number): number => {
     const capability = capabilities.find(cap => cap.id === capabilityId);
     if (!capability) return 0;
@@ -375,9 +384,12 @@ export default function StackedMap({
                 );
               } else if (entityLinkedApps.length > 0) {
                 const capabilityApps = getApplicationsForCapability(item.name);
-                return capabilityApps.some(app => 
+                const hasLinkedApps = capabilityApps.some(app => 
                   entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                 );
+                // Also check if this capability has linked initiatives
+                const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
+                return hasLinkedApps || hasLinkedInitiatives;
               } else {
                 // General search, search capability names
                 return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
@@ -416,9 +428,12 @@ export default function StackedMap({
                   );
                 } else {
                   const capabilityApps = getApplicationsForCapability(item.name);
-                  return capabilityApps.some(app => 
+                  const hasLinkedApps = capabilityApps.some(app => 
                     entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                   );
+                  // Also check if this capability has linked initiatives
+                  const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
+                  return hasLinkedApps || hasLinkedInitiatives;
                 }
               })
             }))
