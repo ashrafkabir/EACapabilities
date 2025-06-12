@@ -49,6 +49,22 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     queryKey: ['/api/applications'],
   });
 
+  const { data: itComponents = [] } = useQuery<any[]>({
+    queryKey: ['/api/it-components'],
+  });
+
+  const { data: interfaces = [] } = useQuery<any[]>({
+    queryKey: ['/api/interfaces'],
+  });
+
+  const { data: dataObjects = [] } = useQuery<any[]>({
+    queryKey: ['/api/data-objects'],
+  });
+
+  const { data: initiatives = [] } = useQuery<any[]>({
+    queryKey: ['/api/initiatives'],
+  });
+
   const { data: applicationsForSelectedCapability = [] } = useQuery({
     queryKey: ['/api/capabilities', selectedCapability, 'applications'],
     enabled: !!selectedCapability,
@@ -87,6 +103,80 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
 
   const getApplicationCountForCapability = (capabilityName: string): number => {
     return getApplicationsForCapability(capabilityName).length;
+  };
+
+  // Helper functions to find applications linked to different entity types
+  const getApplicationsLinkedToITComponent = (componentName: string): Application[] => {
+    const matchingComponents = itComponents.filter((comp: any) => 
+      comp.name?.toLowerCase().includes(componentName.toLowerCase())
+    );
+    
+    const linkedApps = new Set<string>();
+    matchingComponents.forEach((comp: any) => {
+      if (comp.applications) {
+        comp.applications.split(',').forEach((appName: string) => {
+          linkedApps.add(appName.trim());
+        });
+      }
+    });
+    
+    return allApplications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
+  };
+
+  const getApplicationsLinkedToInterface = (interfaceName: string): Application[] => {
+    const matchingInterfaces = interfaces.filter((iface: any) => 
+      iface.name?.toLowerCase().includes(interfaceName.toLowerCase())
+    );
+    
+    const linkedApps = new Set<string>();
+    matchingInterfaces.forEach((iface: any) => {
+      if (iface.sourceApplication) linkedApps.add(iface.sourceApplication);
+      if (iface.targetApplication) linkedApps.add(iface.targetApplication);
+    });
+    
+    return allApplications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
+  };
+
+  const getApplicationsLinkedToDataObject = (dataObjectName: string): Application[] => {
+    const matchingDataObjects = dataObjects.filter((obj: any) => 
+      obj.name?.toLowerCase().includes(dataObjectName.toLowerCase())
+    );
+    
+    const linkedApps = new Set<string>();
+    matchingDataObjects.forEach((obj: any) => {
+      if (obj.relDataObjectToApplication) {
+        obj.relDataObjectToApplication.split(',').forEach((appName: string) => {
+          linkedApps.add(appName.trim());
+        });
+      }
+    });
+    
+    return allApplications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
+  };
+
+  const getApplicationsLinkedToInitiative = (initiativeName: string): Application[] => {
+    const matchingInitiatives = initiatives.filter((init: any) => 
+      init.name?.toLowerCase().includes(initiativeName.toLowerCase())
+    );
+    
+    const linkedApps = new Set<string>();
+    matchingInitiatives.forEach((init: any) => {
+      if (init.applications) {
+        init.applications.split(',').forEach((appName: string) => {
+          linkedApps.add(appName.trim());
+        });
+      }
+    });
+    
+    return allApplications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
   };
 
   const getRollupCount = (capability: BusinessCapability): number => {
@@ -206,26 +296,53 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
             })
           }))
         }));
-      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
-        const scopeSearchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
+      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:') || 
+                 searchScope.startsWith('IT Component:') || searchScope.startsWith('Interface:') ||
+                 searchScope.startsWith('Data Object:') || searchScope.startsWith('Initiative:')) {
+        const scopeSearchTerm = searchScope.replace(/^(Search|Application|IT Component|Interface|Data Object|Initiative): /, '').toLowerCase();
         filtered = processedData.filter((column: ColumnData) => {
-          // For application search, look through applications mapped to capabilities
-          if (searchScope.startsWith('Application:')) {
-            return column.level2Groups.some(group => 
-              group.level3Items.some(item => {
-                const apps = getApplicationsForCapability(item.name);
-                return apps.some(app => app.name.toLowerCase().includes(scopeSearchTerm));
-              })
-            );
-          }
-          // For general search, search capability names
-          return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
-            column.level2Groups.some(group => {
-              return group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
-                group.level3Items.some(item => 
-                  item.name.toLowerCase().includes(scopeSearchTerm)
+          return column.level2Groups.some(group => 
+            group.level3Items.some(item => {
+              let linkedApps: Application[] = [];
+              
+              if (searchScope.startsWith('Application:')) {
+                linkedApps = getApplicationsForCapability(item.name).filter(app => 
+                  app.name.toLowerCase().includes(scopeSearchTerm)
                 );
-            });
+              } else if (searchScope.startsWith('IT Component:')) {
+                linkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else if (searchScope.startsWith('Interface:')) {
+                linkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else if (searchScope.startsWith('Data Object:')) {
+                linkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else if (searchScope.startsWith('Initiative:')) {
+                linkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else {
+                // General search, search capability names
+                return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
+                       group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
+                       item.name.toLowerCase().includes(scopeSearchTerm);
+              }
+              
+              return linkedApps.length > 0;
+            })
+          );
         });
       }
     }
@@ -262,7 +379,7 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     }
     
     return filtered;
-  }, [processedData, searchTerm, searchScope]);
+  }, [processedData, searchTerm, searchScope, itComponents, interfaces, dataObjects, initiatives]);
 
   const baseColors = [
     { bg: 'bg-blue-500', text: 'text-white' },

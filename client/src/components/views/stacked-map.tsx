@@ -70,25 +70,107 @@ export default function StackedMap({
     queryKey: ['/api/applications'],
   });
 
-  const { data: itComponents = [] } = useQuery({
+  const { data: itComponents = [] } = useQuery<any[]>({
     queryKey: ['/api/it-components'],
   });
 
-  const { data: interfaces = [] } = useQuery({
+  const { data: interfaces = [] } = useQuery<any[]>({
     queryKey: ['/api/interfaces'],
   });
 
-  const { data: dataObjects = [] } = useQuery({
+  const { data: dataObjects = [] } = useQuery<any[]>({
     queryKey: ['/api/data-objects'],
   });
 
-  const { data: initiatives = [] } = useQuery({
+  const { data: initiatives = [] } = useQuery<any[]>({
     queryKey: ['/api/initiatives'],
   });
 
   const getApplicationsForCapability = (capabilityName: string): Application[] => {
     return applications.filter((app: Application) => 
       app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
+    );
+  };
+
+  // Helper functions to find applications linked to different entity types
+  const getApplicationsLinkedToITComponent = (componentName: string): Application[] => {
+    // Find IT components matching the search term
+    const matchingComponents = itComponents.filter((comp: any) => 
+      comp.name?.toLowerCase().includes(componentName.toLowerCase())
+    );
+    
+    // Get applications linked to these components
+    const linkedApps = new Set<string>();
+    matchingComponents.forEach((comp: any) => {
+      if (comp.applications) {
+        comp.applications.split(',').forEach((appName: string) => {
+          linkedApps.add(appName.trim());
+        });
+      }
+    });
+    
+    return applications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
+  };
+
+  const getApplicationsLinkedToInterface = (interfaceName: string): Application[] => {
+    // Find interfaces matching the search term
+    const matchingInterfaces = interfaces.filter((iface: any) => 
+      iface.name?.toLowerCase().includes(interfaceName.toLowerCase())
+    );
+    
+    // Get applications linked to these interfaces (source and target)
+    const linkedApps = new Set<string>();
+    matchingInterfaces.forEach((iface: any) => {
+      if (iface.sourceApplication) linkedApps.add(iface.sourceApplication);
+      if (iface.targetApplication) linkedApps.add(iface.targetApplication);
+    });
+    
+    return applications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
+  };
+
+  const getApplicationsLinkedToDataObject = (dataObjectName: string): Application[] => {
+    // Find data objects matching the search term
+    const matchingDataObjects = dataObjects.filter((obj: any) => 
+      obj.name?.toLowerCase().includes(dataObjectName.toLowerCase())
+    );
+    
+    // Get applications linked to these data objects
+    const linkedApps = new Set<string>();
+    matchingDataObjects.forEach((obj: any) => {
+      if (obj.relDataObjectToApplication) {
+        obj.relDataObjectToApplication.split(',').forEach((appName: string) => {
+          linkedApps.add(appName.trim());
+        });
+      }
+    });
+    
+    return applications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
+    );
+  };
+
+  const getApplicationsLinkedToInitiative = (initiativeName: string): Application[] => {
+    // Find initiatives matching the search term
+    const matchingInitiatives = initiatives.filter((init: any) => 
+      init.name?.toLowerCase().includes(initiativeName.toLowerCase())
+    );
+    
+    // Get applications linked to these initiatives
+    const linkedApps = new Set<string>();
+    matchingInitiatives.forEach((init: any) => {
+      if (init.applications) {
+        init.applications.split(',').forEach((appName: string) => {
+          linkedApps.add(appName.trim());
+        });
+      }
+    });
+    
+    return applications.filter((app: Application) => 
+      linkedApps.has(app.name) || linkedApps.has(app.displayName || '')
     );
   };
 
@@ -254,32 +336,60 @@ export default function StackedMap({
             })
           }))
         }));
-      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:')) {
-        const scopeSearchTerm = searchScope.replace(/^(Search|Application): /, '').toLowerCase();
+      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:') || 
+                 searchScope.startsWith('IT Component:') || searchScope.startsWith('Interface:') ||
+                 searchScope.startsWith('Data Object:') || searchScope.startsWith('Initiative:')) {
+        const scopeSearchTerm = searchScope.replace(/^(Search|Application|IT Component|Interface|Data Object|Initiative): /, '').toLowerCase();
         filtered = columnarCapabilities.filter((column: CapabilityColumn) => {
-          // For application search, look through applications mapped to capabilities
-          if (searchScope.startsWith('Application:')) {
-            return column.level2Groups.some(group => 
-              group.level3Items.some(item => {
-                const apps = getApplicationsForCapability(item.name);
-                return apps.some(app => app.name.toLowerCase().includes(scopeSearchTerm));
-              })
-            );
-          }
-          // For general search, search capability names
-          return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
-            column.level2Groups.some(group => {
-              return group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
-                group.level3Items.some(item => 
-                  item.name.toLowerCase().includes(scopeSearchTerm)
+          return column.level2Groups.some(group => 
+            group.level3Items.some(item => {
+              let linkedApps: Application[] = [];
+              
+              if (searchScope.startsWith('Application:')) {
+                linkedApps = getApplicationsForCapability(item.name).filter(app => 
+                  app.name.toLowerCase().includes(scopeSearchTerm)
                 );
-            });
+              } else if (searchScope.startsWith('IT Component:')) {
+                linkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
+                // Check if this capability has any of these linked applications
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else if (searchScope.startsWith('Interface:')) {
+                linkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else if (searchScope.startsWith('Data Object:')) {
+                linkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else if (searchScope.startsWith('Initiative:')) {
+                linkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm);
+                const capabilityApps = getApplicationsForCapability(item.name);
+                linkedApps = capabilityApps.filter(app => 
+                  linkedApps.some(linkedApp => linkedApp.id === app.id)
+                );
+              } else {
+                // General search, search capability names
+                return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
+                       group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
+                       item.name.toLowerCase().includes(scopeSearchTerm);
+              }
+              
+              return linkedApps.length > 0;
+            })
+          );
         });
       }
     }
 
     return filtered;
-  }, [columnarCapabilities, searchScope, applications]);
+  }, [columnarCapabilities, searchScope, applications, itComponents, interfaces, dataObjects, initiatives]);
 
   // Filter and rebuild hierarchy based on search
   const getFilteredColumns = (columns: CapabilityColumn[], searchTerm: string): CapabilityColumn[] => {
