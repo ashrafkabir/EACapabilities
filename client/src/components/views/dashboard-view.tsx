@@ -24,9 +24,19 @@ interface DashboardMetrics {
 
 interface DashboardViewProps {
   onEntitySelect: (entity: EntityReference) => void;
+  searchTerm: string;
+  selectedCapability: string | null;
+  filters: {
+    capabilities: boolean;
+    applications: boolean;
+    components: boolean;
+    interfaces: boolean;
+    dataObjects: boolean;
+    initiatives: boolean;
+  };
 }
 
-export default function DashboardView({ onEntitySelect }: DashboardViewProps) {
+export default function DashboardView({ onEntitySelect, searchTerm, selectedCapability, filters }: DashboardViewProps) {
   const { data: metrics, isLoading } = useQuery<DashboardMetrics>({
     queryKey: ['/api/dashboard/metrics'],
   });
