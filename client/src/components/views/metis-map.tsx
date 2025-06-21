@@ -607,16 +607,25 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   const filteredCapabilities = useMemo(() => {
     let baseCapabilities = capabilitiesToShow;
     
+    console.log('MetisMap filtering - searchScope:', searchScope);
+    console.log('MetisMap filtering - searchTerm:', searchTerm);
+    console.log('MetisMap filtering - capabilitiesToShow length:', capabilitiesToShow.length);
+    
     // Apply search scope filtering first
     if (searchScope && searchScope.startsWith('Business Capability:')) {
       const capabilityPath = searchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
       
+      console.log('MetisMap filtering capability path:', capabilityPath);
+      console.log('MetisMap filtering path parts:', pathParts);
+      
       // Filter to show only capabilities that match the selected hierarchy path
       baseCapabilities = allCapabilities.filter(cap => {
         if (pathParts.length === 1) {
           // Level 1 selection - show only this L1 capability
-          return cap.level === 1 && cap.name?.toLowerCase() === pathParts[0].toLowerCase();
+          const matches = cap.level === 1 && cap.name?.toLowerCase() === pathParts[0].toLowerCase();
+          if (matches) console.log('MetisMap found matching L1 capability:', cap.name);
+          return matches;
         } else if (pathParts.length === 2) {
           // Level 2 selection - show L2 capabilities under the selected L1/L2 path
           return cap.level === 2 && 
@@ -631,6 +640,9 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
         }
         return false;
       });
+      
+      console.log('MetisMap filtered capabilities length:', baseCapabilities.length);
+      console.log('MetisMap filtered capabilities:', baseCapabilities.map(c => c.name));
     }
     // Apply search term filtering if present and not already covered by scope
     else if (searchTerm && allMatchingCapabilities) {
