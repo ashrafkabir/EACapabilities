@@ -112,14 +112,8 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     },
   });
 
-  const getApplicationsForCapability = (capabilityName: string): Application[] => {
-    return allApplications.filter((app: Application) => 
-      app.businessCapabilities?.toLowerCase().includes(capabilityName.toLowerCase())
-    );
-  };
-
   const getApplicationCountForCapability = (capabilityName: string): number => {
-    return getApplicationsForCapability(capabilityName).length;
+    return getApplicationsForCapability(capabilityName, allApplications).length;
   };
 
   const getInitiativesLinkedToCapability = (capabilityName: string): any[] => {
@@ -307,7 +301,7 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
       filtered = processedData.filter((column: ColumnData) => {
         const hasLinkedCapabilities = column.level2Groups.some(group => 
           group.level3Items.some(item => {
-            const capabilityApps = getApplicationsForCapability(item.name);
+            const capabilityApps = getApplicationsForCapability(item.name, allApplications);
             const hasLinkedApps = capabilityApps.some(app => 
               entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
             );
@@ -417,7 +411,7 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
           const hasLinkedCapabilities = column.level2Groups.some(group => 
             group.level3Items.some(item => {
               if (searchScope.startsWith('Application:')) {
-                return getApplicationsForCapability(item.name).some(app => 
+                return getApplicationsForCapability(item.name, allApplications).some(app => 
                   app.name.toLowerCase().includes(scopeSearchTerm)
                 );
               } else if (entityLinkedApps.length > 0) {

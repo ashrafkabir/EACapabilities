@@ -192,6 +192,7 @@ export default function Dashboard() {
             selectedCapability={selectedCapability}
             selectedITComponent={selectedITComponent}
             searchScope={searchScope}
+            filters={filters}
           />
         );
       default:
