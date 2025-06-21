@@ -629,8 +629,86 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     
     let baseCapabilities = capabilitiesToShow;
     
-    // Apply search scope filtering first
-    if (currentSearchScope && currentSearchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
+    // Apply capability search when only capabilities filter is enabled and there's a search term
+    if (searchTerm && 
+        filters.capabilities && 
+        !filters.applications && 
+        !filters.components && 
+        !filters.interfaces && 
+        !filters.dataObjects && 
+        !filters.initiatives &&
+        allCapabilities?.length > 0) {
+      
+      console.log('MetisMap applying capability search for term:', searchTerm);
+      
+      // Find all capabilities that match the search term at any level
+      const searchTermLower = searchTerm.toLowerCase();
+      const matchingCapabilities = allCapabilities.filter(cap => 
+        cap.name?.toLowerCase().includes(searchTermLower)
+      );
+      
+      console.log('MetisMap matching capabilities:', matchingCapabilities.map(c => `${c.name} (L${c.level})`));
+      
+      if (matchingCapabilities.length > 0) {
+        // Include the matching capabilities AND their complete hierarchy
+        const hierarchyCapabilities = new Set<string>();
+        
+        matchingCapabilities.forEach(cap => {
+          // Add the matching capability itself
+          hierarchyCapabilities.add(cap.id);
+          
+          // Add all parent capabilities
+          if (cap.level >= 2 && cap.level1Capability) {
+            const l1Parent = allCapabilities.find(c => 
+              c.level === 1 && c.name === cap.level1Capability
+            );
+            if (l1Parent) hierarchyCapabilities.add(l1Parent.id);
+          }
+          
+          if (cap.level === 3 && cap.level2Capability) {
+            const l2Parent = allCapabilities.find(c => 
+              c.level === 2 && c.name === cap.level2Capability
+            );
+            if (l2Parent) hierarchyCapabilities.add(l2Parent.id);
+          }
+          
+          // Add all child capabilities
+          if (cap.level === 1) {
+            const l2Children = allCapabilities.filter(c => 
+              c.level === 2 && c.level1Capability === cap.name
+            );
+            l2Children.forEach(child => {
+              hierarchyCapabilities.add(child.id);
+              
+              const l3Children = allCapabilities.filter(c => 
+                c.level === 3 && c.level2Capability === child.name
+              );
+              l3Children.forEach(grandchild => hierarchyCapabilities.add(grandchild.id));
+            });
+          } else if (cap.level === 2) {
+            const l3Children = allCapabilities.filter(c => 
+              c.level === 3 && c.level2Capability === cap.name
+            );
+            l3Children.forEach(child => hierarchyCapabilities.add(child.id));
+          }
+        });
+        
+        // Filter to show only capabilities in the hierarchy
+        baseCapabilities = allCapabilities.filter(cap => hierarchyCapabilities.has(cap.id));
+        console.log('MetisMap hierarchy capabilities found:', baseCapabilities.length);
+        
+        // Navigate to show the first matching capability's context
+        if (matchingCapabilities.length > 0) {
+          setCurrentLevel(1);
+          setSelectedParent(null);
+        }
+      } else {
+        baseCapabilities = [];
+        console.log('MetisMap no matching capabilities found');
+      }
+    }
+    // Legacy search scope handling (keeping for compatibility)
+    else if (currentSearchScope && currentSearchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
       const capabilityPath = currentSearchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
       
@@ -741,7 +819,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     
     console.log('MetisMap returning filtered capabilities:', baseCapabilities.length);
     return baseCapabilities;
-  }, [capabilitiesToShow, currentSearchScope, searchTerm, allMatchingCapabilities, allCapabilities, currentLevel]);
+  }, [capabilitiesToShow, searchTerm, allCapabilities, currentLevel, filters]);
 
   // Force re-render when searchScope changes
   useEffect(() => {
