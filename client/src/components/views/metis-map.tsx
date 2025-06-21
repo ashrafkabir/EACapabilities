@@ -620,10 +620,15 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       console.log('MetisMap filtering path parts:', pathParts);
       
       // Find all capabilities that match the search term at any level
+      const searchTerm = pathParts[0].toLowerCase();
       const matchingCapabilities = allCapabilities.filter(cap => 
-        cap.name?.toLowerCase().includes(pathParts[0].toLowerCase())
+        cap.name?.toLowerCase().includes(searchTerm) ||
+        cap.displayName?.toLowerCase().includes(searchTerm)
       );
       
+      console.log('MetisMap search term:', searchTerm);
+      console.log('MetisMap total capabilities:', allCapabilities.length);
+      console.log('MetisMap all capability names:', allCapabilities.slice(0, 10).map(c => `${c.name} (L${c.level})`));
       console.log('MetisMap matching capabilities:', matchingCapabilities.map(c => `${c.name} (L${c.level})`));
       
       // Include the matching capabilities AND their complete hierarchy (parents and children)
