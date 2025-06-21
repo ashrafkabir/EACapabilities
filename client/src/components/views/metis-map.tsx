@@ -612,6 +612,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     console.log('MetisMap filtering - capabilitiesToShow length:', capabilitiesToShow.length);
     
     // Apply search scope filtering first
+    console.log('MetisMap searchScope check:', searchScope, searchScope?.startsWith('Business Capability:'));
     if (searchScope && searchScope.startsWith('Business Capability:')) {
       const capabilityPath = searchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
