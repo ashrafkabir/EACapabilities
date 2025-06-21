@@ -81,13 +81,17 @@ export default function Dashboard() {
     setSelectedITComponent(null);
     
     // Set search scope based on active filters and search term
+    console.log('Dashboard search - term:', term, 'filters:', filters);
     if (term.trim()) {
       const enabledFilters = Object.entries(filters).filter(([_, enabled]) => enabled);
+      console.log('Dashboard search - enabledFilters:', enabledFilters);
       
       if (enabledFilters.length === 1) {
         const [filterType] = enabledFilters[0];
+        console.log('Dashboard search - filterType:', filterType);
         if (filterType === 'capabilities') {
           // For capability search, we need to find matches at any level and build the hierarchy path
+          console.log('Dashboard search - setting capability scope:', `Business Capability: ${term}`);
           setSearchScope(`Business Capability: ${term}`);
         } else if (filterType === 'applications') {
           setSearchScope(`Application: ${term}`);
