@@ -605,15 +605,14 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
   // Filter capabilities based on search scope and search term
   const filteredCapabilities = useMemo(() => {
+    console.log('MetisMap filtering running - searchScope:', searchScope);
+    console.log('MetisMap filtering running - searchTerm:', searchTerm);
+    console.log('MetisMap filtering running - capabilitiesToShow length:', capabilitiesToShow.length);
+    console.log('MetisMap filtering running - allCapabilities length:', allCapabilities?.length);
+    
     let baseCapabilities = capabilitiesToShow;
     
-    console.log('MetisMap filtering - searchScope:', searchScope);
-    console.log('MetisMap filtering - searchTerm:', searchTerm);
-    console.log('MetisMap filtering - capabilitiesToShow length:', capabilitiesToShow.length);
-    
     // Apply search scope filtering first
-    console.log('MetisMap searchScope check:', searchScope, searchScope?.startsWith('Business Capability:'));
-    console.log('MetisMap allCapabilities available:', allCapabilities?.length);
     if (searchScope && searchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
       const capabilityPath = searchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
