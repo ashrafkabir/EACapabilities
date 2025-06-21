@@ -603,6 +603,11 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     }
   }, [searchScope]);
 
+  // Debug effect to track search scope changes
+  useEffect(() => {
+    console.log('MetisMap searchScope changed:', searchScope);
+  }, [searchScope]);
+
   // Filter capabilities based on search scope and search term
   const filteredCapabilities = useMemo(() => {
     console.log('MetisMap filtering running - searchScope:', searchScope);
@@ -722,6 +727,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       });
     }
     
+    console.log('MetisMap returning filtered capabilities:', baseCapabilities.length);
     return baseCapabilities;
   }, [capabilitiesToShow, searchScope, searchTerm, allMatchingCapabilities, allCapabilities, currentLevel]);
 
