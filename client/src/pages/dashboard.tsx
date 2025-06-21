@@ -152,6 +152,7 @@ export default function Dashboard() {
             selectedITComponent={selectedITComponent}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
+            searchScope={searchScope}
             filters={filters}
           />
         );
@@ -195,7 +196,7 @@ export default function Dashboard() {
           />
         );
       default:
-        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
+        return <MetisMap selectedCapability={selectedCapability} selectedITComponent={selectedITComponent} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} searchScope={searchScope} filters={filters} />;
     }
   };
 

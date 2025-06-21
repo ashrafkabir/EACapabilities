@@ -9,6 +9,7 @@ interface MetisMapProps {
   selectedCapability: string | null;
   selectedITComponent?: string | null;
   searchTerm: string;
+  searchScope?: string | null;
   onEntitySelect: (entity: EntityReference) => void;
   filters: {
     capabilities: boolean;
@@ -25,7 +26,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect, filters }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, searchScope, onEntitySelect, filters }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -580,28 +581,79 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
-  // If searching, find the capabilities that should be shown at the current display level
-  const filteredCapabilities = searchTerm && allMatchingCapabilities ? 
-    capabilitiesToShow.filter(cap => {
-      // If the capability itself matches and is at the current display level, include it
-      if (allMatchingCapabilities.some(match => match.id === cap.id && match.level === currentLevel)) {
-        return true;
+  // Filter capabilities based on search scope and search term
+  const filteredCapabilities = useMemo(() => {
+    let baseCapabilities = capabilitiesToShow;
+    
+    // Apply search scope filtering first
+    if (searchScope) {
+      if (searchScope.startsWith('Business Capability:')) {
+        const capabilityPath = searchScope.replace('Business Capability: ', '');
+        const pathParts = capabilityPath.split('/');
+        
+        // Filter to show only capabilities that match the selected hierarchy path
+        baseCapabilities = allCapabilities.filter(cap => {
+          if (pathParts.length === 1) {
+            // Level 1 selection - show only this L1 capability and navigate to it
+            if (cap.level === 1 && cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase()) {
+              // Update navigation state to show this capability
+              setCurrentLevel(1);
+              setSelectedParent(null);
+              return true;
+            }
+          } else if (pathParts.length === 2) {
+            // Level 2 selection - show L2 capabilities under the selected L1/L2 path
+            if (cap.level === 2 && 
+                cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase()) {
+              // Update navigation state to show this L2 capability
+              setCurrentLevel(2);
+              setSelectedParent(pathParts[0]);
+              return true;
+            }
+          } else if (pathParts.length === 3) {
+            // Level 3 selection - show L3 capabilities under the selected L1/L2/L3 path
+            if (cap.level === 3 && 
+                cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
+                cap.level3Capability?.toLowerCase() === pathParts[2].toLowerCase()) {
+              // Update navigation state to show this L3 capability
+              setCurrentLevel(3);
+              setSelectedParent(pathParts[1]);
+              return true;
+            }
+          }
+          return false;
+        });
       }
-      
-      // If any descendant capabilities match, include this ancestor at the current display level
-      const hasMatchingDescendants = allMatchingCapabilities.some(match => {
-        if (currentLevel === 1) {
-          // For Level 1 display, include if any L2 or L3 capabilities have this as their L1 parent
-          return match.level1Capability === cap.name;
-        } else if (currentLevel === 2) {
-          // For Level 2 display, include if any L3 capabilities have this as their L2 parent
-          return match.level2Capability === cap.name;
+    }
+    
+    // Apply search term filtering if present and not already covered by scope
+    else if (searchTerm && allMatchingCapabilities) {
+      baseCapabilities = capabilitiesToShow.filter(cap => {
+        // If the capability itself matches and is at the current display level, include it
+        if (allMatchingCapabilities.some(match => match.id === cap.id && match.level === currentLevel)) {
+          return true;
         }
-        return false;
+        
+        // If any descendant capabilities match, include this ancestor at the current display level
+        const hasMatchingDescendants = allMatchingCapabilities.some(match => {
+          if (currentLevel === 1) {
+            // For Level 1 display, include if any L2 or L3 capabilities have this as their L1 parent
+            return match.level1Capability === cap.name;
+          } else if (currentLevel === 2) {
+            // For Level 2 display, include if any L3 capabilities have this as their L2 parent
+            return match.level2Capability === cap.name;
+          }
+          return false;
+        });
+        
+        return hasMatchingDescendants;
       });
-      
-      return hasMatchingDescendants;
-    }) : capabilitiesToShow;
+    }
+    
+    return baseCapabilities;
+  }, [capabilitiesToShow, searchScope, searchTerm, allMatchingCapabilities, allCapabilities, currentLevel]);
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
