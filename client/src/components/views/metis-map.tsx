@@ -28,6 +28,14 @@ interface HeatmapFilters {
 
 export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, searchScope, onEntitySelect, filters }: MetisMapProps) {
   console.log('MetisMap render - props received:', { searchScope, searchTerm });
+  
+  // Force component to track searchScope changes
+  const [currentSearchScope, setCurrentSearchScope] = useState<string | null>(searchScope);
+  
+  useEffect(() => {
+    console.log('MetisMap searchScope prop update:', searchScope);
+    setCurrentSearchScope(searchScope);
+  }, [searchScope]);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -622,8 +630,8 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     let baseCapabilities = capabilitiesToShow;
     
     // Apply search scope filtering first
-    if (searchScope && searchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
-      const capabilityPath = searchScope.replace('Business Capability: ', '');
+    if (currentSearchScope && currentSearchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
+      const capabilityPath = currentSearchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
       
       console.log('MetisMap filtering capability path:', capabilityPath);
@@ -733,7 +741,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     
     console.log('MetisMap returning filtered capabilities:', baseCapabilities.length);
     return baseCapabilities;
-  }, [capabilitiesToShow, searchScope, searchTerm, allMatchingCapabilities, allCapabilities, currentLevel]);
+  }, [capabilitiesToShow, currentSearchScope, searchTerm, allMatchingCapabilities, allCapabilities, currentLevel]);
 
   // Force re-render when searchScope changes
   useEffect(() => {
