@@ -581,53 +581,57 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
+  // Handle search scope navigation
+  useEffect(() => {
+    if (searchScope && searchScope.startsWith('Business Capability:')) {
+      const capabilityPath = searchScope.replace('Business Capability: ', '');
+      const pathParts = capabilityPath.split('/');
+      
+      if (pathParts.length === 1) {
+        // Level 1 selection - navigate to show this L1 capability
+        setCurrentLevel(1);
+        setSelectedParent(null);
+      } else if (pathParts.length === 2) {
+        // Level 2 selection - navigate to show L2 capabilities under this path
+        setCurrentLevel(2);
+        setSelectedParent(pathParts[0]);
+      } else if (pathParts.length === 3) {
+        // Level 3 selection - navigate to show L3 capabilities under this path
+        setCurrentLevel(3);
+        setSelectedParent(pathParts[1]);
+      }
+    }
+  }, [searchScope]);
+
   // Filter capabilities based on search scope and search term
   const filteredCapabilities = useMemo(() => {
     let baseCapabilities = capabilitiesToShow;
     
     // Apply search scope filtering first
-    if (searchScope) {
-      if (searchScope.startsWith('Business Capability:')) {
-        const capabilityPath = searchScope.replace('Business Capability: ', '');
-        const pathParts = capabilityPath.split('/');
-        
-        // Filter to show only capabilities that match the selected hierarchy path
-        baseCapabilities = allCapabilities.filter(cap => {
-          if (pathParts.length === 1) {
-            // Level 1 selection - show only this L1 capability and navigate to it
-            if (cap.level === 1 && cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase()) {
-              // Update navigation state to show this capability
-              setCurrentLevel(1);
-              setSelectedParent(null);
-              return true;
-            }
-          } else if (pathParts.length === 2) {
-            // Level 2 selection - show L2 capabilities under the selected L1/L2 path
-            if (cap.level === 2 && 
-                cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
-                cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase()) {
-              // Update navigation state to show this L2 capability
-              setCurrentLevel(2);
-              setSelectedParent(pathParts[0]);
-              return true;
-            }
-          } else if (pathParts.length === 3) {
-            // Level 3 selection - show L3 capabilities under the selected L1/L2/L3 path
-            if (cap.level === 3 && 
-                cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
-                cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
-                cap.level3Capability?.toLowerCase() === pathParts[2].toLowerCase()) {
-              // Update navigation state to show this L3 capability
-              setCurrentLevel(3);
-              setSelectedParent(pathParts[1]);
-              return true;
-            }
-          }
-          return false;
-        });
-      }
+    if (searchScope && searchScope.startsWith('Business Capability:')) {
+      const capabilityPath = searchScope.replace('Business Capability: ', '');
+      const pathParts = capabilityPath.split('/');
+      
+      // Filter to show only capabilities that match the selected hierarchy path
+      baseCapabilities = allCapabilities.filter(cap => {
+        if (pathParts.length === 1) {
+          // Level 1 selection - show only this L1 capability
+          return cap.level === 1 && cap.name?.toLowerCase() === pathParts[0].toLowerCase();
+        } else if (pathParts.length === 2) {
+          // Level 2 selection - show L2 capabilities under the selected L1/L2 path
+          return cap.level === 2 && 
+                 cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                 cap.name?.toLowerCase() === pathParts[1].toLowerCase();
+        } else if (pathParts.length === 3) {
+          // Level 3 selection - show L3 capabilities under the selected L1/L2/L3 path
+          return cap.level === 3 && 
+                 cap.level1Capability?.toLowerCase() === pathParts[0].toLowerCase() &&
+                 cap.level2Capability?.toLowerCase() === pathParts[1].toLowerCase() &&
+                 cap.name?.toLowerCase() === pathParts[2].toLowerCase();
+        }
+        return false;
+      });
     }
-    
     // Apply search term filtering if present and not already covered by scope
     else if (searchTerm && allMatchingCapabilities) {
       baseCapabilities = capabilitiesToShow.filter(cap => {
