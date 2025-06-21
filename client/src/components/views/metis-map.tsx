@@ -421,17 +421,28 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
         });
       });
     } else {
-      // Mixed search across all enabled types
+      // Mixed search across all enabled types or capability-only search
       const matchingCapabilities = new Set<BusinessCapability>();
       
-      if (filters.capabilities) {
-        // Direct capability name search
+      // Check if it's a capabilities-only search
+      const capabilitiesOnly = filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
+      
+      if (filters.capabilities || capabilitiesOnly) {
+        // Direct capability name search - include all levels
         allCapabilities.forEach(cap => {
           if (cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-              (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()))) {
+              (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+              (cap.level1Capability && cap.level1Capability.toLowerCase().includes(searchTerm.toLowerCase())) ||
+              (cap.level2Capability && cap.level2Capability.toLowerCase().includes(searchTerm.toLowerCase())) ||
+              (cap.level3Capability && cap.level3Capability.toLowerCase().includes(searchTerm.toLowerCase()))) {
             matchingCapabilities.add(cap);
           }
         });
+        
+        // If this is a capabilities-only search, return just the matching capabilities
+        if (capabilitiesOnly) {
+          return Array.from(matchingCapabilities);
+        }
       }
       
       if (filters.applications) {

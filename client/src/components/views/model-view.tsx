@@ -413,10 +413,14 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
                 const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
                 return hasLinkedApps || hasLinkedInitiatives;
               } else {
-                // General search, search capability names
-                return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
-                       group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
-                       item.name.toLowerCase().includes(scopeSearchTerm);
+                // General search or capability-only search, search capability names at all levels
+                const searchLower = scopeSearchTerm.toLowerCase();
+                return column.level1Name.toLowerCase().includes(searchLower) ||
+                       group.level2Name.toLowerCase().includes(searchLower) ||
+                       item.name.toLowerCase().includes(searchLower) ||
+                       (item.level1Capability && item.level1Capability.toLowerCase().includes(searchLower)) ||
+                       (item.level2Capability && item.level2Capability.toLowerCase().includes(searchLower)) ||
+                       (item.level3Capability && item.level3Capability.toLowerCase().includes(searchLower));
               }
             })
           );
@@ -472,7 +476,10 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
           column.level2Groups.some(group => {
             return group.level2Name.toLowerCase().includes(searchLower) ||
               group.level3Items.some(item => 
-                item.name.toLowerCase().includes(searchLower)
+                item.name.toLowerCase().includes(searchLower) ||
+                (item.level1Capability && item.level1Capability.toLowerCase().includes(searchLower)) ||
+                (item.level2Capability && item.level2Capability.toLowerCase().includes(searchLower)) ||
+                (item.level3Capability && item.level3Capability.toLowerCase().includes(searchLower))
               );
           });
       });
@@ -482,14 +489,22 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
         ...column,
         level2Groups: column.level2Groups.filter(group => {
           return group.level2Name.toLowerCase().includes(searchLower) ||
-                 group.level3Items.some(item => item.name.toLowerCase().includes(searchLower)) ||
+                 group.level3Items.some(item => 
+                   item.name.toLowerCase().includes(searchLower) ||
+                   (item.level1Capability && item.level1Capability.toLowerCase().includes(searchLower)) ||
+                   (item.level2Capability && item.level2Capability.toLowerCase().includes(searchLower)) ||
+                   (item.level3Capability && item.level3Capability.toLowerCase().includes(searchLower))
+                 ) ||
                  column.level1Name.toLowerCase().includes(searchLower);
         }).map(group => ({
           ...group,
           level3Items: group.level3Items.filter(item => 
             item.name.toLowerCase().includes(searchLower) ||
             group.level2Name.toLowerCase().includes(searchLower) ||
-            column.level1Name.toLowerCase().includes(searchLower)
+            column.level1Name.toLowerCase().includes(searchLower) ||
+            (item.level1Capability && item.level1Capability.toLowerCase().includes(searchLower)) ||
+            (item.level2Capability && item.level2Capability.toLowerCase().includes(searchLower)) ||
+            (item.level3Capability && item.level3Capability.toLowerCase().includes(searchLower))
           )
         }))
       }));
