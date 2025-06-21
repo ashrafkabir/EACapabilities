@@ -296,7 +296,7 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     
     // Filter by selectedITComponent first
     if (selectedITComponent) {
-      const entityLinkedApps = getApplicationsLinkedToITComponent(selectedITComponent);
+      const entityLinkedApps = getApplicationsLinkedToITComponent(selectedITComponent, allApplications);
       
       filtered = processedData.filter((column: ColumnData) => {
         const hasLinkedCapabilities = column.level2Groups.some(group => 
@@ -397,13 +397,13 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
         let showAllCapabilitiesWithITComponents = false;
         
         if (searchScope.startsWith('IT Component:')) {
-          entityLinkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
+          entityLinkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm, allApplications);
         } else if (searchScope.startsWith('Interface:')) {
-          entityLinkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
+          entityLinkedApps = getApplicationsLinkedToInterface(scopeSearchTerm, allApplications);
         } else if (searchScope.startsWith('Data Object:')) {
-          entityLinkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm);
+          entityLinkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm, allApplications);
         } else if (searchScope.startsWith('Initiative:')) {
-          entityLinkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm);
+          entityLinkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm, allApplications);
         }
         
         filtered = processedData.filter((column: ColumnData) => {
