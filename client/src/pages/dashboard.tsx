@@ -86,7 +86,9 @@ export default function Dashboard() {
       
       if (enabledFilters.length === 1) {
         const [filterType] = enabledFilters[0];
-        if (filterType === 'applications') {
+        if (filterType === 'capabilities') {
+          setSearchScope(`Business Capability: ${term}`);
+        } else if (filterType === 'applications') {
           setSearchScope(`Application: ${term}`);
         } else if (filterType === 'components') {
           setSearchScope(`IT Component: ${term}`);
