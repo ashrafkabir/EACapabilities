@@ -203,7 +203,7 @@ export default function Dashboard() {
           />
         );
       default:
-        return <MetisMap selectedCapability={selectedCapability} selectedITComponent={selectedITComponent} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} searchScope={searchScope} filters={filters} />;
+        return <MetisMap key={`metis-${searchScope}-${searchTerm}`} selectedCapability={selectedCapability} selectedITComponent={selectedITComponent} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} searchScope={searchScope} filters={filters} />;
     }
   };
 
