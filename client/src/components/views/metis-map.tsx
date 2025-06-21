@@ -708,11 +708,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
         baseCapabilities = allCapabilities.filter(cap => hierarchyCapabilities.has(cap.id));
         console.log('MetisMap hierarchy capabilities found:', baseCapabilities.length);
         
-        // Navigate to show the first matching capability's context
-        if (matchingCapabilities.length > 0) {
-          setCurrentLevel(1);
-          setSelectedParent(null);
-        }
+        // Note: Navigation will be handled by the navigation effect
       } else {
         baseCapabilities = [];
         console.log('MetisMap no matching capabilities found');
