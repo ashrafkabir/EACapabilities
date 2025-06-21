@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/topbar";
@@ -25,12 +25,7 @@ export default function Dashboard() {
 
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
-  const [searchScope, setSearchScope] = useState<string | null>(null);
-  
-  // Debug effect to track searchScope changes
-  useEffect(() => {
-    console.log('Dashboard searchScope state changed to:', searchScope);
-  }, [searchScope]); // Unified search scope across all tabs
+  const [searchScope, setSearchScope] = useState<string | null>(null); // Unified search scope across all tabs
   const [filters, setFilters] = useState({
     capabilities: true,
     applications: true,
@@ -86,21 +81,12 @@ export default function Dashboard() {
     setSelectedITComponent(null);
     
     // Set search scope based on active filters and search term
-    console.log('Dashboard search - term:', term, 'filters:', filters);
     if (term.trim()) {
       const enabledFilters = Object.entries(filters).filter(([_, enabled]) => enabled);
-      console.log('Dashboard search - enabledFilters:', enabledFilters);
       
       if (enabledFilters.length === 1) {
         const [filterType] = enabledFilters[0];
-        console.log('Dashboard search - filterType:', filterType);
-        if (filterType === 'capabilities') {
-          // For capability search, we need to find matches at any level and build the hierarchy path
-          const newScope = `Business Capability: ${term}`;
-          console.log('Dashboard search - setting capability scope:', newScope);
-          setSearchScope(newScope);
-          console.log('Dashboard search - scope state updated to:', newScope);
-        } else if (filterType === 'applications') {
+        if (filterType === 'applications') {
           setSearchScope(`Application: ${term}`);
         } else if (filterType === 'components') {
           setSearchScope(`IT Component: ${term}`);
@@ -166,7 +152,6 @@ export default function Dashboard() {
             selectedITComponent={selectedITComponent}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
-            searchScope={searchScope}
             filters={filters}
           />
         );
@@ -210,8 +195,7 @@ export default function Dashboard() {
           />
         );
       default:
-        console.log('Dashboard rendering MetisMap with searchScope:', searchScope);
-        return <MetisMap selectedCapability={selectedCapability} selectedITComponent={selectedITComponent} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} searchScope={searchScope} filters={filters} />;
+        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
     }
   };
 

@@ -9,7 +9,6 @@ interface MetisMapProps {
   selectedCapability: string | null;
   selectedITComponent?: string | null;
   searchTerm: string;
-  searchScope?: string | null;
   onEntitySelect: (entity: EntityReference) => void;
   filters: {
     capabilities: boolean;
@@ -26,25 +25,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, searchScope, onEntitySelect, filters }: MetisMapProps) {
-  console.log('MetisMap render - props received:', { searchScope, searchTerm });
-  
-  // Internal search state to handle capability filtering directly
-  const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
-  
-  // Extract search term from searchScope when it's a capability search
-  useEffect(() => {
-    if (searchScope && searchScope.startsWith('Business Capability:')) {
-      const term = searchScope.replace('Business Capability: ', '');
-      console.log('MetisMap extracting search term from scope:', term);
-      setInternalSearchTerm(term);
-    } else if (searchTerm) {
-      console.log('MetisMap using direct search term:', searchTerm);
-      setInternalSearchTerm(searchTerm);
-    } else {
-      setInternalSearchTerm('');
-    }
-  }, [searchScope, searchTerm]);
+export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect, filters }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -599,239 +580,28 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
-  // Handle search scope navigation
-  useEffect(() => {
-    if (searchScope && searchScope.startsWith('Business Capability:')) {
-      const capabilityPath = searchScope.replace('Business Capability: ', '');
-      const pathParts = capabilityPath.split('/');
-      
-      if (pathParts.length === 1) {
-        // Level 1 selection - navigate to show this L1 capability
-        setCurrentLevel(1);
-        setSelectedParent(null);
-      } else if (pathParts.length === 2) {
-        // Level 2 selection - navigate to show L2 capabilities under this path
-        setCurrentLevel(2);
-        setSelectedParent(pathParts[0]);
-      } else if (pathParts.length === 3) {
-        // Level 3 selection - navigate to show L3 capabilities under this path
-        setCurrentLevel(3);
-        setSelectedParent(pathParts[1]);
+  // If searching, find the capabilities that should be shown at the current display level
+  const filteredCapabilities = searchTerm && allMatchingCapabilities ? 
+    capabilitiesToShow.filter(cap => {
+      // If the capability itself matches and is at the current display level, include it
+      if (allMatchingCapabilities.some(match => match.id === cap.id && match.level === currentLevel)) {
+        return true;
       }
-    }
-  }, [searchScope]);
-
-  // Debug effect to track search scope changes
-  useEffect(() => {
-    console.log('MetisMap searchScope prop changed:', searchScope);
-    if (searchScope) {
-      console.log('MetisMap triggering capability filtering for scope:', searchScope);
-    }
-  }, [searchScope]);
-
-  // Filter capabilities based on search scope and search term
-  const filteredCapabilities = useMemo(() => {
-    console.log('MetisMap filtering running - searchScope:', searchScope);
-    console.log('MetisMap filtering running - searchTerm:', searchTerm);
-    console.log('MetisMap filtering running - capabilitiesToShow length:', capabilitiesToShow.length);
-    console.log('MetisMap filtering running - allCapabilities length:', allCapabilities?.length);
-    
-    let baseCapabilities = capabilitiesToShow;
-    
-    // Apply capability search when only capabilities filter is enabled and there's a search term
-    if (internalSearchTerm && internalSearchTerm.trim() &&
-        filters?.capabilities && 
-        !filters?.applications && 
-        !filters?.components && 
-        !filters?.interfaces && 
-        !filters?.dataObjects && 
-        !filters?.initiatives &&
-        allCapabilities?.length > 0) {
       
-      console.log('MetisMap applying capability search for term:', internalSearchTerm);
-      console.log('MetisMap filters:', filters);
-      console.log('MetisMap allCapabilities count:', allCapabilities.length);
-      
-      // Find all capabilities that match the search term at any level
-      const searchTermLower = internalSearchTerm.toLowerCase();
-      const matchingCapabilities = allCapabilities.filter(cap => 
-        cap.name?.toLowerCase().includes(searchTermLower)
-      );
-      
-      console.log('MetisMap matching capabilities:', matchingCapabilities.map(c => `${c.name} (L${c.level})`));
-      
-      if (matchingCapabilities.length > 0) {
-        // Include the matching capabilities AND their complete hierarchy
-        const hierarchyCapabilities = new Set<string>();
-        
-        matchingCapabilities.forEach(cap => {
-          // Add the matching capability itself
-          hierarchyCapabilities.add(cap.id);
-          
-          // Add all parent capabilities
-          if (cap.level >= 2 && cap.level1Capability) {
-            const l1Parent = allCapabilities.find(c => 
-              c.level === 1 && c.name === cap.level1Capability
-            );
-            if (l1Parent) hierarchyCapabilities.add(l1Parent.id);
-          }
-          
-          if (cap.level === 3 && cap.level2Capability) {
-            const l2Parent = allCapabilities.find(c => 
-              c.level === 2 && c.name === cap.level2Capability
-            );
-            if (l2Parent) hierarchyCapabilities.add(l2Parent.id);
-          }
-          
-          // Add all child capabilities
-          if (cap.level === 1) {
-            const l2Children = allCapabilities.filter(c => 
-              c.level === 2 && c.level1Capability === cap.name
-            );
-            l2Children.forEach(child => {
-              hierarchyCapabilities.add(child.id);
-              
-              const l3Children = allCapabilities.filter(c => 
-                c.level === 3 && c.level2Capability === child.name
-              );
-              l3Children.forEach(grandchild => hierarchyCapabilities.add(grandchild.id));
-            });
-          } else if (cap.level === 2) {
-            const l3Children = allCapabilities.filter(c => 
-              c.level === 3 && c.level2Capability === cap.name
-            );
-            l3Children.forEach(child => hierarchyCapabilities.add(child.id));
-          }
-        });
-        
-        // Filter to show only capabilities in the hierarchy
-        baseCapabilities = allCapabilities.filter(cap => hierarchyCapabilities.has(cap.id));
-        console.log('MetisMap hierarchy capabilities found:', baseCapabilities.length);
-        
-        // Note: Navigation will be handled by the navigation effect
-      } else {
-        baseCapabilities = [];
-        console.log('MetisMap no matching capabilities found');
-      }
-    }
-    // Legacy search scope handling (keeping for compatibility)
-    else if (searchScope && searchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
-      const capabilityPath = searchScope.replace('Business Capability: ', '');
-      const pathParts = capabilityPath.split('/');
-      
-      console.log('MetisMap filtering capability path:', capabilityPath);
-      console.log('MetisMap filtering path parts:', pathParts);
-      
-      // Find all capabilities that match the search term at any level
-      const searchTerm = pathParts[0].toLowerCase();
-      const matchingCapabilities = allCapabilities.filter(cap => 
-        cap.name?.toLowerCase().includes(searchTerm) ||
-        cap.displayName?.toLowerCase().includes(searchTerm)
-      );
-      
-      console.log('MetisMap search term:', searchTerm);
-      console.log('MetisMap total capabilities:', allCapabilities.length);
-      console.log('MetisMap all capability names:', allCapabilities.slice(0, 10).map(c => `${c.name} (L${c.level})`));
-      console.log('MetisMap matching capabilities:', matchingCapabilities.map(c => `${c.name} (L${c.level})`));
-      
-      // Include the matching capabilities AND their complete hierarchy (parents and children)
-      const hierarchyCapabilities = new Set<string>();
-      
-      matchingCapabilities.forEach(cap => {
-        // Add the matching capability itself
-        hierarchyCapabilities.add(cap.id);
-        
-        // Add all parent capabilities in the hierarchy
-        if (cap.level >= 2 && cap.level1Capability) {
-          const l1Parent = allCapabilities.find(c => 
-            c.level === 1 && c.name === cap.level1Capability
-          );
-          if (l1Parent) hierarchyCapabilities.add(l1Parent.id);
+      // If any descendant capabilities match, include this ancestor at the current display level
+      const hasMatchingDescendants = allMatchingCapabilities.some(match => {
+        if (currentLevel === 1) {
+          // For Level 1 display, include if any L2 or L3 capabilities have this as their L1 parent
+          return match.level1Capability === cap.name;
+        } else if (currentLevel === 2) {
+          // For Level 2 display, include if any L3 capabilities have this as their L2 parent
+          return match.level2Capability === cap.name;
         }
-        
-        if (cap.level === 3 && cap.level2Capability) {
-          const l2Parent = allCapabilities.find(c => 
-            c.level === 2 && c.name === cap.level2Capability
-          );
-          if (l2Parent) hierarchyCapabilities.add(l2Parent.id);
-        }
-        
-        // Add all child capabilities
-        if (cap.level === 1) {
-          // Add L2 children
-          const l2Children = allCapabilities.filter(c => 
-            c.level === 2 && c.level1Capability === cap.name
-          );
-          l2Children.forEach(child => {
-            hierarchyCapabilities.add(child.id);
-            
-            // Add L3 grandchildren
-            const l3Children = allCapabilities.filter(c => 
-              c.level === 3 && c.level2Capability === child.name
-            );
-            l3Children.forEach(grandchild => hierarchyCapabilities.add(grandchild.id));
-          });
-        } else if (cap.level === 2) {
-          // Add L3 children
-          const l3Children = allCapabilities.filter(c => 
-            c.level === 3 && c.level2Capability === cap.name
-          );
-          l3Children.forEach(child => hierarchyCapabilities.add(child.id));
-        }
+        return false;
       });
       
-      // Filter to show only capabilities in the hierarchy
-      baseCapabilities = allCapabilities.filter(cap => hierarchyCapabilities.has(cap.id));
-      
-      // Navigate to show matches in context - start from Level 1 to show complete hierarchy
-      if (matchingCapabilities.length > 0) {
-        // Always start at Level 1 to show the complete hierarchy
-        setCurrentLevel(1);
-        setSelectedParent(null);
-        
-        // If there are L2 or L3 matches, we might want to highlight them later
-        const hasL1Match = matchingCapabilities.some(cap => cap.level === 1);
-        const hasL2Match = matchingCapabilities.some(cap => cap.level === 2);
-        const hasL3Match = matchingCapabilities.some(cap => cap.level === 3);
-        
-        console.log('MetisMap match levels - L1:', hasL1Match, 'L2:', hasL2Match, 'L3:', hasL3Match);
-      }
-      
-      console.log('MetisMap filtered capabilities length:', baseCapabilities.length);
-      console.log('MetisMap filtered capabilities:', baseCapabilities.map(c => c.name));
-    }
-    // Apply search term filtering if present and not already covered by scope
-    else if (searchTerm && allMatchingCapabilities) {
-      baseCapabilities = capabilitiesToShow.filter(cap => {
-        // If the capability itself matches and is at the current display level, include it
-        if (allMatchingCapabilities.some(match => match.id === cap.id && match.level === currentLevel)) {
-          return true;
-        }
-        
-        // If any descendant capabilities match, include this ancestor at the current display level
-        const hasMatchingDescendants = allMatchingCapabilities.some(match => {
-          if (currentLevel === 1) {
-            // For Level 1 display, include if any L2 or L3 capabilities have this as their L1 parent
-            return match.level1Capability === cap.name;
-          } else if (currentLevel === 2) {
-            // For Level 2 display, include if any L3 capabilities have this as their L2 parent
-            return match.level2Capability === cap.name;
-          }
-          return false;
-        });
-        
-        return hasMatchingDescendants;
-      });
-    }
-    
-    console.log('MetisMap returning filtered capabilities:', baseCapabilities.length);
-    return baseCapabilities;
-  }, [capabilitiesToShow, internalSearchTerm, allCapabilities, currentLevel, filters]);
-
-  // Force re-render when searchScope changes
-  useEffect(() => {
-    console.log('MetisMap: searchScope effect triggered with:', searchScope);
-  }, [searchScope]);
+      return hasMatchingDescendants;
+    }) : capabilitiesToShow;
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
