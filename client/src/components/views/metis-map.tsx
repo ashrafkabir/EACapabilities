@@ -27,6 +27,7 @@ interface HeatmapFilters {
 }
 
 export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, searchScope, onEntitySelect, filters }: MetisMapProps) {
+  console.log('MetisMap render - props received:', { searchScope, searchTerm });
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
