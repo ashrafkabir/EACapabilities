@@ -29,13 +29,22 @@ interface HeatmapFilters {
 export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, searchScope, onEntitySelect, filters }: MetisMapProps) {
   console.log('MetisMap render - props received:', { searchScope, searchTerm });
   
-  // Force component to track searchScope changes
-  const [currentSearchScope, setCurrentSearchScope] = useState<string | null>(searchScope);
+  // Internal search state to handle capability filtering directly
+  const [internalSearchTerm, setInternalSearchTerm] = useState<string>('');
   
+  // Extract search term from searchScope when it's a capability search
   useEffect(() => {
-    console.log('MetisMap searchScope prop update:', searchScope);
-    setCurrentSearchScope(searchScope);
-  }, [searchScope]);
+    if (searchScope && searchScope.startsWith('Business Capability:')) {
+      const term = searchScope.replace('Business Capability: ', '');
+      console.log('MetisMap extracting search term from scope:', term);
+      setInternalSearchTerm(term);
+    } else if (searchTerm) {
+      console.log('MetisMap using direct search term:', searchTerm);
+      setInternalSearchTerm(searchTerm);
+    } else {
+      setInternalSearchTerm('');
+    }
+  }, [searchScope, searchTerm]);
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -630,7 +639,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     let baseCapabilities = capabilitiesToShow;
     
     // Apply capability search when only capabilities filter is enabled and there's a search term
-    if (searchTerm && searchTerm.trim() &&
+    if (internalSearchTerm && internalSearchTerm.trim() &&
         filters?.capabilities && 
         !filters?.applications && 
         !filters?.components && 
@@ -639,12 +648,12 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
         !filters?.initiatives &&
         allCapabilities?.length > 0) {
       
-      console.log('MetisMap applying capability search for term:', searchTerm);
+      console.log('MetisMap applying capability search for term:', internalSearchTerm);
       console.log('MetisMap filters:', filters);
       console.log('MetisMap allCapabilities count:', allCapabilities.length);
       
       // Find all capabilities that match the search term at any level
-      const searchTermLower = searchTerm.toLowerCase();
+      const searchTermLower = internalSearchTerm.toLowerCase();
       const matchingCapabilities = allCapabilities.filter(cap => 
         cap.name?.toLowerCase().includes(searchTermLower)
       );
@@ -710,8 +719,8 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       }
     }
     // Legacy search scope handling (keeping for compatibility)
-    else if (currentSearchScope && currentSearchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
-      const capabilityPath = currentSearchScope.replace('Business Capability: ', '');
+    else if (searchScope && searchScope.startsWith('Business Capability:') && allCapabilities?.length > 0) {
+      const capabilityPath = searchScope.replace('Business Capability: ', '');
       const pathParts = capabilityPath.split('/');
       
       console.log('MetisMap filtering capability path:', capabilityPath);
@@ -821,7 +830,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     
     console.log('MetisMap returning filtered capabilities:', baseCapabilities.length);
     return baseCapabilities;
-  }, [capabilitiesToShow, searchTerm, allCapabilities, currentLevel, filters]);
+  }, [capabilitiesToShow, internalSearchTerm, allCapabilities, currentLevel, filters]);
 
   // Force re-render when searchScope changes
   useEffect(() => {
