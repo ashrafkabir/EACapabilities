@@ -210,7 +210,8 @@ export default function Dashboard() {
           />
         );
       default:
-        return <MetisMap key={`metis-${searchScope}-${searchTerm}`} selectedCapability={selectedCapability} selectedITComponent={selectedITComponent} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} searchScope={searchScope} filters={filters} />;
+        console.log('Dashboard rendering MetisMap with searchScope:', searchScope);
+        return <MetisMap key={`metis-${searchScope}-${searchTerm}-${Date.now()}`} selectedCapability={selectedCapability} selectedITComponent={selectedITComponent} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} searchScope={searchScope} filters={filters} />;
     }
   };
 
