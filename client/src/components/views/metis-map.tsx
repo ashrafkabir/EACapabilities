@@ -291,14 +291,43 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   
   // Find capabilities that match the search criteria based on active filters
   const allMatchingCapabilities = searchTerm ? (() => {
+    console.log('MetisMap search term:', searchTerm);
+    console.log('MetisMap filters:', filters);
+    
     // Determine search scope based on filters
     const searchComponents = filters.components && !filters.capabilities && !filters.applications && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
     const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
     const searchInterfacesOnly = filters.interfaces && !filters.capabilities && !filters.applications && !filters.components && !filters.dataObjects && !filters.initiatives;
     const searchDataObjectsOnly = filters.dataObjects && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.initiatives;
     const searchInitiativesOnly = filters.initiatives && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects;
+    const searchCapabilitiesOnly = filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
     
-    if (searchComponents) {
+    console.log('MetisMap search scopes:', { 
+      searchComponents, 
+      searchApplicationsOnly, 
+      searchInterfacesOnly, 
+      searchDataObjectsOnly, 
+      searchInitiativesOnly,
+      searchCapabilitiesOnly 
+    });
+    
+    if (searchCapabilitiesOnly) {
+      // Capability-only search - return capabilities that match the search term directly
+      console.log('MetisMap capability-only search for:', searchTerm);
+      const matchingCapabilities = allCapabilities.filter(cap => {
+        const matches = cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                       (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                       (cap.level1Capability && cap.level1Capability.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                       (cap.level2Capability && cap.level2Capability.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                       (cap.level3Capability && cap.level3Capability.toLowerCase().includes(searchTerm.toLowerCase()));
+        if (matches) {
+          console.log('MetisMap found matching capability:', cap.name, 'level:', cap.level);
+        }
+        return matches;
+      });
+      console.log('MetisMap capability-only results:', matchingCapabilities.length);
+      return matchingCapabilities;
+    } else if (searchComponents) {
       // IT Component search: find components that match, then find applications using them, then find capabilities
       const matchingComponents = itComponents.filter(comp =>
         comp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -583,9 +612,13 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
         });
       }
       
-      return Array.from(matchingCapabilities);
+      const finalResults = Array.from(matchingCapabilities);
+      console.log('MetisMap final matching capabilities:', finalResults.length);
+      return finalResults;
     }
   })() : null;
+  
+  console.log('MetisMap allMatchingCapabilities:', allMatchingCapabilities?.length || 0);
 
 
 
@@ -594,25 +627,30 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   // If searching, find the capabilities that should be shown at the current display level
   const filteredCapabilities = searchTerm && allMatchingCapabilities ? 
     capabilitiesToShow.filter(cap => {
-      // If the capability itself matches and is at the current display level, include it
-      if (allMatchingCapabilities.some(match => match.id === cap.id && match.level === currentLevel)) {
-        return true;
-      }
+      // Check if this capability directly matches the search
+      const directMatch = allMatchingCapabilities.some(match => match.id === cap.id);
       
-      // If any descendant capabilities match, include this ancestor at the current display level
+      // Check if any descendant capabilities match and should bubble up to this level
       const hasMatchingDescendants = allMatchingCapabilities.some(match => {
         if (currentLevel === 1) {
-          // For Level 1 display, include if any L2 or L3 capabilities have this as their L1 parent
-          return match.level1Capability === cap.name;
+          // At L1 view, include if any L2 or L3 capabilities have this as their L1 parent
+          return match.level1Capability === cap.name || match.level1Capability === cap.level1Capability;
         } else if (currentLevel === 2) {
-          // For Level 2 display, include if any L3 capabilities have this as their L2 parent
-          return match.level2Capability === cap.name;
+          // At L2 view, include if any L3 capabilities have this as their L2 parent
+          return match.level2Capability === cap.name || match.level2Capability === cap.level2Capability;
         }
         return false;
       });
       
-      return hasMatchingDescendants;
+      const shouldInclude = directMatch || hasMatchingDescendants;
+      if (shouldInclude) {
+        console.log('MetisMap including capability:', cap.name, 'directMatch:', directMatch, 'hasDescendants:', hasMatchingDescendants);
+      }
+      return shouldInclude;
     }) : capabilitiesToShow;
+    
+  console.log('MetisMap capabilitiesToShow:', capabilitiesToShow.length);
+  console.log('MetisMap filteredCapabilities:', filteredCapabilities.length);
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
