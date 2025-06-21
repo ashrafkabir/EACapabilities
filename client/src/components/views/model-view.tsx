@@ -415,7 +415,7 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
                   app.name.toLowerCase().includes(scopeSearchTerm)
                 );
               } else if (entityLinkedApps.length > 0) {
-                const capabilityApps = getApplicationsForCapability(item.name);
+                const capabilityApps = getApplicationsForCapability(item.name, allApplications);
                 const hasLinkedApps = capabilityApps.some(app => 
                   entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                 );
@@ -445,11 +445,11 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
               // Keep L2 groups that have L3 items with linked applications
               return group.level3Items.some(item => {
                 if (searchScope.startsWith('Application:')) {
-                  return getApplicationsForCapability(item.name).some(app => 
+                  return getApplicationsForCapability(item.name, allApplications).some(app => 
                     app.name.toLowerCase().includes(scopeSearchTerm)
                   );
                 } else {
-                  const capabilityApps = getApplicationsForCapability(item.name);
+                  const capabilityApps = getApplicationsForCapability(item.name, allApplications);
                   return capabilityApps.some(app => 
                     entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                   );
@@ -459,11 +459,11 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
               ...group,
               level3Items: group.level3Items.filter(item => {
                 if (searchScope.startsWith('Application:')) {
-                  return getApplicationsForCapability(item.name).some(app => 
+                  return getApplicationsForCapability(item.name, allApplications).some(app => 
                     app.name.toLowerCase().includes(scopeSearchTerm)
                   );
                 } else {
-                  const capabilityApps = getApplicationsForCapability(item.name);
+                  const capabilityApps = getApplicationsForCapability(item.name, allApplications);
                   const hasLinkedApps = capabilityApps.some(app => 
                     entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
                   );

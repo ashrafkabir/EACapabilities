@@ -4,6 +4,7 @@ import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 import ExportSummaryModal from "@/components/modals/export-summary-modal";
+import { getCapabilitiesMatchingSearch, getApplicationsForCapability } from "@/lib/search-utils";
 
 interface MetisMapProps {
   selectedCapability: string | null;
@@ -289,18 +290,21 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
   const capabilitiesToShow = getCapabilitiesToShow();
   
-  // Find capabilities that match the search criteria based on active filters
+  // Find capabilities that match the search criteria using unified search
   const allMatchingCapabilities = searchTerm ? (() => {
     console.log('MetisMap search term:', searchTerm);
     console.log('MetisMap filters:', filters);
     
-    // Determine search scope based on filters
-    const searchComponents = filters.components && !filters.capabilities && !filters.applications && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
-    const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
-    const searchInterfacesOnly = filters.interfaces && !filters.capabilities && !filters.applications && !filters.components && !filters.dataObjects && !filters.initiatives;
-    const searchDataObjectsOnly = filters.dataObjects && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.initiatives;
-    const searchInitiativesOnly = filters.initiatives && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects;
-    const searchCapabilitiesOnly = filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
+    const searchContext = {
+      allCapabilities,
+      applications,
+      itComponents,
+      interfaces,
+      dataObjects,
+      initiatives
+    };
+    
+    return getCapabilitiesMatchingSearch(searchTerm, null, filters, searchContext);
     
     console.log('MetisMap search scopes:', { 
       searchComponents, 
