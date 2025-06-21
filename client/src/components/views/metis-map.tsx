@@ -630,16 +630,18 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     let baseCapabilities = capabilitiesToShow;
     
     // Apply capability search when only capabilities filter is enabled and there's a search term
-    if (searchTerm && 
-        filters.capabilities && 
-        !filters.applications && 
-        !filters.components && 
-        !filters.interfaces && 
-        !filters.dataObjects && 
-        !filters.initiatives &&
+    if (searchTerm && searchTerm.trim() &&
+        filters?.capabilities && 
+        !filters?.applications && 
+        !filters?.components && 
+        !filters?.interfaces && 
+        !filters?.dataObjects && 
+        !filters?.initiatives &&
         allCapabilities?.length > 0) {
       
       console.log('MetisMap applying capability search for term:', searchTerm);
+      console.log('MetisMap filters:', filters);
+      console.log('MetisMap allCapabilities count:', allCapabilities.length);
       
       // Find all capabilities that match the search term at any level
       const searchTermLower = searchTerm.toLowerCase();
