@@ -675,19 +675,18 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       // Filter to show only capabilities in the hierarchy
       baseCapabilities = allCapabilities.filter(cap => hierarchyCapabilities.has(cap.id));
       
-      // Navigate to show the first matching capability's context
+      // Navigate to show matches in context - start from Level 1 to show complete hierarchy
       if (matchingCapabilities.length > 0) {
-        const firstMatch = matchingCapabilities[0];
-        if (firstMatch.level === 1) {
-          setCurrentLevel(1);
-          setSelectedParent(null);
-        } else if (firstMatch.level === 2) {
-          setCurrentLevel(2);  
-          setSelectedParent(firstMatch.level1Capability);
-        } else if (firstMatch.level === 3) {
-          setCurrentLevel(3);
-          setSelectedParent(firstMatch.level2Capability);
-        }
+        // Always start at Level 1 to show the complete hierarchy
+        setCurrentLevel(1);
+        setSelectedParent(null);
+        
+        // If there are L2 or L3 matches, we might want to highlight them later
+        const hasL1Match = matchingCapabilities.some(cap => cap.level === 1);
+        const hasL2Match = matchingCapabilities.some(cap => cap.level === 2);
+        const hasL3Match = matchingCapabilities.some(cap => cap.level === 3);
+        
+        console.log('MetisMap match levels - L1:', hasL1Match, 'L2:', hasL2Match, 'L3:', hasL3Match);
       }
       
       console.log('MetisMap filtered capabilities length:', baseCapabilities.length);

@@ -87,6 +87,7 @@ export default function Dashboard() {
       if (enabledFilters.length === 1) {
         const [filterType] = enabledFilters[0];
         if (filterType === 'capabilities') {
+          // For capability search, we need to find matches at any level and build the hierarchy path
           setSearchScope(`Business Capability: ${term}`);
         } else if (filterType === 'applications') {
           setSearchScope(`Application: ${term}`);
