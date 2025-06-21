@@ -10,12 +10,28 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Plus, Minus, Search, Check, ChevronsUpDown, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { BusinessCapability, Application } from "@shared/schema";
+import { 
+  getApplicationsForCapability, 
+  getApplicationsLinkedToITComponent, 
+  getApplicationsLinkedToInterface, 
+  getApplicationsLinkedToDataObject, 
+  getApplicationsLinkedToInitiative,
+  filterCapabilitiesBySearch
+} from "@/lib/search-utils";
 
 interface ModelViewProps {
   searchTerm: string;
   selectedCapability: string | null;
   selectedITComponent?: string | null;
   searchScope: string | null;
+  filters: {
+    capabilities: boolean;
+    applications: boolean;
+    components: boolean;
+    interfaces: boolean;
+    dataObjects: boolean;
+    initiatives: boolean;
+  };
 }
 
 interface ColumnData {
@@ -30,7 +46,7 @@ interface ColumnData {
   }[];
 }
 
-export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability, selectedITComponent, searchScope }: ModelViewProps) {
+export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability, selectedITComponent, searchScope, filters }: ModelViewProps) {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [applicationSearchTerm, setApplicationSearchTerm] = useState("");

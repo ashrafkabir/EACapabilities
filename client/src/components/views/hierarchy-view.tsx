@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application } from "@shared/schema";
+import { filterCapabilitiesBySearch, getApplicationsForCapability } from "@/lib/search-utils";
 
 interface CapabilityNode extends BusinessCapability {
   children?: CapabilityNode[];
@@ -17,12 +18,30 @@ interface HierarchyViewProps {
   selectedCapability: string | null;
   onEntitySelect: (entity: EntityReference) => void;
   searchTerm: string;
+  searchScope?: string | null;
+  filters?: {
+    capabilities: boolean;
+    applications: boolean;
+    components: boolean;
+    interfaces: boolean;
+    dataObjects: boolean;
+    initiatives: boolean;
+  };
 }
 
 export default function HierarchyView({
   selectedCapability,
   onEntitySelect,
-  searchTerm
+  searchTerm,
+  searchScope = null,
+  filters = {
+    capabilities: true,
+    applications: true,
+    components: true,
+    interfaces: true,
+    dataObjects: true,
+    initiatives: true
+  }
 }: HierarchyViewProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   
@@ -32,6 +51,22 @@ export default function HierarchyView({
 
   const { data: applications = [] } = useQuery<Application[]>({
     queryKey: ['/api/applications'],
+  });
+
+  const { data: itComponents = [] } = useQuery<any[]>({
+    queryKey: ['/api/it-components'],
+  });
+
+  const { data: interfaces = [] } = useQuery<any[]>({
+    queryKey: ['/api/interfaces'],
+  });
+
+  const { data: dataObjects = [] } = useQuery<any[]>({
+    queryKey: ['/api/data-objects'],
+  });
+
+  const { data: initiatives = [] } = useQuery<any[]>({
+    queryKey: ['/api/initiatives'],
   });
 
   // Build hierarchical tree structure
@@ -81,7 +116,44 @@ export default function HierarchyView({
       }
     });
     
-    return roots.sort((a, b) => (a.level || 1) - (b.level || 1));
+    // Apply search filtering
+    const searchContext = {
+      allCapabilities: capabilities,
+      applications,
+      itComponents,
+      interfaces,
+      dataObjects,
+      initiatives
+    };
+
+    const filteredCapabilities = filterCapabilitiesBySearch(
+      capabilities,
+      searchTerm,
+      searchScope,
+      filters,
+      searchContext
+    );
+
+    const filteredCapabilityIds = new Set(filteredCapabilities.map(cap => cap.id));
+
+    // Filter the tree to only show matching capabilities and their ancestors/descendants
+    const filterTreeForSearch = (nodes: CapabilityNode[]): CapabilityNode[] => {
+      return nodes.map(node => {
+        const hasMatchingDescendants = node.children && filterTreeForSearch(node.children).length > 0;
+        const isDirectMatch = filteredCapabilityIds.has(node.id);
+        
+        if (isDirectMatch || hasMatchingDescendants) {
+          return {
+            ...node,
+            children: node.children ? filterTreeForSearch(node.children) : []
+          };
+        }
+        return null;
+      }).filter(Boolean) as CapabilityNode[];
+    };
+
+    const finalRoots = (searchTerm || searchScope) ? filterTreeForSearch(roots) : roots;
+    return finalRoots.sort((a, b) => (a.level || 1) - (b.level || 1));
   };
 
   const toggleNode = (nodeId: string) => {
