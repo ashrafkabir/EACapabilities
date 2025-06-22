@@ -315,12 +315,20 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
-  // If searching, show capabilities that match the search or contain matching subcapabilities
-  const filteredCapabilities = searchTerm && Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.length > 0 ? 
-    capabilitiesToShow.filter(cap => {
-      // Show if this capability is in the matching results
-      return allMatchingCapabilities.some(match => match.id === cap.id);
-    }) : capabilitiesToShow;
+  // Filter capabilities to show based on search results
+  const filteredCapabilities = useMemo(() => {
+    if (!searchTerm?.trim() || allMatchingCapabilities.length === 0) {
+      return capabilitiesToShow;
+    }
+    
+    // Show only capabilities that are in the search results and match the current display level
+    const filtered = capabilitiesToShow.filter(cap => 
+      allMatchingCapabilities.some(match => match.id === cap.id)
+    );
+    
+    console.log('Filtered capabilities for level', currentLevel, ':', filtered.map(c => `${c.name} (L${c.level})`));
+    return filtered;
+  }, [searchTerm, allMatchingCapabilities, capabilitiesToShow, currentLevel]);
     
   console.log('MetisMap capabilitiesToShow:', capabilitiesToShow.length);
   console.log('MetisMap filteredCapabilities:', filteredCapabilities.length);
