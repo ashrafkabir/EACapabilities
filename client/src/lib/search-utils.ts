@@ -177,6 +177,7 @@ export function getCapabilitiesMatchingSearch(
       }
     });
     
+    console.log('Search results for', searchTerm, ':', Array.from(parentCapabilities).map(c => `${c.name} (L${c.level})`));
     return Array.from(parentCapabilities);
   }
 

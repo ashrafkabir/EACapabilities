@@ -308,6 +308,8 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   }) : [];
   
   console.log('MetisMap allMatchingCapabilities:', allMatchingCapabilities?.length || 0);
+  console.log('MetisMap current level:', currentLevel);
+  console.log('MetisMap capabilitiesToShow before filter:', capabilitiesToShow.map(c => `${c.name} (L${c.level})`));
 
 
 
@@ -322,6 +324,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     
   console.log('MetisMap capabilitiesToShow:', capabilitiesToShow.length);
   console.log('MetisMap filteredCapabilities:', filteredCapabilities.length);
+  console.log('MetisMap filteredCapabilities names:', filteredCapabilities.map(c => `${c.name} (L${c.level})`));
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
