@@ -313,29 +313,11 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
-  // If searching, find the capabilities that should be shown at the current display level
+  // If searching, show only matching capabilities and their necessary parents/children
   const filteredCapabilities = searchTerm && Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.length > 0 ? 
     capabilitiesToShow.filter(cap => {
-      // Check if this capability directly matches the search
-      const directMatch = Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.some(match => match.id === cap.id);
-      
-      // Check if any descendant capabilities match and should bubble up to this level
-      const hasMatchingDescendants = Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.some(match => {
-        if (currentLevel === 1) {
-          // At L1 view, include if any L2 or L3 capabilities have this as their L1 parent
-          return match.level1Capability === cap.name || match.level1Capability === cap.level1Capability;
-        } else if (currentLevel === 2) {
-          // At L2 view, include if any L3 capabilities have this as their L2 parent
-          return match.level2Capability === cap.name || match.level2Capability === cap.level2Capability;
-        }
-        return false;
-      });
-      
-      const shouldInclude = directMatch || hasMatchingDescendants;
-      if (shouldInclude) {
-        console.log('MetisMap including capability:', cap.name, 'directMatch:', directMatch, 'hasDescendants:', hasMatchingDescendants);
-      }
-      return shouldInclude;
+      // Only show capabilities that are in the matching results
+      return allMatchingCapabilities.some(match => match.id === cap.id);
     }) : capabilitiesToShow;
     
   console.log('MetisMap capabilitiesToShow:', capabilitiesToShow.length);

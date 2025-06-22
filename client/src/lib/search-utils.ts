@@ -142,14 +142,16 @@ export function getCapabilitiesMatchingSearch(
   const searchCapabilitiesOnly = filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
 
   if (searchCapabilitiesOnly || (!searchComponents && !searchApplicationsOnly && !searchInterfacesOnly && !searchDataObjectsOnly && !searchInitiativesOnly)) {
-    // Direct capability search
-    return context.allCapabilities.filter(cap => {
+    // Direct capability search - only return exact matches and their hierarchy
+    const directMatches = context.allCapabilities.filter(cap => {
       return cap.name.toLowerCase().includes(searchLower) ||
              (cap.displayName && cap.displayName.toLowerCase().includes(searchLower)) ||
              (cap.level1Capability && cap.level1Capability.toLowerCase().includes(searchLower)) ||
              (cap.level2Capability && cap.level2Capability.toLowerCase().includes(searchLower)) ||
              (cap.level3Capability && cap.level3Capability.toLowerCase().includes(searchLower));
     });
+    
+    return getRelatedCapabilities(directMatches, context.allCapabilities);
   }
 
   // Entity-based search - find capabilities through linked applications
