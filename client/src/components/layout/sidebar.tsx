@@ -1,8 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, ChevronDown, Search, Building, Users, Factory, Layers, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -150,114 +149,54 @@ export default function Sidebar({
         <h1 className="text-xl font-medium text-foreground">
           REA Landscape Navigator
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Navigate capabilities, applications & components
+        <p className="text-sm text-muted-foreground">
+          Explore business capabilities and their relationships
         </p>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="p-4 border-b border-border space-y-4">
-        {/* Search Scope Indicator */}
         {searchScope && (
-          <div className="bg-primary/10 border border-primary/20 rounded-md p-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-primary">Current Filter:</span>
-              <button 
-                onClick={() => onSearchChange('')}
-                className="text-primary hover:text-primary/80"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="text-xs text-primary/80 mt-1 truncate">{searchScope}</p>
+          <div className="mt-2 p-2 bg-primary/10 rounded-lg border border-primary/20">
+            <p className="text-xs text-primary font-medium">
+              {searchScope}
+            </p>
           </div>
         )}
-        
+      </div>
+
+      {/* Search */}
+      <div className="p-4 border-b border-border">
         <div className="relative">
-          <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search capabilities, applications, and components... (Press Enter to search)"
-            defaultValue={searchTerm}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter') {
-                onSearchChange((e.target as HTMLInputElement).value);
-              }
-            }}
-            onBlur={(e) => {
-              // Clear search if input becomes empty
-              if (!e.target.value.trim()) {
-                onSearchChange('');
-              }
-            }}
-            className="pl-10"
+            type="text"
+            placeholder="Search business capabilities..."
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10 pr-10"
           />
-        </div>
-
-
-
-        <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="capabilities"
-              checked={filters.capabilities}
-              onCheckedChange={(checked) => handleFilterChange('capabilities', !!checked)}
-            />
-            <label htmlFor="capabilities" className="text-sm">Business Capabilities</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="applications"
-              checked={filters.applications}
-              onCheckedChange={(checked) => handleFilterChange('applications', !!checked)}
-            />
-            <label htmlFor="applications" className="text-sm">Applications</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="components"
-              checked={filters.components}
-              onCheckedChange={(checked) => handleFilterChange('components', !!checked)}
-            />
-            <label htmlFor="components" className="text-sm">IT Components</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="interfaces"
-              checked={filters.interfaces}
-              onCheckedChange={(checked) => handleFilterChange('interfaces', !!checked)}
-            />
-            <label htmlFor="interfaces" className="text-sm">Interfaces</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="dataObjects"
-              checked={filters.dataObjects}
-              onCheckedChange={(checked) => handleFilterChange('dataObjects', !!checked)}
-            />
-            <label htmlFor="dataObjects" className="text-sm">Data Objects</label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="initiatives"
-              checked={filters.initiatives}
-              onCheckedChange={(checked) => handleFilterChange('initiatives', !!checked)}
-            />
-            <label htmlFor="initiatives" className="text-sm">Initiatives</label>
-          </div>
+          {searchTerm && (
+            <button
+              onClick={() => onSearchChange('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
 
       {/* Capability Tree */}
-      <div className="flex-1 overflow-hidden">
-        <div className="p-4">
-          <h3 className="font-medium text-foreground mb-3">Business Capabilities</h3>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-2">
+          {filteredHierarchy.length > 0 ? (
+            filteredHierarchy.map(node => renderCapabilityNode(node))
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-sm text-muted-foreground">
+                {searchTerm ? 'No capabilities found matching your search.' : 'No capabilities available.'}
+              </p>
+            </div>
+          )}
         </div>
-        <ScrollArea className="flex-1 px-4 pb-4">
-          <div className="space-y-1">
-            {hierarchy.map(node => renderCapabilityNode(node))}
-          </div>
-        </ScrollArea>
-      </div>
+      </ScrollArea>
     </div>
   );
 }

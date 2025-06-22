@@ -283,21 +283,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   const capabilitiesToShow = getCapabilitiesToShow();
   
   // Find capabilities that match the search criteria using unified search
-  const allMatchingCapabilities = searchTerm ? (() => {
-    console.log('MetisMap search term:', searchTerm);
-    console.log('MetisMap filters:', filters);
-    
-    const searchContext = {
-      allCapabilities,
-      applications,
-      itComponents,
-      interfaces,
-      dataObjects,
-      initiatives
-    };
-    
-    return findMatchingL1Capabilities(searchTerm, filters, searchContext);
-  }) : [];
+  const allMatchingCapabilities = searchTerm ? filterCapabilitiesByName(allCapabilities, searchTerm) : [];
   
   console.log('MetisMap allMatchingCapabilities:', allMatchingCapabilities?.length || 0);
   console.log('MetisMap current level:', currentLevel);
@@ -1285,7 +1271,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       console.log('Export called with current state - Level:', currentLevel, 'Parent:', selectedParent);
       performDirectExport();
     };
-  }, [currentLevel, selectedParent, selectedITComponent, selectedInterface, selectedDataObject, selectedInitiative, searchTerm, filters]);
+  }, [currentLevel, selectedParent, selectedITComponent, selectedInterface, selectedDataObject, selectedInitiative, searchTerm]);
 
   // Listen for export event - use ref to call latest version
   useEffect(() => {
@@ -1559,8 +1545,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                     const directMatch = Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.some(match => match.id === capability.id);
                     
                     if (directMatch) {
-                      // Determine search scope based on filters
-                      const searchComponents = filters.components && !filters.capabilities && !filters.applications;
+                      // Direct capability selection
                       
                       if (searchComponents) {
                         // Show IT component matches
@@ -1607,7 +1592,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                             </div>
                           );
                         }
-                      } else if (filters.interfaces && !filters.capabilities && !filters.applications && !filters.components) {
+                      // Interface selection logic removed
                         // Show interface matches
                         const matchingInterfaces = interfaces.filter(intf =>
                           intf.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -1652,7 +1637,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                             </div>
                           );
                         }
-                      } else if (filters.dataObjects && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.initiatives) {
+                      // Data object selection logic removed
                         // Show data object matches
                         const matchingDataObjects = dataObjects.filter(obj =>
                           obj.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1706,7 +1691,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                             </div>
                           );
                         }
-                      } else if (filters.initiatives && !filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects) {
+                      // Initiative selection logic removed
                         // Show initiative matches
                         const matchingInitiatives = initiatives.filter(init =>
                           init.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1741,7 +1726,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                             </div>
                           );
                         }
-                      } else if (filters.applications && !filters.capabilities && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives) {
+                      // Application selection logic removed
                         // Show application matches
                         const relatedApps = applications.filter(app => {
                           if (!app.businessCapabilities) return false;
@@ -1807,8 +1792,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                       
                       if (descendantMatches.length > 0) {
                         const levelName = currentLevel === 1 ? 'sub-capabilities' : 'detailed capabilities';
-                        const searchComponents = filters.components && !filters.capabilities && !filters.applications;
-                        const searchApplicationsOnly = filters.applications && !filters.capabilities && !filters.components;
+                        // Simplified capability expansion
                         const searchTypeLabel = searchComponents ? 'IT components' : searchApplicationsOnly ? 'applications' : 'matches';
                         return (
                           <div className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">

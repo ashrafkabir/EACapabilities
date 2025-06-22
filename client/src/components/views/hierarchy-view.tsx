@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application } from "@shared/schema";
-import { filterCapabilitiesBySearch } from "@/lib/unified-search";
+import { filterCapabilitiesByName } from "@/lib/unified-search";
 
 interface CapabilityNode extends BusinessCapability {
   children?: CapabilityNode[];
@@ -19,29 +19,13 @@ interface HierarchyViewProps {
   onEntitySelect: (entity: EntityReference) => void;
   searchTerm: string;
   searchScope?: string | null;
-  filters?: {
-    capabilities: boolean;
-    applications: boolean;
-    components: boolean;
-    interfaces: boolean;
-    dataObjects: boolean;
-    initiatives: boolean;
-  };
 }
 
 export default function HierarchyView({
   selectedCapability,
   onEntitySelect,
   searchTerm,
-  searchScope = null,
-  filters = {
-    capabilities: true,
-    applications: true,
-    components: true,
-    interfaces: true,
-    dataObjects: true,
-    initiatives: true
-  }
+  searchScope = null
 }: HierarchyViewProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   
@@ -117,28 +101,7 @@ export default function HierarchyView({
     });
     
     // Apply search filtering
-    const searchContext = {
-      allCapabilities: capabilities,
-      applications,
-      itComponents,
-      interfaces, 
-      dataObjects,
-      initiatives
-    };
-    
-    const filteredCapabilities = filterCapabilitiesBySearch(
-      capabilities,
-      searchTerm,
-      filters || {
-        capabilities: true,
-        applications: true,
-        components: true,
-        interfaces: true,
-        dataObjects: true,
-        initiatives: true
-      },
-      searchContext
-    );
+    const filteredCapabilities = filterCapabilitiesByName(capabilities, searchTerm);
     
     // Rebuild tree with filtered capabilities
     const filteredNodeMap = new Map<string, CapabilityNode>();
