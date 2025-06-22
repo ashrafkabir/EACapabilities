@@ -186,9 +186,19 @@ export default function Sidebar({
         <div className="relative">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search capabilities, applications, and components..."
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search capabilities, applications, and components... (Press Enter to search)"
+            defaultValue={searchTerm}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                onSearchChange((e.target as HTMLInputElement).value);
+              }
+            }}
+            onBlur={(e) => {
+              // Clear search if input becomes empty
+              if (!e.target.value.trim()) {
+                onSearchChange('');
+              }
+            }}
             className="pl-10"
           />
         </div>

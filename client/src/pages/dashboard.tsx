@@ -65,11 +65,9 @@ export default function Dashboard() {
   };
 
   const handleViewChange = (view: ViewType) => {
-    // Reset search and navigation when switching tabs
-    setSearchTerm('');
+    // Don't reset search when switching tabs to maintain unified search
     setSelectedCapability(null);
     setSelectedITComponent(null);
-    setSearchScope(null);
     setCurrentView(view);
   };
 
