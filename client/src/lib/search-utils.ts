@@ -264,31 +264,7 @@ export function getCapabilitiesMatchingSearch(
   });
 }
 
-// Helper function to get minimal related capabilities - only matching capabilities and their necessary parents
-function getMinimalRelatedCapabilities(matchedCapabilities: BusinessCapability[], allCapabilities: BusinessCapability[]): BusinessCapability[] {
-  const relatedCapabilities = new Set<BusinessCapability>();
-  
-  matchedCapabilities.forEach(cap => {
-    // Add the matched capability itself
-    relatedCapabilities.add(cap);
-    
-    // Add parent capabilities for context (needed for navigation)
-    if (cap.level === 2 || cap.level === 3) {
-      const parentCaps = allCapabilities.filter(parent => {
-        if (cap.level === 2) {
-          return parent.level === 1 && parent.name === cap.level1Capability;
-        } else if (cap.level === 3) {
-          return (parent.level === 1 && parent.name === cap.level1Capability) ||
-                 (parent.level === 2 && parent.name === cap.level2Capability);
-        }
-        return false;
-      });
-      parentCaps.forEach(parent => relatedCapabilities.add(parent));
-    }
-  });
-  
-  return Array.from(relatedCapabilities);
-}
+
 
 export function filterCapabilitiesBySearch(
   capabilities: BusinessCapability[],
