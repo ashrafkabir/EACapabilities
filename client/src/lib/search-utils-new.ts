@@ -24,6 +24,8 @@ export function getCapabilitiesMatchingSearch(
   filters: SearchFilters,
   context: SearchContext
 ): BusinessCapability[] {
+  console.log('SEARCH FUNCTION CALLED with term:', searchTerm);
+  
   if (!searchTerm?.trim()) {
     console.log('No search term provided');
     return [];
