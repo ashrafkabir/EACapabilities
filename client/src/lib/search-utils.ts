@@ -142,16 +142,14 @@ export function getCapabilitiesMatchingSearch(
   const searchCapabilitiesOnly = filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
 
   if (searchCapabilitiesOnly || (!searchComponents && !searchApplicationsOnly && !searchInterfacesOnly && !searchDataObjectsOnly && !searchInitiativesOnly)) {
-    // Direct capability search - only return exact matches and their hierarchy
+    // Direct capability search - only capabilities with names that contain the search term
     const directMatches = context.allCapabilities.filter(cap => {
       return cap.name.toLowerCase().includes(searchLower) ||
-             (cap.displayName && cap.displayName.toLowerCase().includes(searchLower)) ||
-             (cap.level1Capability && cap.level1Capability.toLowerCase().includes(searchLower)) ||
-             (cap.level2Capability && cap.level2Capability.toLowerCase().includes(searchLower)) ||
-             (cap.level3Capability && cap.level3Capability.toLowerCase().includes(searchLower));
+             (cap.displayName && cap.displayName.toLowerCase().includes(searchLower));
     });
     
-    return getRelatedCapabilities(directMatches, context.allCapabilities);
+    // Only return matching capabilities and their necessary parent hierarchy (not children unless they also match)
+    return getMinimalRelatedCapabilities(directMatches, context.allCapabilities);
   }
 
   // Entity-based search - find capabilities through linked applications
@@ -235,6 +233,32 @@ export function getCapabilitiesMatchingSearch(
       matchingApplications.some(matchApp => matchApp.id === app.id)
     );
   });
+}
+
+// Helper function to get minimal related capabilities - only matching capabilities and their necessary parents
+function getMinimalRelatedCapabilities(matchedCapabilities: BusinessCapability[], allCapabilities: BusinessCapability[]): BusinessCapability[] {
+  const relatedCapabilities = new Set<BusinessCapability>();
+  
+  matchedCapabilities.forEach(cap => {
+    // Add the matched capability itself
+    relatedCapabilities.add(cap);
+    
+    // Add parent capabilities for context (needed for navigation)
+    if (cap.level === 2 || cap.level === 3) {
+      const parentCaps = allCapabilities.filter(parent => {
+        if (cap.level === 2) {
+          return parent.level === 1 && parent.name === cap.level1Capability;
+        } else if (cap.level === 3) {
+          return (parent.level === 1 && parent.name === cap.level1Capability) ||
+                 (parent.level === 2 && parent.name === cap.level2Capability);
+        }
+        return false;
+      });
+      parentCaps.forEach(parent => relatedCapabilities.add(parent));
+    }
+  });
+  
+  return Array.from(relatedCapabilities);
 }
 
 export function filterCapabilitiesBySearch(
