@@ -314,7 +314,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
   // If searching, find the capabilities that should be shown at the current display level
-  const filteredCapabilities = searchTerm && allMatchingCapabilities.length > 0 ? 
+  const filteredCapabilities = searchTerm && Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.length > 0 ? 
     capabilitiesToShow.filter(cap => {
       // Check if this capability directly matches the search
       const directMatch = allMatchingCapabilities.some(match => match.id === cap.id);
@@ -1566,7 +1566,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                   
                   {searchTerm && allMatchingCapabilities && (() => {
                     // Check if this capability is shown because of direct matches
-                    const directMatch = allMatchingCapabilities.some(match => match.id === capability.id);
+                    const directMatch = Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.some(match => match.id === capability.id);
                     
                     if (directMatch) {
                       // Determine search scope based on filters
