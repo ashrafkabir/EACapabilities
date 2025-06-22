@@ -1,4 +1,4 @@
-import { BusinessCapability, Application, ITComponent, Interface, DataObject, Initiative } from '@/../../shared/schema';
+import { BusinessCapability, Application, ITComponent, Interface, DataObject, Initiative } from '../../shared/schema';
 
 export interface SearchFilters {
   capabilities: boolean;
@@ -30,8 +30,8 @@ export function getCapabilitiesMatchingSearch(
   }
   
   const searchLower = searchTerm.toLowerCase().trim();
-  console.log('Starting search for:', searchTerm, 'with filters:', filters);
-  console.log('Total capabilities available:', context.allCapabilities.length);
+  console.log('Search-utils-new: Starting search for:', searchTerm, 'with filters:', filters);
+  console.log('Search-utils-new: Total capabilities available:', context.allCapabilities.length);
   
   // Find all matching capabilities
   const matchingCapabilities = new Set<BusinessCapability>();
@@ -41,14 +41,17 @@ export function getCapabilitiesMatchingSearch(
     (!filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives);
   
   if (shouldSearchCapabilities) {
-    console.log('Searching capabilities directly...');
+    console.log('Search-utils-new: Searching capabilities directly...');
     const directMatches = context.allCapabilities.filter(cap => {
       const nameMatch = cap.name.toLowerCase().includes(searchLower);
       const displayMatch = cap.displayName && cap.displayName.toLowerCase().includes(searchLower);
+      if (nameMatch || displayMatch) {
+        console.log('Search-utils-new: Found match:', cap.name, '(name match:', nameMatch, ', display match:', displayMatch, ')');
+      }
       return nameMatch || displayMatch;
     });
     
-    console.log('Direct capability matches found:', directMatches.map(c => `${c.name} (L${c.level})`));
+    console.log('Search-utils-new: Direct capability matches found:', directMatches.map(c => `${c.name} (L${c.level})`));
     directMatches.forEach(cap => matchingCapabilities.add(cap));
   }
   
