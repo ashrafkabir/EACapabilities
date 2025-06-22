@@ -142,14 +142,42 @@ export function getCapabilitiesMatchingSearch(
   const searchCapabilitiesOnly = filters.capabilities && !filters.applications && !filters.components && !filters.interfaces && !filters.dataObjects && !filters.initiatives;
 
   if (searchCapabilitiesOnly || (!searchComponents && !searchApplicationsOnly && !searchInterfacesOnly && !searchDataObjectsOnly && !searchInitiativesOnly)) {
-    // Direct capability search - only capabilities with names that contain the search term
+    // Direct capability search - find capabilities that match and their hierarchy
     const directMatches = context.allCapabilities.filter(cap => {
       return cap.name.toLowerCase().includes(searchLower) ||
              (cap.displayName && cap.displayName.toLowerCase().includes(searchLower));
     });
     
-    // Only return matching capabilities and their necessary parent hierarchy (not children unless they also match)
-    return getMinimalRelatedCapabilities(directMatches, context.allCapabilities);
+    // Also find parent capabilities that contain matching child capabilities
+    const parentCapabilities = new Set<BusinessCapability>();
+    
+    directMatches.forEach(matchedCap => {
+      // Add the matched capability itself
+      parentCapabilities.add(matchedCap);
+      
+      // Find and add parent capabilities
+      if (matchedCap.level === 2 || matchedCap.level === 3) {
+        // Find L1 parent
+        const l1Parent = context.allCapabilities.find(cap => 
+          cap.level === 1 && cap.name === matchedCap.level1Capability
+        );
+        if (l1Parent) {
+          parentCapabilities.add(l1Parent);
+        }
+        
+        // Find L2 parent for L3 capabilities
+        if (matchedCap.level === 3) {
+          const l2Parent = context.allCapabilities.find(cap => 
+            cap.level === 2 && cap.name === matchedCap.level2Capability
+          );
+          if (l2Parent) {
+            parentCapabilities.add(l2Parent);
+          }
+        }
+      }
+    });
+    
+    return Array.from(parentCapabilities);
   }
 
   // Entity-based search - find capabilities through linked applications

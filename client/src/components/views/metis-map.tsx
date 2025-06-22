@@ -313,10 +313,10 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
-  // If searching, show only matching capabilities and their necessary parents/children
+  // If searching, show capabilities that match the search or contain matching subcapabilities
   const filteredCapabilities = searchTerm && Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.length > 0 ? 
     capabilitiesToShow.filter(cap => {
-      // Only show capabilities that are in the matching results
+      // Show if this capability is in the matching results
       return allMatchingCapabilities.some(match => match.id === cap.id);
     }) : capabilitiesToShow;
     
