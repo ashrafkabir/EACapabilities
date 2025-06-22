@@ -10,14 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Plus, Minus, Search, Check, ChevronsUpDown, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import type { BusinessCapability, Application } from "@shared/schema";
-import { 
-  getApplicationsForCapability, 
-  getApplicationsLinkedToITComponent, 
-  getApplicationsLinkedToInterface, 
-  getApplicationsLinkedToDataObject, 
-  getApplicationsLinkedToInitiative
-} from "@/lib/search-utils";
-import { getCapabilitiesMatchingSearch, filterCapabilitiesBySearch } from "@/lib/search-utils-new";
+import { filterCapabilitiesBySearch } from "@/lib/unified-search";
 
 interface ModelViewProps {
   searchTerm: string;
@@ -112,8 +105,33 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     },
   });
 
+  const getApplicationsForCapability = (capabilityName: string): Application[] => {
+    return allApplications.filter(app => {
+      if (!app.businessCapabilities) return false;
+      
+      // Handle multiple capabilities separated by semicolons
+      const appCapabilities = app.businessCapabilities
+        .split(';')
+        .map(cap => cap.trim().replace(/^~/, ''));
+      
+      // Check for exact matches or hierarchical matches
+      return appCapabilities.some(appCap => {
+        // Exact match
+        if (appCap === capabilityName) return true;
+        
+        // Check if the capability name is contained in the app capability
+        if (appCap.includes(capabilityName)) return true;
+        
+        // Check if the app capability starts with the capability name
+        if (capabilityName.startsWith(appCap)) return true;
+        
+        return false;
+      });
+    });
+  };
+
   const getApplicationCountForCapability = (capabilityName: string): number => {
-    return getApplicationsForCapability(capabilityName, allApplications).length;
+    return getApplicationsForCapability(capabilityName).length;
   };
 
   const getInitiativesLinkedToCapability = (capabilityName: string): any[] => {
