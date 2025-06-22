@@ -101,7 +101,7 @@ export default function StackedMap({
     
     // Get applications linked to these components
     const linkedApps = new Set<string>();
-    matchingComponents.forEach((comp: any) => {
+    (matchingComponents || []).forEach((comp: any) => {
       if (comp.applications) {
         // Split by both comma and forward slash to handle different delimiters
         const delimiters = /[,/]/;
@@ -142,7 +142,7 @@ export default function StackedMap({
     
     // Get applications linked to these data objects
     const linkedApps = new Set<string>();
-    matchingDataObjects.forEach((obj: any) => {
+    (matchingDataObjects || []).forEach((obj: any) => {
       if (obj.relDataObjectToApplication) {
         obj.relDataObjectToApplication.split(',').forEach((appName: string) => {
           linkedApps.add(appName.trim());
@@ -152,7 +152,7 @@ export default function StackedMap({
     
     // Also consider applications connected via interfaces that use these data objects
     const dataObjectNames = matchingDataObjects.map(obj => obj.name);
-    interfaces.forEach((iface: any) => {
+    (interfaces || []).forEach((iface: any) => {
       // Check if interface references any of the matching data objects
       if (iface.dataObjects && dataObjectNames.some(objName => 
         iface.dataObjects.toLowerCase().includes(objName.toLowerCase())
@@ -175,7 +175,7 @@ export default function StackedMap({
     
     // Get applications linked to these initiatives
     const linkedApps = new Set<string>();
-    matchingInitiatives.forEach((init: any) => {
+    (matchingInitiatives || []).forEach((init: any) => {
       if (init.applications) {
         init.applications.split(',').forEach((appName: string) => {
           linkedApps.add(appName.trim());
@@ -249,7 +249,7 @@ export default function StackedMap({
   const buildColumnarHierarchy = (caps: BusinessCapability[]): CapabilityColumn[] => {
     const columnMap = new Map<string, CapabilityColumn>();
     
-    caps.forEach(cap => {
+    (caps || []).forEach(cap => {
       const level1Name = cap.level1Capability || cap.name;
       const level2Name = cap.level2Capability;
       const level3Name = cap.level === 3 ? cap.name : null;
@@ -297,14 +297,14 @@ export default function StackedMap({
     });
     
     // Sort level 2 groups and level 3 items by application count
-    sortedColumns.forEach(column => {
+    (sortedColumns || []).forEach(column => {
       column.level2Groups.sort((a, b) => {
         const aCount = getAggregatedApplicationCount(a.level2Id, 2);
         const bCount = getAggregatedApplicationCount(b.level2Id, 2);
         return bCount - aCount;
       });
       
-      column.level2Groups.forEach(group => {
+      (column.level2Groups || []).forEach(group => {
         group.level3Items.sort((a, b) => {
           const aCount = getAggregatedApplicationCount(a.id, 3);
           const bCount = getAggregatedApplicationCount(b.id, 3);
