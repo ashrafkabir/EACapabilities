@@ -4,13 +4,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import type { BusinessCapability, Application } from '@shared/schema';
+import { filterCapabilitiesByName } from '@/lib/unified-search';
 
 interface StackedMapProps {
   capabilities: BusinessCapability[];
   onCapabilitySelect: (cap: BusinessCapability) => void;
   searchTerm: string;
   selectedCapability: string | null;
-  searchScope: string | null;
 }
 
 interface CapabilityColumn {
@@ -57,8 +57,7 @@ export default function StackedMap({
   capabilities, 
   onCapabilitySelect, 
   searchTerm,
-  selectedCapability,
-  searchScope
+  selectedCapability
 }: StackedMapProps) {
   const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
   const [expandedLevel2Groups, setExpandedLevel2Groups] = useState<Set<string>>(new Set());
@@ -319,12 +318,12 @@ export default function StackedMap({
   // Build columnar hierarchy first, then filter
   const columnarCapabilities = buildColumnarHierarchy(capabilities);
 
-  // Filter columns based on search scope and search term
+  // Filter columns based on search term
   const filteredColumnarCapabilities = useMemo(() => {
     let filtered = columnarCapabilities;
     
-    // First apply search scope filtering if present
-    if (searchScope) {
+    // Apply search term filtering if present
+    if (searchTerm) {
       if (searchScope.startsWith('Business Capability:')) {
         const capabilityPath = searchScope.replace('Business Capability: ', '');
         const pathParts = capabilityPath.split('/');
