@@ -26,20 +26,6 @@ export default function Dashboard() {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
   const [searchScope, setSearchScope] = useState<string | null>(null); // Unified search scope across all tabs
-  const [filters, setFilters] = useState({
-    capabilities: true,
-    applications: true,
-    components: true,
-    interfaces: true,
-    dataObjects: true,
-    initiatives: true,
-  });
-
-  // Fetch business capabilities for stacked map
-  const { data: capabilities = [] } = useQuery<BusinessCapability[]>({
-    queryKey: ['/api/business-capabilities'],
-    enabled: currentView === 'hierarchy'
-  });
 
   const handleEntitySelect = (entity: EntityReference) => {
     setSelectedEntity(entity);
@@ -78,31 +64,9 @@ export default function Dashboard() {
     setSelectedCapability(null);
     setSelectedITComponent(null);
     
-    // Set search scope based on active filters and search term
+    // Set simple search scope
     if (term.trim()) {
-      const enabledFilters = Object.entries(filters).filter(([_, enabled]) => enabled);
-      
-      if (enabledFilters.length === 1) {
-        const [filterType] = enabledFilters[0];
-        if (filterType === 'applications') {
-          setSearchScope(`Application: ${term}`);
-        } else if (filterType === 'components') {
-          setSearchScope(`IT Component: ${term}`);
-          setSelectedITComponent(term); // Set selected IT component for seamless navigation
-        } else if (filterType === 'interfaces') {
-          setSearchScope(`Interface: ${term}`);
-        } else if (filterType === 'dataObjects') {
-          setSearchScope(`Data Object: ${term}`);
-        } else if (filterType === 'initiatives') {
-          setSearchScope(`Initiative: ${term}`);
-        } else {
-          setSearchScope(`Search: ${term} (${filterType})`);
-        }
-      } else {
-        // General search across enabled filters
-        const activeFilters = enabledFilters.map(([type, _]) => type).join(', ');
-        setSearchScope(`Search: ${term} (${activeFilters})`);
-      }
+      setSearchScope(`Searching capabilities: "${term}"`);
     } else {
       setSearchScope(null);
     }
@@ -122,25 +86,6 @@ export default function Dashboard() {
     setSelectedEntity(null);
   };
 
-  const handleFiltersChange = (newFilters: typeof filters) => {
-    setFilters(newFilters);
-    
-    // Update search scope if there's an active search term
-    if (searchTerm.trim()) {
-      if (newFilters.applications && !newFilters.capabilities) {
-        setSearchScope(`Application: ${searchTerm}`);
-      } else if (newFilters.components && !newFilters.capabilities && !newFilters.applications) {
-        setSearchScope(`Component: ${searchTerm}`);
-      } else {
-        const activeFilters = Object.entries(newFilters)
-          .filter(([_, enabled]) => enabled)
-          .map(([type, _]) => type)
-          .join(', ');
-        setSearchScope(`Search: ${searchTerm} (${activeFilters})`);
-      }
-    }
-  };
-
   const renderCurrentView = () => {
     switch (currentView) {
       case 'network':
@@ -150,13 +95,11 @@ export default function Dashboard() {
             selectedITComponent={selectedITComponent}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
-            filters={filters}
           />
         );
       case 'hierarchy':
         return (
           <StackedMap
-            capabilities={capabilities}
             selectedCapability={selectedCapability}
             onCapabilitySelect={(cap: BusinessCapability) => handleEntitySelect({ type: 'capability', id: cap.id, data: cap })}
             searchTerm={searchTerm}
@@ -169,8 +112,6 @@ export default function Dashboard() {
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
-            filters={filters}
-            searchScope={searchScope}
           />
         );
       case 'dashboard':
@@ -179,8 +120,6 @@ export default function Dashboard() {
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
-            filters={filters}
-            searchScope={searchScope}
           />
         );
       case 'model':
@@ -190,11 +129,10 @@ export default function Dashboard() {
             selectedCapability={selectedCapability}
             selectedITComponent={selectedITComponent}
             searchScope={searchScope}
-            filters={filters}
           />
         );
       default:
-        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} filters={filters} />;
+        return <MetisMap selectedCapability={selectedCapability} onEntitySelect={handleEntitySelect} searchTerm={searchTerm} />;
     }
   };
 
@@ -204,8 +142,6 @@ export default function Dashboard() {
         onCapabilitySelect={handleCapabilityTreeSelect}
         onSearchChange={handleSearchChange}
         searchTerm={searchTerm}
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
         selectedCapability={selectedCapability}
         searchScope={searchScope}
       />

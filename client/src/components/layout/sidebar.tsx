@@ -12,15 +12,6 @@ interface SidebarProps {
   onCapabilitySelect: (capability: BusinessCapability) => void;
   onSearchChange: (term: string) => void;
   searchTerm: string;
-  filters: {
-    capabilities: boolean;
-    applications: boolean;
-    components: boolean;
-    interfaces: boolean;
-    dataObjects: boolean;
-    initiatives: boolean;
-  };
-  onFiltersChange: (filters: any) => void;
   selectedCapability: string | null;
   searchScope?: string | null;
 }
@@ -48,8 +39,6 @@ export default function Sidebar({
   onCapabilitySelect,
   onSearchChange,
   searchTerm,
-  filters,
-  onFiltersChange,
   selectedCapability,
   searchScope
 }: SidebarProps) {
@@ -69,12 +58,13 @@ export default function Sidebar({
     setExpandedNodes(newExpanded);
   };
 
-  const handleFilterChange = (filterKey: string, value: boolean | string) => {
-    onFiltersChange({
-      ...filters,
-      [filterKey]: value,
-    });
-  };
+  // Filter capabilities based on search term
+  const filteredHierarchy = searchTerm.trim() 
+    ? hierarchy.filter(cap => 
+        cap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (cap.displayName && cap.displayName.toLowerCase().includes(searchTerm.toLowerCase()))
+      )
+    : hierarchy;
 
   const renderCapabilityNode = (node: CapabilityNode, level = 0) => {
     const hasChildren = node.children && node.children.length > 0;

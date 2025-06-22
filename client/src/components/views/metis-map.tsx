@@ -4,21 +4,13 @@ import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 import ExportSummaryModal from "@/components/modals/export-summary-modal";
-import { findMatchingL1Capabilities } from "@/lib/unified-search";
+import { filterCapabilitiesByName } from "@/lib/unified-search";
 
 interface MetisMapProps {
   selectedCapability: string | null;
   selectedITComponent?: string | null;
   searchTerm: string;
   onEntitySelect: (entity: EntityReference) => void;
-  filters: {
-    capabilities: boolean;
-    applications: boolean;
-    components: boolean;
-    interfaces: boolean;
-    dataObjects: boolean;
-    initiatives: boolean;
-  };
 }
 
 interface HeatmapFilters {
@@ -26,7 +18,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect, filters }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
