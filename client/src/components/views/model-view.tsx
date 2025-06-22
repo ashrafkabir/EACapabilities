@@ -15,9 +15,9 @@ import {
   getApplicationsLinkedToITComponent, 
   getApplicationsLinkedToInterface, 
   getApplicationsLinkedToDataObject, 
-  getApplicationsLinkedToInitiative,
-  filterCapabilitiesBySearch
+  getApplicationsLinkedToInitiative
 } from "@/lib/search-utils";
+import { getCapabilitiesMatchingSearch, filterCapabilitiesBySearch } from "@/lib/search-utils-new";
 
 interface ModelViewProps {
   searchTerm: string;

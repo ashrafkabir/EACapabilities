@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application } from "@shared/schema";
-import { filterCapabilitiesBySearch, getApplicationsForCapability } from "@/lib/search-utils";
+import { getApplicationsForCapability } from "@/lib/search-utils";
+import { getCapabilitiesMatchingSearch, filterCapabilitiesBySearch } from "@/lib/search-utils-new";
 
 interface CapabilityNode extends BusinessCapability {
   children?: CapabilityNode[];
