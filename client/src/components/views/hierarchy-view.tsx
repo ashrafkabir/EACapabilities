@@ -6,8 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application } from "@shared/schema";
-import { getApplicationsForCapability } from "@/lib/search-utils";
-import { getCapabilitiesMatchingSearch, filterCapabilitiesBySearch } from "@/lib/search-utils-new";
+import { filterCapabilitiesBySearch } from "@/lib/unified-search";
 
 interface CapabilityNode extends BusinessCapability {
   children?: CapabilityNode[];
@@ -122,39 +121,53 @@ export default function HierarchyView({
       allCapabilities: capabilities,
       applications,
       itComponents,
-      interfaces,
+      interfaces, 
       dataObjects,
       initiatives
     };
-
+    
     const filteredCapabilities = filterCapabilitiesBySearch(
       capabilities,
       searchTerm,
-      searchScope,
-      filters,
+      filters || {
+        capabilities: true,
+        applications: true,
+        components: true,
+        interfaces: true,
+        dataObjects: true,
+        initiatives: true
+      },
       searchContext
     );
-
-    const filteredCapabilityIds = new Set(filteredCapabilities.map(cap => cap.id));
-
-    // Filter the tree to only show matching capabilities and their ancestors/descendants
-    const filterTreeForSearch = (nodes: CapabilityNode[]): CapabilityNode[] => {
-      return nodes.map(node => {
-        const hasMatchingDescendants = node.children && filterTreeForSearch(node.children).length > 0;
-        const isDirectMatch = filteredCapabilityIds.has(node.id);
-        
-        if (isDirectMatch || hasMatchingDescendants) {
-          return {
-            ...node,
-            children: node.children ? filterTreeForSearch(node.children) : []
-          };
+    
+    // Rebuild tree with filtered capabilities
+    const filteredNodeMap = new Map<string, CapabilityNode>();
+    
+    filteredCapabilities.forEach(cap => {
+      const originalNode = nodeMap.get(cap.id);
+      if (originalNode) {
+        filteredNodeMap.set(cap.id, originalNode);
+      }
+    });
+    
+    const filteredRoots: CapabilityNode[] = [];
+    filteredCapabilities.forEach(cap => {
+      const node = filteredNodeMap.get(cap.id);
+      if (!node) return;
+      
+      if (cap.parentId && filteredNodeMap.has(cap.parentId)) {
+        const parent = filteredNodeMap.get(cap.parentId)!;
+        if (!parent.children?.some(child => child.id === node.id)) {
+          parent.children?.push(node);
         }
-        return null;
-      }).filter(Boolean) as CapabilityNode[];
-    };
-
-    const finalRoots = (searchTerm || searchScope) ? filterTreeForSearch(roots) : roots;
-    return finalRoots.sort((a, b) => (a.level || 1) - (b.level || 1));
+      } else {
+        if (!filteredRoots.some(root => root.id === node.id)) {
+          filteredRoots.push(node);
+        }
+      }
+    });
+    
+    return filteredRoots;
   };
 
   const toggleNode = (nodeId: string) => {

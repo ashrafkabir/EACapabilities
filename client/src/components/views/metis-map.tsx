@@ -4,8 +4,7 @@ import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 import ExportSummaryModal from "@/components/modals/export-summary-modal";
-import { getCapabilitiesMatchingSearch } from "@/lib/simple-search";
-import { getApplicationsForCapability } from "@/lib/search-utils";
+import { findMatchingL1Capabilities } from "@/lib/unified-search";
 
 interface MetisMapProps {
   selectedCapability: string | null;
@@ -305,7 +304,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       initiatives
     };
     
-    return getCapabilitiesMatchingSearch(searchTerm, null, filters, searchContext);
+    return findMatchingL1Capabilities(searchTerm, filters, searchContext);
   }) : [];
   
   console.log('MetisMap allMatchingCapabilities:', allMatchingCapabilities?.length || 0);
