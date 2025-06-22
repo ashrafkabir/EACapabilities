@@ -317,10 +317,10 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   const filteredCapabilities = searchTerm && Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.length > 0 ? 
     capabilitiesToShow.filter(cap => {
       // Check if this capability directly matches the search
-      const directMatch = allMatchingCapabilities.some(match => match.id === cap.id);
+      const directMatch = Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.some(match => match.id === cap.id);
       
       // Check if any descendant capabilities match and should bubble up to this level
-      const hasMatchingDescendants = allMatchingCapabilities.some(match => {
+      const hasMatchingDescendants = Array.isArray(allMatchingCapabilities) && allMatchingCapabilities.some(match => {
         if (currentLevel === 1) {
           // At L1 view, include if any L2 or L3 capabilities have this as their L1 parent
           return match.level1Capability === cap.name || match.level1Capability === cap.level1Capability;
@@ -1806,14 +1806,14 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
                       }
                     } else {
                       // Check if shown because of descendant matches
-                      const descendantMatches = allMatchingCapabilities.filter(match => {
+                      const descendantMatches = Array.isArray(allMatchingCapabilities) ? allMatchingCapabilities.filter(match => {
                         if (currentLevel === 1) {
                           return match.level1Capability === capability.name;
                         } else if (currentLevel === 2) {
                           return match.level2Capability === capability.name;
                         }
                         return false;
-                      });
+                      }) : [];
                       
                       if (descendantMatches.length > 0) {
                         const levelName = currentLevel === 1 ? 'sub-capabilities' : 'detailed capabilities';
