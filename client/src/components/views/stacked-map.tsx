@@ -347,7 +347,11 @@ export default function StackedMap({
         
         const hasMatchingL3 = column.level2Groups?.some(group =>
           group.level3Items?.some(item =>
-            matchingIds.has(item.id)
+            matchingCapabilities.some(cap => 
+              cap.name === item.name || 
+              cap.name.includes(item.name) || 
+              item.name.includes(cap.name)
+            )
           )
         ) || false;
         
@@ -358,7 +362,13 @@ export default function StackedMap({
           const hasMatchingL2 = matchingCapabilities.some(cap => 
             cap.level === 2 && cap.name === group.level2Name
           );
-          const hasMatchingL3 = (group.level3Items || []).some(item => matchingIds.has(item.id));
+          const hasMatchingL3 = (group.level3Items || []).some(item => 
+            matchingCapabilities.some(cap => 
+              cap.name === item.name || 
+              cap.name.includes(item.name) || 
+              item.name.includes(cap.name)
+            )
+          );
           const hasMatchingL1 = matchingCapabilities.some(cap => 
             cap.level === 1 && cap.name === column.level1Name
           );
@@ -367,7 +377,11 @@ export default function StackedMap({
         }).map(group => ({
           ...group,
           level3Items: (group.level3Items || []).filter(item => {
-            const hasMatchingL3 = matchingIds.has(item.id);
+            const hasMatchingL3 = matchingCapabilities.some(cap => 
+              cap.name === item.name || 
+              cap.name.includes(item.name) || 
+              item.name.includes(cap.name)
+            );
             const hasMatchingL2 = matchingCapabilities.some(cap => 
               cap.level === 2 && cap.name === group.level2Name
             );

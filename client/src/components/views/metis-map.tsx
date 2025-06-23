@@ -297,14 +297,24 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
   const filteredCapabilities = useMemo(() => {
     console.log('MetisMap: Filtering capabilities. SearchTerm:', searchTerm, 'AllMatching:', allMatchingCapabilities.length, 'ToShow:', capabilitiesToShow.length);
     
-    if (!searchTerm?.trim() || allMatchingCapabilities.length === 0) {
-      console.log('MetisMap: No search or no matches, showing all capabilities');
+    if (!searchTerm?.trim()) {
+      console.log('MetisMap: No search term, showing all capabilities');
       return capabilitiesToShow;
+    }
+    
+    if (allMatchingCapabilities.length === 0) {
+      console.log('MetisMap: No matches found, showing empty results');
+      return [];
     }
     
     // Show only capabilities that are in the search results and match the current display level
     const filtered = capabilitiesToShow.filter(cap => {
-      const isInResults = allMatchingCapabilities.some(match => match.id === cap.id);
+      // Match by name instead of ID to ensure compatibility across different data structures
+      const isInResults = allMatchingCapabilities.some(match => 
+        match.name === cap.name || 
+        match.name.includes(cap.name) || 
+        cap.name.includes(match.name)
+      );
       console.log('MetisMap: Checking capability', cap.name, 'isInResults:', isInResults);
       return isInResults;
     });
