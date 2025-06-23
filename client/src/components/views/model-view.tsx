@@ -9,6 +9,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Minus, Search, Check, ChevronsUpDown, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import ApplicationDiagramButton from "@/components/application-diagram-button";
 import type { BusinessCapability, Application } from "@shared/schema";
 import { filterCapabilitiesBySearch } from "@/lib/unified-search";
 
