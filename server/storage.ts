@@ -340,7 +340,13 @@ export class DatabaseStorage implements IStorage {
         revisionHistory: null
       },
       timestamp: new Date().toISOString(),
-      user: "Current User"
+      user: "Current User",
+      changes: changedFields,
+      changeDetails: changedFields.map(field => ({
+        field,
+        oldValue: currentAdr[field as keyof typeof currentAdr],
+        newValue: cleanData[field]
+      }))
     };
 
     // Store version in auditTrail - limit to last 10 versions to prevent payload issues
@@ -364,6 +370,16 @@ export class DatabaseStorage implements IStorage {
       lastModifiedAt,
       ...cleanData 
     } = updateData;
+
+    // Detect what fields have changed
+    const changedFields: string[] = [];
+    Object.keys(cleanData).forEach(key => {
+      const currentValue = currentAdr[key as keyof typeof currentAdr];
+      const newValue = cleanData[key];
+      if (currentValue !== newValue) {
+        changedFields.push(key);
+      }
+    });
 
     // Increment version number
     const newVersion = currentAdr.version + 1;

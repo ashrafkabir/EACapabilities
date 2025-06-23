@@ -11,6 +11,11 @@ interface VersionEntry {
   user: string;
   action: string;
   changes?: string[];
+  changeDetails?: Array<{
+    field: string;
+    oldValue: any;
+    newValue: any;
+  }>;
   isLatest?: boolean;
 }
 
@@ -49,7 +54,8 @@ export default function AdrVersionTimeline({ adr, onVersionSelect, selectedVersi
               timestamp: entry.timestamp,
               user: entry.user,
               action: "Updated",
-              changes: [],
+              changes: entry.changes || [],
+              changeDetails: entry.changeDetails || [],
               isLatest: savedVersion === adr.version
             });
           }
