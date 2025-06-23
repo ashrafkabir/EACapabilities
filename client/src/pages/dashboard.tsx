@@ -115,15 +115,16 @@ export default function Dashboard() {
             selectedITComponent={selectedITComponent}
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
+            filteredCapabilities={filteredCapabilities}
           />
         );
       case 'hierarchy':
         return (
           <StackedMap
+            capabilities={filteredCapabilities}
             selectedCapability={selectedCapability}
             onCapabilitySelect={(cap: BusinessCapability) => handleEntitySelect({ type: 'capability', id: cap.id, data: cap })}
             searchTerm={searchTerm}
-            searchScope={searchScope}
           />
         );
       case 'heatmap':
@@ -164,6 +165,7 @@ export default function Dashboard() {
         searchTerm={searchTerm}
         selectedCapability={selectedCapability}
         searchScope={searchScope}
+        filteredCapabilities={filteredCapabilities}
       />
       
       <div className="flex-1 flex flex-col">

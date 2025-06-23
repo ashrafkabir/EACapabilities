@@ -11,6 +11,7 @@ interface MetisMapProps {
   selectedITComponent?: string | null;
   searchTerm: string;
   onEntitySelect: (entity: EntityReference) => void;
+  filteredCapabilities: BusinessCapability[];
 }
 
 interface HeatmapFilters {
@@ -18,7 +19,7 @@ interface HeatmapFilters {
   showColors: boolean;
 }
 
-export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect }: MetisMapProps) {
+export default function MetisMap({ selectedCapability, selectedITComponent: parentSelectedITComponent, searchTerm, onEntitySelect, filteredCapabilities: centralFilteredCapabilities }: MetisMapProps) {
   const [currentLevel, setCurrentLevel] = useState(1);
   const [selectedParent, setSelectedParent] = useState<string | null>(null);
   const [heatmapFilters, setHeatmapFilters] = useState<HeatmapFilters>({
@@ -293,36 +294,30 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
 
-  // Filter capabilities to show based on search results
-  const filteredCapabilities = (() => {
-    console.log('MetisMap: Filtering capabilities. SearchTerm:', searchTerm, 'AllMatching:', allMatchingCapabilities.length, 'ToShow:', capabilitiesToShow.length);
-    console.log('MetisMap: capabilitiesToShow:', capabilitiesToShow.map(c => c.name));
+  // Use centralized filtered capabilities and filter by current level
+  const filteredCapabilities = useMemo(() => {
+    console.log('MetisMap: Using centralized filtered capabilities:', centralFilteredCapabilities.length);
     
-    if (!searchTerm?.trim()) {
-      console.log('MetisMap: No search term, showing all capabilities');
-      return capabilitiesToShow;
+    // Filter by current level from the centrally filtered capabilities
+    const levelFiltered = centralFilteredCapabilities.filter(cap => cap.level === currentLevel);
+    
+    // If we have a selected parent, further filter by that
+    if (selectedParent && currentLevel > 1) {
+      const parentFiltered = levelFiltered.filter(cap => {
+        if (currentLevel === 2) {
+          return cap.level1Capability === selectedParent;
+        } else if (currentLevel === 3) {
+          return cap.level2Capability === selectedParent;
+        }
+        return true;
+      });
+      console.log('MetisMap: Filtered by parent', selectedParent, ':', parentFiltered.length);
+      return parentFiltered;
     }
     
-    if (allMatchingCapabilities.length === 0) {
-      console.log('MetisMap: No matches found, showing empty results');
-      return [];
-    }
-    
-    // Show only capabilities that are in the search results and match the current display level
-    const filtered = capabilitiesToShow.filter(cap => {
-      // Match by name instead of ID to ensure compatibility across different data structures
-      const isInResults = allMatchingCapabilities.some(match => 
-        match.name === cap.name || 
-        match.name.includes(cap.name) || 
-        cap.name.includes(match.name)
-      );
-      console.log('MetisMap: Checking capability', cap.name, 'isInResults:', isInResults);
-      return isInResults;
-    });
-    
-    console.log('MetisMap: Filtered capabilities for level', currentLevel, ':', filtered.map(c => `${c.name} (L${c.level})`));
-    return filtered;
-  })();
+    console.log('MetisMap: Level', currentLevel, 'capabilities:', levelFiltered.length);
+    return levelFiltered;
+  }, [centralFilteredCapabilities, currentLevel, selectedParent]);
   
   // Force re-render when search changes by using a key
   const renderKey = `${searchTerm}-${filteredCapabilities.length}-${currentLevel}`;

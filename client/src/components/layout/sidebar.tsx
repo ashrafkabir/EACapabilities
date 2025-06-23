@@ -13,6 +13,7 @@ interface SidebarProps {
   searchTerm: string;
   selectedCapability: string | null;
   searchScope?: string | null;
+  filteredCapabilities: BusinessCapability[];
 }
 
 interface CapabilityNode extends BusinessCapability {
@@ -39,7 +40,8 @@ export default function Sidebar({
   onSearchChange,
   searchTerm,
   selectedCapability,
-  searchScope
+  searchScope,
+  filteredCapabilities: centralFilteredCapabilities
 }: SidebarProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
 
