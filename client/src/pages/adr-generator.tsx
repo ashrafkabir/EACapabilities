@@ -178,34 +178,61 @@ export default function AdrGenerator() {
 
   const selectedApp = applications.find(app => app.id === filterApplication);
 
+  // Sidebar handlers
+  const handleCapabilityTreeSelect = (capability: BusinessCapability) => {
+    const capabilityPath = [
+      capability.level1Capability,
+      capability.level2Capability,
+      capability.level3Capability
+    ].filter(Boolean).join('/');
+    
+    setSearchScope(`Business Capability: ${capabilityPath}`);
+    setSelectedCapability(capability.id);
+  };
+
+  const handleSearchChange = (term: string) => {
+    setSidebarSearchTerm(term);
+    if (!term.trim()) {
+      setSearchScope(null);
+    }
+  };
+
+  const handleViewChange = (view: ViewType) => {
+    // Navigate to other views if needed
+  };
+
+  const handleExport = () => {
+    // Export functionality for ADRs if needed
+  };
+
   return (
-    <div className="h-screen flex flex-col">
-      {/* Navigation Header */}
-      <div className="bg-card border-b border-border px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                <ArrowLeft className="w-4 h-4" />
-                <span>Go Back to Home</span>
-              </Button>
-            </Link>
-            <div className="h-6 w-px bg-border"></div>
-            <h1 className="text-xl font-semibold text-foreground">ADR Generator</h1>
-          </div>
-        </div>
-      </div>
+    <div className="flex h-screen bg-background">
+      <Sidebar
+        onCapabilitySelect={handleCapabilityTreeSelect}
+        onSearchChange={handleSearchChange}
+        searchTerm={sidebarSearchTerm}
+        selectedCapability={selectedCapability}
+        searchScope={searchScope}
+        filteredCapabilities={allCapabilities}
+      />
+      
+      <div className="flex-1 flex flex-col">
+        <TopBar
+          currentView="decide"
+          onViewChange={handleViewChange}
+          onExport={handleExport}
+        />
+        
+        <div className="flex-1 overflow-auto">
+          <div className="container mx-auto p-6 max-w-6xl">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold text-foreground mb-2">Architecture Decision Records</h1>
+              <p className="text-muted-foreground">
+                Generate Architecture Decision Records from meeting notes and manage existing decisions
+              </p>
+            </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="container mx-auto p-6 max-w-6xl">
-          <div className="mb-8">
-            <p className="text-gray-600 dark:text-gray-400">
-              Generate Architecture Decision Records from meeting notes and manage existing decisions
-            </p>
-          </div>
-
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="generate">Generate ADR</TabsTrigger>
               <TabsTrigger value="manage">Manage ADRs</TabsTrigger>
@@ -505,16 +532,18 @@ export default function AdrGenerator() {
                 )}
               </div>
             </TabsContent>
-          </Tabs>
+            </Tabs>
+            
+            {selectedAdr && (
+              <AdrDetailModal 
+                adr={selectedAdr} 
+                onClose={() => setSelectedAdr(null)}
+                applicationName={selectedAdr?.applicationId ? applications.find(app => app.id === selectedAdr.applicationId)?.name : undefined}
+              />
+            )}
+          </div>
         </div>
       </div>
-
-      {/* ADR Detail Modal */}
-      <AdrDetailModal 
-        adr={selectedAdr} 
-        onClose={() => setSelectedAdr(null)}
-        applicationName={selectedAdr?.applicationId ? applications.find(app => app.id === selectedAdr.applicationId)?.name : undefined}
-      />
     </div>
   );
 }
