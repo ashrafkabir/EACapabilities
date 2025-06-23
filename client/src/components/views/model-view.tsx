@@ -144,7 +144,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
   });
 
   const getApplicationsForCapability = (capabilityName: string): Application[] => {
-    return allApplications.filter(app => {
+    const matchedApps = allApplications.filter(app => {
       if (!app.businessCapabilities) return false;
       
       // Handle multiple capabilities separated by semicolons
@@ -153,19 +153,28 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
         .map(cap => cap.trim().replace(/^~/, ''));
       
       // Check for exact matches or hierarchical matches
-      return appCapabilities.some(appCap => {
-        // Exact match
-        if (appCap === capabilityName) return true;
+      const isMatch = appCapabilities.some(appCap => {
+        // Exact match (case insensitive)
+        if (appCap.toLowerCase() === capabilityName.toLowerCase()) return true;
         
         // Check if the capability name is contained in the app capability
-        if (appCap.includes(capabilityName)) return true;
+        if (appCap.toLowerCase().includes(capabilityName.toLowerCase())) return true;
         
         // Check if the app capability starts with the capability name
-        if (capabilityName.startsWith(appCap)) return true;
+        if (capabilityName.toLowerCase().startsWith(appCap.toLowerCase())) return true;
         
         return false;
       });
+      
+      // Debug Enterprise Strategy specifically
+      if (capabilityName.toLowerCase().includes('enterprise strategy') || app.businessCapabilities.toLowerCase().includes('enterprise strategy')) {
+        console.log(`Checking ${app.name} (${app.businessCapabilities}) against ${capabilityName}: ${isMatch}`);
+      }
+      
+      return isMatch;
     });
+    
+    return matchedApps;
   };
 
   const getApplicationCountForCapability = (capabilityName: string): number => {
