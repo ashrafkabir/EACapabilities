@@ -200,6 +200,11 @@ export const adrs = pgTable("adrs", {
   lastModifiedAt: timestamp("last_modified_at"),
   version: integer("version").default(1).notNull(),
   
+  // Version history
+  versionHistory: text("version_history"), // JSON array of version snapshots
+  parentVersion: integer("parent_version"), // Reference to previous version
+  isLatest: boolean("is_latest").default(true).notNull(),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

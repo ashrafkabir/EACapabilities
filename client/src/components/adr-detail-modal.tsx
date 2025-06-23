@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import AdrVersionTimeline from "./adr-version-timeline";
 
 interface Adr {
   id: number;
@@ -61,6 +62,7 @@ interface AuditEntry {
   oldValue?: string;
   newValue?: string;
   version: number;
+  changes?: string[];
 }
 
 export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDetailModalProps) {
@@ -68,6 +70,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editedAdr, setEditedAdr] = useState<Adr | null>(null);
+  const [selectedVersion, setSelectedVersion] = useState<number>(adr?.version || 1);
 
   // Memoize the field update function to prevent re-renders
   const updateField = useCallback((field: keyof Adr, value: string) => {
@@ -113,12 +116,24 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
   const saveChanges = () => {
     if (!editedAdr) return;
     
+    // Detect which fields were changed
+    const changedFields: string[] = [];
+    if (editedAdr) {
+      Object.keys(editedAdr).forEach(key => {
+        if (key !== 'id' && key !== 'createdAt' && key !== 'updatedAt' && 
+            editedAdr[key as keyof Adr] !== adr[key as keyof Adr]) {
+          changedFields.push(key);
+        }
+      });
+    }
+
     // Create audit entry for the changes
     const auditEntry: AuditEntry = {
       timestamp: new Date().toISOString(),
       user: "Current User", // TODO: Get from auth context
       action: "Updated",
-      version: (adr.version || 1) + 1
+      version: (adr.version || 1) + 1,
+      changes: changedFields
     };
 
     // Prepare clean data without timestamp and problematic fields
@@ -356,6 +371,13 @@ You can use markdown formatting:
             </Button>
           </div>
         </DialogHeader>
+
+        {/* Version Timeline */}
+        <AdrVersionTimeline 
+          adr={adr}
+          selectedVersion={selectedVersion}
+          onVersionSelect={setSelectedVersion}
+        />
 
         <div className="space-y-8 mt-6">
           <Section title="Problem Statement" content={adr.problemStatement} field="problemStatement" />
