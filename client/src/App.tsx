@@ -12,6 +12,10 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/map" component={Dashboard} />
+      <Route path="/model" component={Dashboard} />
+      <Route path="/monitor" component={Dashboard} />
+      <Route path="/admin" component={Dashboard} />
       <Route path="/diagram-generator" component={DiagramGenerator} />
       <Route path="/adr-generator" component={AdrGenerator} />
       <Route component={NotFound} />
