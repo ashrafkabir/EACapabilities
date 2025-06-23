@@ -32,26 +32,27 @@ export default function AdrVersionTimeline({ adr, onVersionSelect, selectedVersi
     timestamp: adr.createdAt,
     user: "System",
     action: "Created",
-    isLatest: false
+    isLatest: adr.version === 1
   });
 
   // Parse audit trail for version history
   if (adr.auditTrail) {
     try {
       const auditEntries = JSON.parse(adr.auditTrail);
-      auditEntries.forEach((entry: any) => {
-        if (entry.version && entry.version >= 1) {
-          // Don't duplicate version 1
-          if (entry.version === 1) return;
-          
-          versionHistory.push({
-            version: entry.version + 1, // The version after this change
-            timestamp: entry.timestamp,
-            user: entry.user,
-            action: "Updated",
-            changes: [],
-            isLatest: false
-          });
+      auditEntries.forEach((entry: any, index: number) => {
+        if (entry.version && entry.data) {
+          // Add the version that was saved (the state before the change)
+          const savedVersion = entry.version;
+          if (savedVersion > 1 && !versionHistory.find(v => v.version === savedVersion)) {
+            versionHistory.push({
+              version: savedVersion,
+              timestamp: entry.timestamp,
+              user: entry.user,
+              action: "Updated",
+              changes: [],
+              isLatest: savedVersion === adr.version
+            });
+          }
         }
       });
     } catch (e) {
@@ -59,8 +60,8 @@ export default function AdrVersionTimeline({ adr, onVersionSelect, selectedVersi
     }
   }
 
-  // Add current version
-  if (adr.version > 1) {
+  // Ensure current version is in the list
+  if (!versionHistory.find(v => v.version === adr.version)) {
     versionHistory.push({
       version: adr.version,
       timestamp: adr.lastModifiedAt || adr.updatedAt,
@@ -69,6 +70,10 @@ export default function AdrVersionTimeline({ adr, onVersionSelect, selectedVersi
       isLatest: true
     });
   }
+
+  // Sort by version number and mark latest
+  versionHistory.sort((a, b) => a.version - b.version);
+  versionHistory.forEach(v => v.isLatest = v.version === adr.version);
 
   // Mark the latest version
   if (versionHistory.length > 0) {

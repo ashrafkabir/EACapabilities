@@ -406,6 +406,34 @@ export class DatabaseStorage implements IStorage {
       return adr;
     }
     
+    // For version 1, check if there's a stored version 1 in audit trail
+    if (version === 1) {
+      if (!adr.auditTrail) {
+        // If no audit trail, version 1 is just the original creation
+        return {
+          ...adr,
+          version: 1,
+          // Clear fields that weren't in original version
+          problemStatement: '',
+          businessDrivers: '',
+          currentState: '',
+          constraints: '',
+          decisionCriteria: '',
+          optionsConsidered: '',
+          selectedOption: '',
+          justification: '',
+          actionItems: '',
+          impactAssessment: '',
+          verificationMethod: '',
+          positiveConsequences: '',
+          negativeConsequences: '',
+          risksAndMitigations: '',
+          notes: '',
+          references: ''
+        };
+      }
+    }
+    
     // Look for specific version in audit trail
     if (!adr.auditTrail) return undefined;
     
