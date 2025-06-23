@@ -316,33 +316,42 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
 
 
   const baseColors = [
-    { bg: 'bg-blue-500', text: 'text-white' },
-    { bg: 'bg-green-500', text: 'text-white' },
-    { bg: 'bg-purple-500', text: 'text-white' },
-    { bg: 'bg-orange-500', text: 'text-white' },
-    { bg: 'bg-red-500', text: 'text-white' },
-    { bg: 'bg-teal-500', text: 'text-white' },
-    { bg: 'bg-indigo-500', text: 'text-white' },
-    { bg: 'bg-pink-500', text: 'text-white' },
+    { bg: 'bg-blue-600', text: 'text-white' },
+    { bg: 'bg-emerald-600', text: 'text-white' },
+    { bg: 'bg-purple-600', text: 'text-white' },
+    { bg: 'bg-orange-600', text: 'text-white' },
+    { bg: 'bg-red-600', text: 'text-white' },
+    { bg: 'bg-teal-600', text: 'text-white' },
+    { bg: 'bg-indigo-600', text: 'text-white' },
+    { bg: 'bg-pink-600', text: 'text-white' },
+    { bg: 'bg-amber-600', text: 'text-white' },
+    { bg: 'bg-cyan-600', text: 'text-white' },
+    { bg: 'bg-violet-600', text: 'text-white' },
+    { bg: 'bg-rose-600', text: 'text-white' },
   ];
 
   const getBackgroundColor = (level: number, colorInfo: any) => {
+    // Fallback to blue if colorInfo is missing
+    const safeColor = colorInfo?.bg || 'bg-blue-600';
+    
     if (level === 1) {
-      return colorInfo.bg;
+      // Ensure level 1 tiles always have a strong, visible background with good contrast
+      return `${safeColor} shadow-sm`;
     } else if (level === 2) {
-      return `${colorInfo.bg.replace('bg-', 'bg-')}/60`;
+      return `${safeColor.replace('bg-', 'bg-')}/70`;
     } else {
-      return `${colorInfo.bg.replace('bg-', 'bg-')}/35`;
+      return `${safeColor.replace('bg-', 'bg-')}/40 border border-gray-300 dark:border-gray-600`;
     }
   };
 
   const getTextColor = (level: number) => {
     if (level === 1) {
-      return 'text-white';
+      // Ensure text is always visible on level 1 tiles
+      return 'text-white font-semibold drop-shadow-sm';
     } else if (level === 2) {
-      return 'text-white';
+      return 'text-white font-medium';
     } else {
-      return 'text-gray-800 dark:text-white';
+      return 'text-gray-800 dark:text-white font-normal';
     }
   };
 
@@ -431,10 +440,12 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
     return (
       <Card 
         key={id} 
-        className={`mb-1 cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${
+        className={`mb-1 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02] ${
           isSelected && applications.length > 0 ? 'h-auto' : 'h-12'
         } ${
-          isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'border-gray-200'
+          isSelected ? 'ring-2 ring-blue-500 shadow-lg' : 'shadow-sm hover:shadow-md'
+        } ${
+          level === 1 ? 'border-2 border-gray-300 dark:border-gray-600' : 'border border-gray-200 dark:border-gray-700'
         }`}
         onClick={() => handleCapabilitySelect(id)}
       >
