@@ -9,7 +9,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Plus, Minus, Search, Check, ChevronsUpDown, X } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
-import ApplicationDiagramButton from "@/components/application-diagram-button";
+
 import type { BusinessCapability, Application } from "@shared/schema";
 import { filterCapabilitiesBySearch } from "@/lib/unified-search";
 
@@ -540,20 +540,17 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                   {applications.map((app: Application) => (
                     <div key={app.id} className="flex items-center justify-between bg-white/10 rounded px-2 py-1.5 text-gray-800 dark:text-white">
                       <span className="text-xs truncate flex-1 font-medium">{app.name}</span>
-                      <div className="flex items-center gap-1 ml-2">
-                        <ApplicationDiagramButton application={app} />
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-5 w-5 p-0 text-red-600 hover:text-red-800 hover:bg-red-100/30"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveApplication(app.id);
-                          }}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-5 w-5 p-0 text-red-600 hover:text-red-800 hover:bg-red-100/30 ml-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveApplication(app.id);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
                     </div>
                   ))}
                 </div>
