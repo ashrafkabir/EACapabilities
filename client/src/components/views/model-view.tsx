@@ -96,18 +96,17 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
 
   // Helper function to check if application has diagrams
   const hasApplicationDiagrams = (applicationId: string): boolean => {
-    const appDiagrams = getApplicationDiagrams(applicationId);
-    console.log(`ModelView: Checking diagrams for app ${applicationId}:`, appDiagrams);
-    return appDiagrams.length > 0;
+    return getApplicationDiagrams(applicationId).length > 0;
   };
 
   const handleDiagramClick = (applicationId: string, event: React.MouseEvent) => {
     event.stopPropagation();
     const appDiagrams = getApplicationDiagrams(applicationId);
+    console.log(`Diagram click for app ${applicationId}:`, appDiagrams);
     if (appDiagrams.length > 0) {
-      // If multiple diagrams, show the first one (could be enhanced to show a selection dialog)
       setSelectedDiagram(appDiagrams[0]);
       setIsDiagramModalOpen(true);
+      console.log('Opening diagram modal with:', appDiagrams[0]);
     }
   };
 
@@ -578,9 +577,9 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                     const appDiagrams = getApplicationDiagrams(app.id);
                     const hasDiagrams = appDiagrams.length > 0;
                     
-                    // Debug: Check if this is the CT.gov Portal app
-                    if (app.id === 'd95e4493-cd14-4a8c-a9ed-2b1cd30574e6') {
-                      console.log(`🎯 Found CT.gov Portal! Diagrams:`, appDiagrams);
+                    // Only log for debugging specific issues
+                    if (hasDiagrams) {
+                      console.log(`App ${app.name} has ${appDiagrams.length} diagrams:`, appDiagrams);
                     }
                     
                     return (
@@ -598,10 +597,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                               <FileText className="h-3 w-3" />
                             </Button>
                           )}
-                          {/* Show all apps have debug indicator for now */}
-                          <span className="text-xs text-gray-400" title={`${app.name} (${app.id}): ${appDiagrams.length} diagrams`}>
-                            {app.id === 'd95e4493-cd14-4a8c-a9ed-2b1cd30574e6' ? '🎯' : (appDiagrams.length > 0 ? '📊' : '⚪')}
-                          </span>
+
                           <Button
                           size="sm"
                           variant="ghost"
@@ -701,10 +697,11 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
       </div>
 
       {/* Diagram Modal */}
-      {selectedDiagram && (
+      {selectedDiagram && isDiagramModalOpen && (
         <DiagramModal
           diagram={selectedDiagram}
           onClose={() => {
+            console.log('Closing diagram modal');
             setSelectedDiagram(null);
             setIsDiagramModalOpen(false);
           }}
