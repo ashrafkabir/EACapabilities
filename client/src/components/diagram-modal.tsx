@@ -41,7 +41,6 @@ const RESOURCE_TYPES = [
 ];
 
 export default function DiagramModal({ diagram, onClose, onSave, applications = [], isEditing = false }: DiagramModalProps) {
-  console.log('DiagramModal rendering with:', { diagram, isEditing });
   const [formData, setFormData] = useState({
     name: "",
     description: "",
