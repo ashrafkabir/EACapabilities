@@ -115,7 +115,7 @@ export default function DiagramGenerator() {
             <Link href="/">
               <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                 <ArrowLeft className="w-4 h-4" />
-                <span>Back to Dashboard</span>
+                <span>Go Back to Home</span>
               </Button>
             </Link>
             <div className="h-6 w-px bg-border"></div>
