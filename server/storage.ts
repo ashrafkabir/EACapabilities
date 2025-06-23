@@ -330,6 +330,26 @@ export class DatabaseStorage implements IStorage {
     const currentAdr = await this.getAdrById(id);
     if (!currentAdr) return undefined;
 
+    // Remove any problematic fields that shouldn't be updated directly
+    const { 
+      id: _id, 
+      createdAt, 
+      updatedAt, 
+      date,
+      lastModifiedAt,
+      ...cleanData 
+    } = updateData;
+
+    // Detect what fields have changed
+    const changedFields: string[] = [];
+    Object.keys(cleanData).forEach(key => {
+      const currentValue = currentAdr[key as keyof typeof currentAdr];
+      const newValue = cleanData[key];
+      if (currentValue !== newValue) {
+        changedFields.push(key);
+      }
+    });
+
     // Save current state as a version record in JSON format (store minimal data)
     const versionData = {
       version: currentAdr.version,
@@ -360,26 +380,6 @@ export class DatabaseStorage implements IStorage {
     } catch (e) {
       existingAuditTrail = [];
     }
-
-    // Remove any problematic fields that shouldn't be updated directly
-    const { 
-      id: _id, 
-      createdAt, 
-      updatedAt, 
-      date,
-      lastModifiedAt,
-      ...cleanData 
-    } = updateData;
-
-    // Detect what fields have changed
-    const changedFields: string[] = [];
-    Object.keys(cleanData).forEach(key => {
-      const currentValue = currentAdr[key as keyof typeof currentAdr];
-      const newValue = cleanData[key];
-      if (currentValue !== newValue) {
-        changedFields.push(key);
-      }
-    });
 
     // Increment version number
     const newVersion = currentAdr.version + 1;
