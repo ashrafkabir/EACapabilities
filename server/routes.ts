@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
-import { insertApplicationSchema, insertBusinessCapabilitySchema, insertDataObjectSchema, insertInterfaceSchema, insertInitiativeSchema, insertITComponentSchema } from "@shared/schema";
+import { insertApplicationSchema, insertBusinessCapabilitySchema, insertDataObjectSchema, insertInterfaceSchema, insertInitiativeSchema, insertITComponentSchema, insertDiagramSchema } from "@shared/schema";
 import { importCSVData } from "./csv-import";
 import Anthropic from '@anthropic-ai/sdk';
 
@@ -448,6 +448,94 @@ Return ONLY the JSON object without any explanation or markdown formatting.`;
     } catch (error) {
       console.error("Error fetching ADR version:", error);
       res.status(500).json({ error: "Failed to fetch ADR version" });
+    }
+  });
+
+  // Diagram routes
+  app.get("/api/diagrams", async (req, res) => {
+    try {
+      const diagrams = await storage.getAllDiagrams();
+      res.json(diagrams);
+    } catch (error) {
+      console.error("Error fetching diagrams:", error);
+      res.status(500).json({ error: "Failed to fetch diagrams" });
+    }
+  });
+
+  app.get("/api/diagrams/:id", async (req, res) => {
+    try {
+      const diagram = await storage.getDiagramById(req.params.id);
+      if (!diagram) {
+        return res.status(404).json({ error: "Diagram not found" });
+      }
+      res.json(diagram);
+    } catch (error) {
+      console.error("Error fetching diagram:", error);
+      res.status(500).json({ error: "Failed to fetch diagram" });
+    }
+  });
+
+  app.post("/api/diagrams", async (req, res) => {
+    try {
+      const validatedData = insertDiagramSchema.parse(req.body);
+      const diagram = await storage.createDiagram(validatedData);
+      res.status(201).json(diagram);
+    } catch (error) {
+      console.error("Error creating diagram:", error);
+      res.status(500).json({ error: "Failed to create diagram" });
+    }
+  });
+
+  app.patch("/api/diagrams/:id", async (req, res) => {
+    try {
+      const diagram = await storage.updateDiagram(req.params.id, req.body);
+      if (!diagram) {
+        return res.status(404).json({ error: "Diagram not found" });
+      }
+      res.json(diagram);
+    } catch (error) {
+      console.error("Error updating diagram:", error);
+      res.status(500).json({ error: "Failed to update diagram" });
+    }
+  });
+
+  app.delete("/api/diagrams/:id", async (req, res) => {
+    try {
+      await storage.deleteDiagram(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting diagram:", error);
+      res.status(500).json({ error: "Failed to delete diagram" });
+    }
+  });
+
+  app.get("/api/applications/:id/diagrams", async (req, res) => {
+    try {
+      const diagrams = await storage.getDiagramsByApplicationId(req.params.id);
+      res.json(diagrams);
+    } catch (error) {
+      console.error("Error fetching application diagrams:", error);
+      res.status(500).json({ error: "Failed to fetch application diagrams" });
+    }
+  });
+
+  app.post("/api/diagrams/:diagramId/link/:applicationId", async (req, res) => {
+    try {
+      await storage.linkDiagramToApplication(req.params.diagramId, req.params.applicationId);
+      res.status(200).json({ message: "Diagram linked to application successfully" });
+    } catch (error) {
+      console.error("Error linking diagram to application:", error);
+      res.status(500).json({ error: "Failed to link diagram to application" });
+    }
+  });
+
+  app.delete("/api/diagrams/:diagramId/link/:applicationId", async (req, res) => {
+    try {
+      await storage.unlinkDiagramFromApplication(req.params.diagramId, req.params.applicationId);
+      res.status(200).json({ message: "Diagram unlinked from application successfully" });
+    } catch (error) {
+      console.error("Error unlinking diagram from application:", error);
+      res.status(500).json({ error: "Failed to unlink diagram from application" });
     }
   });
 
