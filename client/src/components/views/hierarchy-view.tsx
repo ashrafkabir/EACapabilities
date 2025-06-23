@@ -19,13 +19,15 @@ interface HierarchyViewProps {
   onEntitySelect: (entity: EntityReference) => void;
   searchTerm: string;
   searchScope?: string | null;
+  filteredCapabilities: BusinessCapability[];
 }
 
 export default function HierarchyView({
   selectedCapability,
   onEntitySelect,
   searchTerm,
-  searchScope = null
+  searchScope = null,
+  filteredCapabilities: centralFilteredCapabilities
 }: HierarchyViewProps) {
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
   

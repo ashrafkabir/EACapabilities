@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/topbar";
@@ -9,6 +9,7 @@ import DashboardView from "@/components/views/dashboard-view";
 import ModelView from "@/components/views/model-view";
 import DetailModal from "@/components/modals/detail-modal";
 import type { BusinessCapability } from "@shared/schema";
+import { filterCapabilitiesByName } from "@/lib/unified-search";
 
 export type ViewType = 'network' | 'hierarchy' | 'heatmap' | 'dashboard' | 'model';
 
@@ -26,6 +27,25 @@ export default function Dashboard() {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [selectedITComponent, setSelectedITComponent] = useState<string | null>(null);
   const [searchScope, setSearchScope] = useState<string | null>(null); // Unified search scope across all tabs
+
+  // Fetch all capabilities for centralized filtering
+  const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
+    queryKey: ['/api/business-capabilities'],
+  });
+
+  // Centralized filtered capabilities - this single array drives all views
+  const filteredCapabilities = useMemo(() => {
+    console.log('Dashboard: Computing filtered capabilities for searchTerm:', searchTerm);
+    if (!searchTerm?.trim()) {
+      console.log('Dashboard: No search term, returning all capabilities:', allCapabilities.length);
+      return allCapabilities;
+    }
+    
+    const filtered = filterCapabilitiesByName(allCapabilities, searchTerm);
+    console.log('Dashboard: Filtered capabilities:', filtered.length, 'from', allCapabilities.length);
+    console.log('Dashboard: Filtered names:', filtered.map(c => c.name));
+    return filtered;
+  }, [allCapabilities, searchTerm]);
 
   const handleEntitySelect = (entity: EntityReference) => {
     setSelectedEntity(entity);
