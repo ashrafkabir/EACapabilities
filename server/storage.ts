@@ -321,10 +321,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAdr(id: string, updateData: Partial<InsertAdr>): Promise<Adr | undefined> {
+    // Remove any problematic timestamp fields and let the database handle them
+    const { lastModifiedAt, createdAt, updatedAt, ...cleanData } = updateData;
+    
     const [adr] = await db
       .update(adrs)
       .set({
-        ...updateData,
+        ...cleanData,
+        lastModifiedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(adrs.id, parseInt(id)))

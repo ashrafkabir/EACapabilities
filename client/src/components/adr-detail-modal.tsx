@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, X, Edit, Save, Undo } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -69,6 +69,11 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
   const [isEditing, setIsEditing] = useState(false);
   const [editedAdr, setEditedAdr] = useState<Adr | null>(null);
 
+  // Memoize the field update function to prevent re-renders
+  const updateField = useCallback((field: keyof Adr, value: string) => {
+    setEditedAdr(prev => prev ? { ...prev, [field]: value } : null);
+  }, []);
+
   // Initialize edited ADR when switching to edit mode
   const startEditing = () => {
     setEditedAdr({ ...adr });
@@ -114,14 +119,16 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
       version: (adr.version || 1) + 1
     };
 
+    // Prepare clean data without timestamp issues
+    const { lastModifiedAt, ...cleanEditedAdr } = editedAdr;
+    
     const updatedData = {
-      ...editedAdr,
+      ...cleanEditedAdr,
       auditTrail: JSON.stringify([
         ...(adr.auditTrail ? JSON.parse(adr.auditTrail) : []),
         auditEntry
       ]),
       lastModifiedBy: "Current User", // TODO: Get from auth context
-      lastModifiedAt: new Date(),
       version: (adr.version || 1) + 1
     };
 
@@ -257,12 +264,8 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
         </h4>
         {isEditing && field && editedAdr ? (
           <Textarea
-            key={`${field}-${adr.id}`} // Add key to prevent React from reusing components
             value={(editedAdr[field] as string) || ''}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              setEditedAdr(prev => prev ? { ...prev, [field]: newValue } : null);
-            }}
+            onChange={(e) => updateField(field, e.target.value)}
             className="min-h-[120px] text-sm leading-relaxed resize-vertical border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 rounded-lg p-4"
             placeholder={`Enter ${title.toLowerCase()}...
 
