@@ -87,8 +87,11 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
       if (!diagram.applicationIds) return false;
       try {
         const appIds = JSON.parse(diagram.applicationIds);
-        return Array.isArray(appIds) && appIds.includes(applicationId);
-      } catch {
+        const isLinked = Array.isArray(appIds) && appIds.includes(applicationId);
+        console.log(`Checking diagram ${diagram.name} for app ${applicationId}:`, { appIds, isLinked });
+        return isLinked;
+      } catch (error) {
+        console.log(`Error parsing applicationIds for diagram ${diagram.name}:`, error);
         return false;
       }
     });
