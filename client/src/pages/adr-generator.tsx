@@ -13,6 +13,7 @@ import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Application } from "@shared/schema";
+import AdrDetailModal from "@/components/adr-detail-modal";
 
 interface Adr {
   id: number;
@@ -480,6 +481,7 @@ export default function AdrGenerator() {
                             variant="outline"
                             size="sm"
                             onClick={() => setSelectedAdr(adr)}
+                            title="View ADR Details"
                           >
                             <Eye className="h-4 w-4" />
                           </Button>
@@ -493,6 +495,13 @@ export default function AdrGenerator() {
           </Tabs>
         </div>
       </div>
+
+      {/* ADR Detail Modal */}
+      <AdrDetailModal 
+        adr={selectedAdr} 
+        onClose={() => setSelectedAdr(null)}
+        applicationName={selectedAdr?.applicationId ? applications.find(app => app.id === selectedAdr.applicationId)?.name : undefined}
+      />
     </div>
   );
 }
