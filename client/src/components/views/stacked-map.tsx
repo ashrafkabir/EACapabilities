@@ -324,147 +324,61 @@ export default function StackedMap({
     
     // Apply search term filtering if present
     if (searchTerm) {
-      if (searchScope.startsWith('Business Capability:')) {
-        const capabilityPath = searchScope.replace('Business Capability: ', '');
-        const pathParts = capabilityPath.split('/');
+      // Get matching capabilities using the simplified search
+      const matchingCapabilities = filterCapabilitiesByName(capabilities, searchTerm);
+      const matchingIds = new Set(matchingCapabilities.map(cap => cap.id));
+      
+      // Filter columns to only show those with matching capabilities
+      filtered = columnarCapabilities.filter(column => {
+        // Check if any capability in this column matches
+        const hasMatchingL1 = matchingCapabilities.some(cap => 
+          cap.level === 1 && cap.name === column.level1Name
+        );
         
-        filtered = columnarCapabilities.filter((column: CapabilityColumn) => {
-          // Check if this column matches the selected hierarchy path
-          if (pathParts.length === 1) {
-            // Level 1 selection - show only this L1 column
-            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase();
-          } else if (pathParts.length === 2) {
-            // Level 2 selection - show column if it contains this L1/L2 path
-            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase() &&
-                   column.level2Groups.some(group => 
-                     group.level2Name.toLowerCase() === pathParts[1].toLowerCase()
-                   );
-          } else if (pathParts.length === 3) {
-            // Level 3 selection - show column if it contains this exact L1/L2/L3 path
-            return column.level1Name.toLowerCase() === pathParts[0].toLowerCase() &&
-                   column.level2Groups.some(group => 
-                     group.level2Name.toLowerCase() === pathParts[1].toLowerCase() &&
-                     group.level3Items.some(item => 
-                       item.name.toLowerCase() === pathParts[2].toLowerCase()
-                     )
-                   );
-          }
-          return false;
-        });
+        const hasMatchingL2 = column.level2Groups.some(group =>
+          matchingCapabilities.some(cap => 
+            cap.level === 2 && cap.name === group.level2Name
+          )
+        );
         
-        // Also filter the level2Groups and level3Items within matching columns
-        filtered = filtered.map(column => ({
-          ...column,
-          level2Groups: column.level2Groups.filter(group => {
-            if (pathParts.length === 1) {
-              return true; // Show all L2 groups under the selected L1
-            } else if (pathParts.length === 2) {
-              return group.level2Name.toLowerCase() === pathParts[1].toLowerCase();
-            } else if (pathParts.length === 3) {
-              return group.level2Name.toLowerCase() === pathParts[1].toLowerCase();
-            }
-            return false;
-          }).map(group => ({
-            ...group,
-            level3Items: group.level3Items.filter(item => {
-              if (pathParts.length <= 2) {
-                return true; // Show all L3 items under the selected L1/L2
-              } else if (pathParts.length === 3) {
-                return item.name.toLowerCase() === pathParts[2].toLowerCase();
-              }
-              return false;
-            })
-          }))
-        }));
-      } else if (searchScope.startsWith('Search:') || searchScope.startsWith('Application:') || 
-                 searchScope.startsWith('IT Component:') || searchScope.startsWith('Interface:') ||
-                 searchScope.startsWith('Data Object:') || searchScope.startsWith('Initiative:')) {
-        const scopeSearchTerm = searchScope.replace(/^(Search|Application|IT Component|Interface|Data Object|Initiative): /, '').toLowerCase();
+        const hasMatchingL3 = column.level2Groups.some(group =>
+          group.level3Items.some(item =>
+            matchingIds.has(item.id)
+          )
+        );
         
-        // First get all applications linked to the searched entity
-        let entityLinkedApps: Application[] = [];
-        let showAllCapabilitiesWithITComponents = false;
-        
-        if (searchScope.startsWith('IT Component:')) {
-          entityLinkedApps = getApplicationsLinkedToITComponent(scopeSearchTerm);
-        } else if (searchScope.startsWith('Interface:')) {
-          entityLinkedApps = getApplicationsLinkedToInterface(scopeSearchTerm);
-        } else if (searchScope.startsWith('Data Object:')) {
-          entityLinkedApps = getApplicationsLinkedToDataObject(scopeSearchTerm);
-        } else if (searchScope.startsWith('Initiative:')) {
-          entityLinkedApps = getApplicationsLinkedToInitiative(scopeSearchTerm);
-        }
-        
-        filtered = columnarCapabilities.filter((column: CapabilityColumn) => {
-          // Check if this column has any capabilities with linked applications
-          const hasLinkedCapabilities = column.level2Groups.some(group => 
-            group.level3Items.some(item => {
-              if (searchScope.startsWith('Application:')) {
-                return getApplicationsForCapability(item.name).some(app => 
-                  app.name.toLowerCase().includes(scopeSearchTerm)
-                );
-              } else if (entityLinkedApps.length > 0) {
-                const capabilityApps = getApplicationsForCapability(item.name);
-                const hasLinkedApps = capabilityApps.some(app => 
-                  entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
-                );
-                // Also check if this capability has linked initiatives
-                const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
-                return hasLinkedApps || hasLinkedInitiatives;
-              } else {
-                // General search, search capability names
-                return column.level1Name.toLowerCase().includes(scopeSearchTerm) ||
-                       group.level2Name.toLowerCase().includes(scopeSearchTerm) ||
-                       item.name.toLowerCase().includes(scopeSearchTerm);
-              }
-            })
+        return hasMatchingL1 || hasMatchingL2 || hasMatchingL3;
+      }).map(column => ({
+        ...column,
+        level2Groups: column.level2Groups.filter(group => {
+          const hasMatchingL2 = matchingCapabilities.some(cap => 
+            cap.level === 2 && cap.name === group.level2Name
           );
-          return hasLinkedCapabilities;
-        });
-        
-        // For entity-linked searches, also filter the internal structure to show complete hierarchy
-        if (entityLinkedApps.length > 0 || searchScope.startsWith('Application:')) {
-          filtered = filtered.map(column => ({
-            ...column,
-            level2Groups: column.level2Groups.filter(group => {
-              // Keep L2 groups that have L3 items with linked applications
-              return group.level3Items.some(item => {
-                if (searchScope.startsWith('Application:')) {
-                  return getApplicationsForCapability(item.name).some(app => 
-                    app.name.toLowerCase().includes(scopeSearchTerm)
-                  );
-                } else {
-                  const capabilityApps = getApplicationsForCapability(item.name);
-                  return capabilityApps.some(app => 
-                    entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
-                  );
-                }
-              });
-            }).map(group => ({
-              ...group,
-              level3Items: group.level3Items.filter(item => {
-                if (searchScope.startsWith('Application:')) {
-                  return getApplicationsForCapability(item.name).some(app => 
-                    app.name.toLowerCase().includes(scopeSearchTerm)
-                  );
-                } else {
-                  const capabilityApps = getApplicationsForCapability(item.name);
-                  const hasLinkedApps = capabilityApps.some(app => 
-                    entityLinkedApps.some(linkedApp => linkedApp.id === app.id)
-                  );
-                  // Also check if this capability has linked initiatives
-                  const hasLinkedInitiatives = getInitiativesLinkedToCapability(item.name).length > 0;
-                  return hasLinkedApps || hasLinkedInitiatives;
-                }
-              })
-            }))
-          }));
-        }
-      }
+          const hasMatchingL3 = group.level3Items.some(item => matchingIds.has(item.id));
+          const hasMatchingL1 = matchingCapabilities.some(cap => 
+            cap.level === 1 && cap.name === column.level1Name
+          );
+          
+          return hasMatchingL1 || hasMatchingL2 || hasMatchingL3;
+        }).map(group => ({
+          ...group,
+          level3Items: group.level3Items.filter(item => {
+            const hasMatchingL3 = matchingIds.has(item.id);
+            const hasMatchingL2 = matchingCapabilities.some(cap => 
+              cap.level === 2 && cap.name === group.level2Name
+            );
+            const hasMatchingL1 = matchingCapabilities.some(cap => 
+              cap.level === 1 && cap.name === column.level1Name
+            );
+            
+            return hasMatchingL1 || hasMatchingL2 || hasMatchingL3;
+          })
+        }))
+      }));
     }
 
     return filtered;
-  }, [columnarCapabilities, searchScope, applications, itComponents, interfaces, dataObjects, initiatives]);
+  }, [columnarCapabilities, searchTerm, capabilities]);
 
   // Filter and rebuild hierarchy based on search
   const getFilteredColumns = (columns: CapabilityColumn[], searchTerm: string): CapabilityColumn[] => {
@@ -500,7 +414,7 @@ export default function StackedMap({
     }).filter(Boolean) as CapabilityColumn[];
   };
 
-  const filteredColumns = searchScope ? filteredColumnarCapabilities : getFilteredColumns(filteredColumnarCapabilities, searchTerm);
+  const filteredColumns = filteredColumnarCapabilities;
 
   const getAllApplicationsForCapability = (capability: BusinessCapability): { application: Application; paths: string[] }[] => {
     const results: { application: Application; paths: string[] }[] = [];
