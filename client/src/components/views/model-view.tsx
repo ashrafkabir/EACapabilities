@@ -38,7 +38,7 @@ interface ColumnData {
   }[];
 }
 
-export default function ModelView({ searchTerm, selectedCapability: sidebarSelectedCapability, selectedITComponent, searchScope, filters }: ModelViewProps) {
+export default function ModelView({ onEntitySelect, searchTerm, filteredCapabilities }: ModelViewProps) {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [applicationSearchTerm, setApplicationSearchTerm] = useState("");
@@ -50,9 +50,8 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
 
   const queryClient = useQueryClient();
 
-  const { data: capabilities = [] } = useQuery<BusinessCapability[]>({
-    queryKey: ['/api/business-capabilities'],
-  });
+  // Use centralized filtered capabilities instead of fetching independently
+  const capabilities = filteredCapabilities;
 
   const { data: allApplications = [] } = useQuery<Application[]>({
     queryKey: ['/api/applications'],
@@ -306,8 +305,13 @@ export default function ModelView({ searchTerm, selectedCapability: sidebarSelec
     }).sort((a, b) => b.level1ApplicationCount - a.level1ApplicationCount);
   }, [capabilities, allApplications]);
 
+  // Use the centralized filtered capabilities directly
+  console.log('ModelView: Using centralized filtered capabilities:', capabilities.length);
+
   const filteredColumns = useMemo(() => {
-    if (!searchScope && !searchTerm.trim() && !selectedITComponent) return processedData;
+    // Always use the processedData which is already based on centralized filtered capabilities
+    console.log('ModelView: Using processedData with', processedData.length, 'columns');
+    return processedData;
     
     let filtered = processedData;
     
