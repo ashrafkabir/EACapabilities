@@ -75,8 +75,9 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
 
   // Fetch specific version data
   const { data: versionData } = useQuery({
-    queryKey: ['/api/adrs', adr.adrId, 'versions', selectedVersion],
+    queryKey: ['/api/adrs', adr?.adrId, 'versions', selectedVersion],
     queryFn: async () => {
+      if (!adr?.adrId) return adr;
       if (selectedVersion === adr.version) {
         return adr; // Use current ADR data for latest version
       }
@@ -84,7 +85,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
       if (!response.ok) return adr;
       return await response.json();
     },
-    enabled: !!adr.adrId
+    enabled: !!adr?.adrId
   });
 
   // Update current ADR data when version changes

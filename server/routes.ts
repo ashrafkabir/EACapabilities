@@ -427,6 +427,30 @@ Return ONLY the JSON object without any explanation or markdown formatting.`;
     }
   });
 
+  // ADR Version routes
+  app.get("/api/adrs/:adrId/versions", async (req, res) => {
+    try {
+      const versions = await storage.getAdrVersions(req.params.adrId);
+      res.json(versions);
+    } catch (error) {
+      console.error("Error fetching ADR versions:", error);
+      res.status(500).json({ error: "Failed to fetch ADR versions" });
+    }
+  });
+
+  app.get("/api/adrs/:adrId/versions/:version", async (req, res) => {
+    try {
+      const version = await storage.getAdrVersion(req.params.adrId, parseInt(req.params.version));
+      if (!version) {
+        return res.status(404).json({ error: "ADR version not found" });
+      }
+      res.json(version);
+    } catch (error) {
+      console.error("Error fetching ADR version:", error);
+      res.status(500).json({ error: "Failed to fetch ADR version" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
