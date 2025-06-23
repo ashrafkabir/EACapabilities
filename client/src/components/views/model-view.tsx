@@ -338,9 +338,10 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
       // Ensure level 1 tiles always have a strong, visible background with good contrast
       return `${safeColor} shadow-sm`;
     } else if (level === 2) {
-      return `${safeColor.replace('bg-', 'bg-')}/70`;
+      // Ensure level 2 tiles are clearly visible with stronger opacity and borders
+      return `${safeColor.replace('bg-', 'bg-')}/80 border-2 border-white/30 shadow-sm`;
     } else {
-      return `${safeColor.replace('bg-', 'bg-')}/40 border border-gray-300 dark:border-gray-600`;
+      return `${safeColor.replace('bg-', 'bg-')}/50 border border-gray-300 dark:border-gray-600`;
     }
   };
 
@@ -349,7 +350,8 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
       // Ensure text is always visible on level 1 tiles
       return 'text-white font-semibold drop-shadow-sm';
     } else if (level === 2) {
-      return 'text-white font-medium';
+      // Ensure level 2 text is clearly visible with better contrast
+      return 'text-white font-medium drop-shadow-sm';
     } else {
       return 'text-gray-800 dark:text-white font-normal';
     }
