@@ -320,9 +320,16 @@ export class DatabaseStorage implements IStorage {
     return adr;
   }
 
-  async updateAdr(id: string, updateData: Partial<InsertAdr>): Promise<Adr | undefined> {
-    // Remove any problematic timestamp fields and let the database handle them
-    const { lastModifiedAt, createdAt, updatedAt, ...cleanData } = updateData;
+  async updateAdr(id: string, updateData: any): Promise<Adr | undefined> {
+    // Remove any problematic fields that shouldn't be updated directly
+    const { 
+      id: _id, 
+      createdAt, 
+      updatedAt, 
+      date,
+      lastModifiedAt,
+      ...cleanData 
+    } = updateData;
     
     const [adr] = await db
       .update(adrs)

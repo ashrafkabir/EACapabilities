@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, X, Edit, Save, Undo } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -119,8 +119,15 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
       version: (adr.version || 1) + 1
     };
 
-    // Prepare clean data without timestamp issues
-    const { lastModifiedAt, ...cleanEditedAdr } = editedAdr;
+    // Prepare clean data without timestamp and problematic fields
+    const { 
+      id, 
+      createdAt, 
+      updatedAt, 
+      lastModifiedAt, 
+      date,
+      ...cleanEditedAdr 
+    } = editedAdr;
     
     const updatedData = {
       ...cleanEditedAdr,
@@ -254,7 +261,8 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
     }
   };
 
-  const Section = ({ title, content, field }: { title: string; content?: string; field?: keyof Adr }) => {
+  // Memoize the Section component to prevent unnecessary re-renders
+  const Section = useMemo(() => ({ title, content, field }: { title: string; content?: string; field?: keyof Adr }) => {
     if (!isEditing && (!content || content.trim() === '')) return null;
     
     return (
@@ -285,7 +293,7 @@ You can use markdown formatting:
         )}
       </div>
     );
-  };
+  }, [isEditing, editedAdr, updateField]);
 
   if (!adr) return null;
 
