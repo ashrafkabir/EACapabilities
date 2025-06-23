@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "@/pages/dashboard";
 import DiagramGenerator from "@/pages/diagram-generator";
 import AdrGenerator from "@/pages/adr-generator";
+import DiagramsPage from "@/pages/diagrams";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/admin" component={Dashboard} />
       <Route path="/diagram-generator" component={DiagramGenerator} />
       <Route path="/adr-generator" component={AdrGenerator} />
+      <Route path="/diagrams" component={DiagramsPage} />
       <Route component={NotFound} />
     </Switch>
   );

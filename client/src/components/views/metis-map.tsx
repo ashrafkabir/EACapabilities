@@ -4,6 +4,7 @@ import { ArrowLeft, Info, Expand, ExternalLink } from "lucide-react";
 import type { EntityReference } from "@/pages/dashboard";
 import type { BusinessCapability, Application, Initiative, DataObject, Interface, ITComponent } from "@shared/schema";
 import ExportSummaryModal from "@/components/modals/export-summary-modal";
+import ApplicationDiagramButton from "@/components/application-diagram-button";
 import { filterCapabilitiesByName } from "@/lib/unified-search";
 
 interface MetisMapProps {

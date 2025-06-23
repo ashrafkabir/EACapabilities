@@ -87,6 +87,15 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
           
           {/* Right Section - Actions */}
           <div className="flex items-center space-x-3">
+            <Link href="/diagrams">
+              <Button 
+                variant="outline"
+                className="border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 shadow-md hover:shadow-lg transition-all duration-200 rounded-lg px-4 py-2 font-medium"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Diagrams
+              </Button>
+            </Link>
             {currentView === 'model' && (
               <Link href="/diagram-generator">
                 <Button 
