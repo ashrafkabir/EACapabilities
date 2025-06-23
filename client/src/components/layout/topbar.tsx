@@ -23,24 +23,8 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
     <div className="bg-gradient-to-r from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-b border-slate-200/60 dark:border-slate-700/60 backdrop-blur-sm">
       <div className="px-8 py-4">
         <div className="flex items-center justify-between max-w-8xl mx-auto">
-          {/* Left Section - Brand and Navigation */}
-          <div className="flex items-center space-x-8">
-            {/* Brand */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-sm">R</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                  REA Toolkit
-                </h1>
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium -mt-0.5">
-                  Business Architecture
-                </p>
-              </div>
-            </div>
-            
-            {/* Navigation */}
+          {/* Navigation */}
+          <div className="flex items-center">
             <nav className="flex items-center space-x-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-1.5 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
               {Object.entries(viewConfig).map(([viewKey, config]) => {
                 const Icon = config.icon;

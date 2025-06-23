@@ -145,18 +145,25 @@ export default function Sidebar({
   }
 
   return (
-    <div className="w-80 bg-card shadow-lg border-r border-border flex flex-col">
+    <div className="w-80 h-full bg-gradient-to-b from-white to-slate-50/50 dark:from-slate-900 dark:to-slate-900/80 border-r border-slate-200/60 dark:border-slate-700/60 flex flex-col shadow-lg">
       {/* Header */}
-      <div className="p-6 border-b border-border">
-        <h1 className="text-xl font-medium text-foreground">
-          REA Toolkit
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Explore business capabilities and their relationships
-        </p>
+      <div className="p-8 border-b border-slate-200/60 dark:border-slate-700/60 bg-gradient-to-br from-slate-50/80 to-blue-50/50 dark:from-slate-800/80 dark:to-slate-900">
+        <div className="flex items-center space-x-4 mb-4">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-xl">
+            <span className="text-white font-bold text-lg">R</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
+              REA Toolkit
+            </h1>
+            <p className="text-sm text-blue-600 dark:text-blue-400 font-semibold -mt-1">
+              From Standards to Solutions
+            </p>
+          </div>
+        </div>
         {searchScope && (
-          <div className="mt-2 p-2 bg-primary/10 rounded-lg border border-primary/20">
-            <p className="text-xs text-primary font-medium">
+          <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+            <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
               {searchScope}
             </p>
           </div>
@@ -164,20 +171,20 @@ export default function Sidebar({
       </div>
 
       {/* Search */}
-      <div className="p-4 border-b border-border">
+      <div className="p-6 border-b border-slate-200/60 dark:border-slate-700/60">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             type="text"
             placeholder="Search business capabilities..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 pr-10"
+            className="pl-10 pr-10 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-slate-200 dark:border-slate-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200"
           />
           {searchTerm && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors duration-200"
             >
               <X className="w-4 h-4" />
             </button>
