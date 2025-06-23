@@ -84,6 +84,11 @@ export default function Dashboard() {
     setSelectedEntity(null);
   };
 
+  // Update view when URL changes
+  useEffect(() => {
+    setCurrentView(getCurrentView());
+  }, [location]);
+
   const handleViewChange = (view: ViewType) => {
     // Don't reset search when switching tabs to maintain unified search
     setSelectedCapability(null);
