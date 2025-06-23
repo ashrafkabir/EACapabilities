@@ -1,9 +1,6 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Network, List, Grid3x3, BarChart3, Download, Settings, Wand2, FileText, Activity, Plus } from "lucide-react";
+import { Network, List, Grid3x3, BarChart3, Download, Settings, Plus } from "lucide-react";
 import { Link } from "wouter";
-import DiagramsList from "@/components/diagrams-list";
 import type { ViewType } from "@/pages/dashboard";
 
 interface TopBarProps {
@@ -16,14 +13,12 @@ const viewConfig = {
   network: { icon: Network, label: 'Business Capabilities' },
   hierarchy: { icon: List, label: 'Map' },
   model: { icon: Settings, label: 'Model' },
-  decide: { icon: FileText, label: 'Decide' },
+  decide: { icon: Settings, label: 'Decide' },
   monitor: { icon: BarChart3, label: 'Monitor' },
   dashboard: { icon: Grid3x3, label: 'Admin Dashboard' },
 };
 
 export default function TopBar({ currentView, onViewChange, onExport }: TopBarProps) {
-  const [isDiagramModalOpen, setIsDiagramModalOpen] = useState(false);
-
   return (
     <div className="bg-gradient-to-r from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-b border-slate-200/60 dark:border-slate-700/60 backdrop-blur-sm">
       <div className="px-8 py-4">
@@ -92,33 +87,15 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
           
           {/* Right Section - Actions */}
           <div className="flex items-center space-x-3">
-            <Link href="/diagrams">
-              <Button 
-                variant="outline"
-                className="border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 shadow-md hover:shadow-lg transition-all duration-200 rounded-lg px-4 py-2 font-medium"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Diagrams
-              </Button>
-            </Link>
             {currentView === 'model' && (
-              <>
+              <Link href="/diagram-generator">
                 <Button 
-                  onClick={() => setIsDiagramModalOpen(true)}
                   className="bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg px-4 py-2 font-medium transform hover:scale-105"
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Diagrams
+                  AskEA Diagrams
                 </Button>
-                <Link href="/diagram-generator">
-                  <Button 
-                    className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg px-4 py-2 font-medium transform hover:scale-105"
-                  >
-                    <Wand2 className="w-4 h-4 mr-2" />
-                    AI Diagrams
-                  </Button>
-                </Link>
-              </>
+              </Link>
             )}
             {onExport && (
               <Button 
@@ -134,15 +111,7 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
         </div>
       </div>
 
-      {/* Diagrams Modal */}
-      <Dialog open={isDiagramModalOpen} onOpenChange={setIsDiagramModalOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Diagrams Management</DialogTitle>
-          </DialogHeader>
-          <DiagramsList />
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
