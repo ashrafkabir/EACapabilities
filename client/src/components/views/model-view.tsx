@@ -338,10 +338,11 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
       // Ensure level 1 tiles always have a strong, visible background with good contrast
       return `${safeColor} shadow-sm`;
     } else if (level === 2) {
-      // Ensure level 2 tiles are clearly visible with stronger opacity and borders
-      return `${safeColor.replace('bg-', 'bg-')}/80 border-2 border-white/30 shadow-sm`;
+      // Make level 2 tiles fully opaque with a darker variant for better visibility
+      const level2Color = safeColor.replace('-600', '-500');
+      return `${level2Color} border-2 border-gray-300 dark:border-gray-600 shadow-sm`;
     } else {
-      return `${safeColor.replace('bg-', 'bg-')}/50 border border-gray-300 dark:border-gray-600`;
+      return `${safeColor.replace('bg-', 'bg-')}/60 border border-gray-300 dark:border-gray-600`;
     }
   };
 
@@ -584,13 +585,13 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                   const hiddenLevel3Count = Math.max(0, level2Group.level3Items.length - MAX_ITEMS_PER_LEVEL);
                   
                   return (
-                    <div key={level2Group.level2Id} className="ml-2 mt-1 border-l-2 border-white/30 pl-2">
+                    <div key={level2Group.level2Id} className="ml-2 mt-1 border-l-2 border-gray-400 dark:border-gray-500 pl-2">
                       {/* Level 2 Capability */}
                       {renderCapabilityCard(level2Group.level2Name, level2Group.level2Id, colorInfo, 2)}
                       
                       {/* Level 3 Capabilities Container */}
                       {(visibleLevel3Items.length > 0 || (!isLevel2Expanded && hiddenLevel3Count > 0)) && (
-                        <div className="ml-2 mt-1 border-l-2 border-white/20 pl-2">
+                        <div className="ml-2 mt-1 border-l-2 border-gray-300 dark:border-gray-600 pl-2">
                           {/* Level 3 Capabilities */}
                           {visibleLevel3Items.map((level3Cap) => (
                             <div key={level3Cap.id}>
@@ -612,7 +613,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                 
                 {/* Level 2 Expand Button */}
                 {!isColumnExpanded && hiddenLevel2Count > 0 && (
-                  <div className="ml-2 mt-1 border-l-2 border-white/30 pl-2">
+                  <div className="ml-2 mt-1 border-l-2 border-gray-400 dark:border-gray-500 pl-2">
                     {renderExpandButton(hiddenLevel2Count, () => handleExpandColumn(column.level1Id))}
                   </div>
                 )}
