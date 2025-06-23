@@ -294,8 +294,9 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
 
   // Filter capabilities to show based on search results
-  const filteredCapabilities = useMemo(() => {
+  const filteredCapabilities = (() => {
     console.log('MetisMap: Filtering capabilities. SearchTerm:', searchTerm, 'AllMatching:', allMatchingCapabilities.length, 'ToShow:', capabilitiesToShow.length);
+    console.log('MetisMap: capabilitiesToShow:', capabilitiesToShow.map(c => c.name));
     
     if (!searchTerm?.trim()) {
       console.log('MetisMap: No search term, showing all capabilities');
@@ -321,11 +322,15 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
     
     console.log('MetisMap: Filtered capabilities for level', currentLevel, ':', filtered.map(c => `${c.name} (L${c.level})`));
     return filtered;
-  }, [searchTerm, allMatchingCapabilities, capabilitiesToShow, currentLevel]);
+  })();
+  
+  // Force re-render when search changes by using a key
+  const renderKey = `${searchTerm}-${filteredCapabilities.length}-${currentLevel}`;
     
   console.log('MetisMap capabilitiesToShow:', capabilitiesToShow.length);
   console.log('MetisMap filteredCapabilities:', filteredCapabilities.length);
   console.log('MetisMap filteredCapabilities names:', filteredCapabilities.map(c => `${c.name} (L${c.level})`));
+  console.log('MetisMap about to render capabilities count:', filteredCapabilities.length);
 
   // Generate legend data for the current metric
   const legendData = useMemo(() => {
@@ -1332,7 +1337,7 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       <div className="mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Level {currentLevel} Capabilities ({filteredCapabilities.length})
+            Level {currentLevel} Capabilities ({searchTerm ? `${filteredCapabilities.length} of ${capabilitiesToShow.length}` : filteredCapabilities.length})
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             {currentLevel === 1 && "Enterprise capability overview - Click any capability to explore sub-capabilities"}
@@ -1421,13 +1426,14 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
 
       {/* Columnar grid layout */}
       {!selectedITComponent && !selectedInterface && !selectedDataObject && (
-        <div className="grid grid-cols-3 gap-6 auto-rows-min">
+        <div key={renderKey} className="grid grid-cols-3 gap-6 auto-rows-min">
           {filteredCapabilities.length === 0 && searchTerm ? (
             <div className="col-span-3 text-center py-8 text-gray-500 dark:text-gray-400">
               No capabilities found matching "{searchTerm}"
             </div>
           ) : (
             filteredCapabilities.map((capability) => {
+          console.log('MetisMap: Rendering capability:', capability.name);
           // Get related applications for heatmap calculation
           const relatedApps = applications.filter(app => {
             if (!app.businessCapabilities) return false;
