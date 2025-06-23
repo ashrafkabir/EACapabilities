@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { z } from "zod";
 import { insertApplicationSchema, insertBusinessCapabilitySchema, insertDataObjectSchema, insertInterfaceSchema, insertInitiativeSchema, insertITComponentSchema } from "@shared/schema";
 import { importCSVData } from "./csv-import";
+import Anthropic from '@anthropic-ai/sdk';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Business Capabilities routes
@@ -229,6 +230,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing application-capability relationship:", error);
       res.status(500).json({ error: "Failed to remove relationship" });
+    }
+  });
+
+  // AI Diagram Generation endpoint using Claude
+  app.post("/api/generate-diagram", async (req, res) => {
+    try {
+      const { description, type } = req.body;
+      
+      if (!description || !type) {
+        return res.status(400).json({ error: "Description and type are required" });
+      }
+
+      if (!process.env.ANTHROPIC_API_KEY) {
+        return res.status(500).json({ error: "Anthropic API key not configured" });
+      }
+
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const diagramPrompts = {
+        process: "Create a process flow diagram showing the business process steps, decision points, and flow paths.",
+        integration: "Create an integration flow diagram showing systems, data flows, APIs, and connection points.",
+        dataflow: "Create a data flow diagram showing data sources, processes, data stores, and external entities.",
+        sequence: "Create a sequence diagram showing interactions between actors, objects, and timeline.",
+        class: "Create a class diagram showing classes, attributes, methods, and relationships.",
+        architecture: "Create an architecture diagram showing system components, layers, and connections.",
+        erd: "Create an entity relationship diagram showing entities, attributes, and relationships.",
+        journey: "Create a user journey diagram showing touchpoints, actions, and experience stages."
+      };
+
+      const prompt = `You are an expert diagram designer specializing in ArchiMate and enterprise architecture patterns. 
+      
+Generate a Mermaid diagram code for the following ${type} diagram request:
+"${description}"
+
+Guidelines:
+- ${diagramPrompts[type] || "Create a professional diagram"}
+- Use ArchiMate principles where applicable
+- Ensure proper syntax and clear labeling
+- Include appropriate styling and colors
+- Make it professional and visually clear
+- Use appropriate Mermaid diagram type (flowchart, sequenceDiagram, classDiagram, erDiagram, etc.)
+
+Return ONLY the Mermaid code without any explanation or markdown formatting.`;
+
+      const message = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const mermaidCode = message.content[0].text.trim();
+      
+      res.json({ mermaidCode });
+    } catch (error) {
+      console.error("Error generating diagram:", error);
+      res.status(500).json({ error: "Failed to generate diagram" });
     }
   });
 
