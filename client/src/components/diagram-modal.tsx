@@ -161,7 +161,7 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
     }
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!formData.name.trim()) {
       toast({
         title: "Error",
@@ -171,44 +171,15 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const diagramData = {
-        ...formData,
-        applicationIds: JSON.stringify(linkedApplications),
-      };
+    const diagramData = {
+      ...formData,
+      applicationIds: JSON.stringify(linkedApplications),
+    };
 
-      let savedDiagram;
-      if (diagram?.id) {
-        savedDiagram = await apiRequest({
-          url: `/api/diagrams/${diagram.id}`,
-          method: "PATCH",
-          body: diagramData,
-        });
-      } else {
-        savedDiagram = await apiRequest({
-          url: "/api/diagrams",
-          method: "POST",
-          body: diagramData,
-        });
-      }
-
-      toast({
-        title: "Success",
-        description: `Diagram ${diagram?.id ? 'updated' : 'created'} successfully`,
-      });
-
-      onSave?.();
-      onClose();
-    } catch (error) {
-      console.error("Error saving diagram:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save diagram",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    if (diagram?.id) {
+      updateMutation.mutate(diagramData);
+    } else {
+      createMutation.mutate(diagramData);
     }
   };
 
@@ -494,8 +465,14 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
             Cancel
           </Button>
           {(isEditMode || !diagram?.id) && (
-            <Button onClick={handleSave} disabled={isLoading}>
-              {isLoading ? "Saving..." : diagram?.id ? "Update" : "Create"}
+            <Button 
+              onClick={handleSave} 
+              disabled={createMutation.isPending || updateMutation.isPending}
+            >
+              {createMutation.isPending || updateMutation.isPending 
+                ? "Saving..." 
+                : diagram?.id ? "Update" : "Create"
+              }
             </Button>
           )}
         </div>
