@@ -31,6 +31,7 @@ export default function AdrGenerator() {
   const [activeTab, setActiveTab] = useState("generate");
   const [inputText, setInputText] = useState("");
   const [selectedApplication, setSelectedApplication] = useState("");
+  const [filterApplication, setFilterApplication] = useState("");
   const [generatedAdr, setGeneratedAdr] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -154,8 +155,13 @@ export default function AdrGenerator() {
     
     const matchesStatus = statusFilter === "all" || adr.status.toLowerCase() === statusFilter.toLowerCase();
     
-    return matchesSearch && matchesStatus;
+    const matchesApplication = filterApplication === "" || filterApplication === "all" || 
+      adr.applicationId === filterApplication;
+    
+    return matchesSearch && matchesStatus && matchesApplication;
   });
+
+  const selectedApp = applications.find(app => app.id === filterApplication);
 
   return (
     <div className="h-screen flex flex-col">
@@ -320,6 +326,40 @@ export default function AdrGenerator() {
             </TabsContent>
 
             <TabsContent value="manage" className="space-y-6 mt-6">
+              {/* Application Selection - Prominent */}
+              <Card className="border-2 border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <FileText className="h-5 w-5" />
+                    Architecture Decision Records
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4">
+                    <label className="text-sm font-medium min-w-fit">Application Context:</label>
+                    <Select value={filterApplication} onValueChange={setFilterApplication}>
+                      <SelectTrigger className="w-full max-w-md">
+                        <SelectValue placeholder="Select application to view ADRs" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Applications</SelectItem>
+                        <SelectItem value="">Unassigned ADRs</SelectItem>
+                        {applications.map((app) => (
+                          <SelectItem key={app.id} value={app.id}>
+                            {app.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedApp && (
+                      <Badge variant="outline" className="text-sm">
+                        {selectedApp.name}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Filters */}
               <Card>
                 <CardContent className="pt-6">
@@ -359,8 +399,16 @@ export default function AdrGenerator() {
                     <CardContent className="pt-6">
                       <div className="text-center py-8">
                         <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p className="text-gray-500">No ADRs found</p>
-                        <p className="text-sm text-gray-400">Generate your first ADR to get started</p>
+                        <p className="text-gray-500">
+                          {filterApplication && filterApplication !== "all" && selectedApp 
+                            ? `No ADRs found for ${selectedApp.name}` 
+                            : "No ADRs found"}
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          {filterApplication && filterApplication !== "all" 
+                            ? "Generate ADRs for this application or select a different application"
+                            : "Generate your first ADR to get started"}
+                        </p>
                       </div>
                     </CardContent>
                   </Card>
