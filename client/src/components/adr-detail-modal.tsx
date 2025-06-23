@@ -128,6 +128,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
       });
       // Update the current ADR data with the response
       Object.assign(adr, updatedAdr);
+      setCurrentAdrData(updatedAdr);
       setIsEditing(false);
       setEditedAdr(null);
     },
@@ -148,7 +149,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
     if (editedAdr) {
       Object.keys(editedAdr).forEach(key => {
         if (key !== 'id' && key !== 'createdAt' && key !== 'updatedAt' && 
-            editedAdr[key as keyof Adr] !== adr[key as keyof Adr]) {
+            editedAdr[key as keyof Adr] !== currentAdrData[key as keyof Adr]) {
           changedFields.push(key);
         }
       });

@@ -406,32 +406,44 @@ export class DatabaseStorage implements IStorage {
       return adr;
     }
     
-    // For version 1, check if there's a stored version 1 in audit trail
+    // For version 1, return the original creation state
     if (version === 1) {
-      if (!adr.auditTrail) {
-        // If no audit trail, version 1 is just the original creation
-        return {
-          ...adr,
-          version: 1,
-          // Clear fields that weren't in original version
-          problemStatement: '',
-          businessDrivers: '',
-          currentState: '',
-          constraints: '',
-          decisionCriteria: '',
-          optionsConsidered: '',
-          selectedOption: '',
-          justification: '',
-          actionItems: '',
-          impactAssessment: '',
-          verificationMethod: '',
-          positiveConsequences: '',
-          negativeConsequences: '',
-          risksAndMitigations: '',
-          notes: '',
-          references: ''
-        };
+      // Check if version 1 is stored in audit trail first
+      if (adr.auditTrail) {
+        try {
+          const auditTrail = JSON.parse(adr.auditTrail);
+          const version1Entry = auditTrail.find((entry: any) => 
+            entry.data && entry.version === 1
+          );
+          if (version1Entry) {
+            return version1Entry.data;
+          }
+        } catch (e) {
+          // Continue to return basic version 1
+        }
       }
+      
+      // Return a basic version 1 (original creation state)
+      return {
+        ...adr,
+        version: 1,
+        problemStatement: adr.title || '',
+        businessDrivers: '',
+        currentState: '',
+        constraints: '',
+        decisionCriteria: '',
+        optionsConsidered: '',
+        selectedOption: '',
+        justification: '',
+        actionItems: '',
+        impactAssessment: '',
+        verificationMethod: '',
+        positiveConsequences: '',
+        negativeConsequences: '',
+        risksAndMitigations: '',
+        notes: '',
+        references: ''
+      };
     }
     
     // Look for specific version in audit trail
