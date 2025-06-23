@@ -2,8 +2,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Download, X } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Download, X, Edit, Save, Undo } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface Adr {
   id: number;
@@ -35,6 +41,10 @@ interface Adr {
   relatedStandard?: string;
   impactedSystems?: string;
   classification?: string;
+  auditTrail?: string;
+  lastModifiedBy?: string;
+  lastModifiedAt?: string;
+  version?: number;
 }
 
 interface AdrDetailModalProps {
@@ -43,10 +53,82 @@ interface AdrDetailModalProps {
   applicationName?: string;
 }
 
+interface AuditEntry {
+  timestamp: string;
+  user: string;
+  action: string;
+  field?: string;
+  oldValue?: string;
+  newValue?: string;
+  version: number;
+}
+
 export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDetailModalProps) {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedAdr, setEditedAdr] = useState<Adr | null>(null);
 
   if (!adr) return null;
+
+  // Initialize edited ADR when switching to edit mode
+  const startEditing = () => {
+    setEditedAdr({ ...adr });
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditedAdr(null);
+    setIsEditing(false);
+  };
+
+  const updateAdrMutation = useMutation({
+    mutationFn: async (updatedData: Partial<Adr>) => {
+      const response = await apiRequest(`/api/adrs/${adr.id}`, 'PATCH', updatedData);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/adrs'] });
+      toast({
+        title: "ADR Updated",
+        description: "Architecture Decision Record has been updated successfully.",
+      });
+      setIsEditing(false);
+      setEditedAdr(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Update Failed",
+        description: error.message || "Failed to update ADR. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const saveChanges = () => {
+    if (!editedAdr) return;
+    
+    // Create audit entry for the changes
+    const auditEntry: AuditEntry = {
+      timestamp: new Date().toISOString(),
+      user: "Current User", // TODO: Get from auth context
+      action: "Updated",
+      version: (adr.version || 1) + 1
+    };
+
+    const updatedData = {
+      ...editedAdr,
+      auditTrail: JSON.stringify([
+        ...(adr.auditTrail ? JSON.parse(adr.auditTrail) : []),
+        auditEntry
+      ]),
+      lastModifiedBy: "Current User", // TODO: Get from auth context
+      lastModifiedAt: new Date().toISOString(),
+      version: (adr.version || 1) + 1
+    };
+
+    updateAdrMutation.mutate(updatedData);
+  };
 
   const exportToMarkdown = () => {
     const markdown = generateMarkdown(adr, applicationName);
@@ -167,18 +249,29 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
     }
   };
 
-  const Section = ({ title, content }: { title: string; content?: string }) => {
-    if (!content || content.trim() === '') return null;
+  const Section = ({ title, content, field }: { title: string; content?: string; field?: keyof Adr }) => {
+    if (!isEditing && (!content || content.trim() === '')) return null;
     
     return (
       <div className="space-y-2">
         <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">{title}</h4>
-        <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded border">
-          {content}
-        </div>
+        {isEditing && field && editedAdr ? (
+          <Textarea
+            value={editedAdr[field] as string || ''}
+            onChange={(e) => setEditedAdr({ ...editedAdr, [field]: e.target.value })}
+            className="min-h-[80px]"
+            placeholder={`Enter ${title.toLowerCase()}...`}
+          />
+        ) : (
+          <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded border">
+            {content || '[TO BE DETERMINED]'}
+          </div>
+        )}
       </div>
     );
   };
+
+  const auditTrail: AuditEntry[] = adr.auditTrail ? JSON.parse(adr.auditTrail) : [];
 
   return (
     <Dialog open={!!adr} onOpenChange={onClose}>
@@ -202,10 +295,29 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={exportToMarkdown}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
+            {isEditing ? (
+              <>
+                <Button variant="default" size="sm" onClick={saveChanges} disabled={updateAdrMutation.isPending}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
+                <Button variant="outline" size="sm" onClick={cancelEditing}>
+                  <Undo className="h-4 w-4 mr-2" />
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={startEditing}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+                <Button variant="outline" size="sm" onClick={exportToMarkdown}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </>
+            )}
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
@@ -213,35 +325,56 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
         </DialogHeader>
 
         <div className="space-y-6 mt-6">
-          <Section title="Problem Statement" content={adr.problemStatement} />
-          <Section title="Business Drivers" content={adr.businessDrivers} />
-          <Section title="Current State" content={adr.currentState} />
-          <Section title="Constraints" content={adr.constraints} />
-          <Section title="Decision Criteria" content={adr.decisionCriteria} />
-          <Section title="Options Considered" content={adr.optionsConsidered} />
+          <Section title="Problem Statement" content={adr.problemStatement} field="problemStatement" />
+          <Section title="Business Drivers" content={adr.businessDrivers} field="businessDrivers" />
+          <Section title="Current State" content={adr.currentState} field="currentState" />
+          <Section title="Constraints" content={adr.constraints} field="constraints" />
+          <Section title="Decision Criteria" content={adr.decisionCriteria} field="decisionCriteria" />
+          <Section title="Options Considered" content={adr.optionsConsidered} field="optionsConsidered" />
           
           <Separator />
           
-          <Section title="Selected Option" content={adr.selectedOption} />
-          <Section title="Justification" content={adr.justification} />
+          <Section title="Selected Option" content={adr.selectedOption} field="selectedOption" />
+          <Section title="Justification" content={adr.justification} field="justification" />
           
           <Separator />
           
-          <Section title="Action Items" content={adr.actionItems} />
-          <Section title="Impact Assessment" content={adr.impactAssessment} />
-          <Section title="Verification Method" content={adr.verificationMethod} />
+          <Section title="Action Items" content={adr.actionItems} field="actionItems" />
+          <Section title="Impact Assessment" content={adr.impactAssessment} field="impactAssessment" />
+          <Section title="Verification Method" content={adr.verificationMethod} field="verificationMethod" />
           
           <Separator />
           
-          <Section title="Positive Consequences" content={adr.positiveConsequences} />
-          <Section title="Negative Consequences" content={adr.negativeConsequences} />
-          <Section title="Risks and Mitigations" content={adr.risksAndMitigations} />
+          <Section title="Positive Consequences" content={adr.positiveConsequences} field="positiveConsequences" />
+          <Section title="Negative Consequences" content={adr.negativeConsequences} field="negativeConsequences" />
+          <Section title="Risks and Mitigations" content={adr.risksAndMitigations} field="risksAndMitigations" />
           
-          {(adr.notes || adr.references) && (
+          <Separator />
+          <Section title="Notes" content={adr.notes} field="notes" />
+          <Section title="References" content={adr.references} field="references" />
+
+          {auditTrail.length > 0 && (
             <>
               <Separator />
-              <Section title="Notes" content={adr.notes} />
-              <Section title="References" content={adr.references} />
+              <div className="space-y-2">
+                <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">Audit Trail</h4>
+                <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded border max-h-40 overflow-y-auto">
+                  {auditTrail.map((entry, index) => (
+                    <div key={index} className="text-xs text-gray-600 dark:text-gray-400 mb-2 last:mb-0">
+                      <div className="flex justify-between items-start">
+                        <span className="font-medium">v{entry.version} - {entry.action}</span>
+                        <span>{new Date(entry.timestamp).toLocaleString()}</span>
+                      </div>
+                      <div>by {entry.user}</div>
+                      {entry.field && (
+                        <div className="mt-1 pl-2 border-l-2 border-gray-300">
+                          <span className="font-medium">{entry.field}:</span> {entry.oldValue} → {entry.newValue}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </>
           )}
 

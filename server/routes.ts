@@ -414,6 +414,19 @@ Return ONLY the JSON object without any explanation or markdown formatting.`;
     }
   });
 
+  app.patch("/api/adrs/:id", async (req, res) => {
+    try {
+      const adr = await storage.updateAdr(req.params.id, req.body);
+      if (!adr) {
+        return res.status(404).json({ error: "ADR not found" });
+      }
+      res.json(adr);
+    } catch (error) {
+      console.error("Error updating ADR:", error);
+      res.status(500).json({ error: "Failed to update ADR" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
