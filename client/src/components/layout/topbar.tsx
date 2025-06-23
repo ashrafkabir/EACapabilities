@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Network, List, Grid3x3, BarChart3, Download, Settings } from "lucide-react";
+import { Network, List, Grid3x3, BarChart3, Download, Settings, Wand2 } from "lucide-react";
+import { Link } from "wouter";
 import type { ViewType } from "@/pages/dashboard";
 
 interface TopBarProps {
