@@ -55,12 +55,12 @@ export default function HierarchyView({
     queryKey: ['/api/initiatives'],
   });
 
-  // Build hierarchical tree structure
+  // Build hierarchical tree structure using centralized filtered capabilities
   const buildCapabilityTree = (): CapabilityNode[] => {
     const nodeMap = new Map<string, CapabilityNode>();
     
-    // Initialize all nodes
-    capabilities.forEach(cap => {
+    // Initialize all nodes from centralized filtered capabilities
+    centralFilteredCapabilities.forEach(cap => {
       nodeMap.set(cap.id, {
         ...cap,
         children: [],
@@ -76,7 +76,7 @@ export default function HierarchyView({
       const appCapabilities = app.businessCapabilities.split(';').map(cap => cap.trim().replace(/^~/, ''));
       
       appCapabilities.forEach(appCapName => {
-        capabilities.forEach(cap => {
+        centralFilteredCapabilities.forEach(cap => {
           if (cap.name === appCapName || 
               cap.name.includes(appCapName) || 
               appCapName.includes(cap.name)) {

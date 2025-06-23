@@ -141,14 +141,15 @@ export default function Dashboard() {
           <DashboardView
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
-            selectedCapability={selectedCapability}
+            filteredCapabilities={filteredCapabilities}
           />
         );
       case 'model':
         return (
           <ModelView 
+            onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
-            selectedCapability={selectedCapability}
+            filteredCapabilities={filteredCapabilities}
             selectedITComponent={selectedITComponent}
             searchScope={searchScope}
           />
