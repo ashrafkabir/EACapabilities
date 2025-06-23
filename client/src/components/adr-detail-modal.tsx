@@ -90,12 +90,14 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
       const response = await apiRequest(`/api/adrs/${adr.id}`, 'PATCH', updatedData);
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedAdr) => {
       queryClient.invalidateQueries({ queryKey: ['/api/adrs'] });
       toast({
         title: "ADR Updated",
         description: "Architecture Decision Record has been updated successfully.",
       });
+      // Update the current ADR data with the response
+      Object.assign(adr, updatedAdr);
       setIsEditing(false);
       setEditedAdr(null);
     },
@@ -143,12 +145,13 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
   };
 
   const exportToMarkdown = () => {
-    const markdown = generateMarkdown(adr, applicationName);
+    const currentAdr = isEditing ? editedAdr || adr : adr;
+    const markdown = generateMarkdown(currentAdr, applicationName);
     const blob = new Blob([markdown], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${adr.adrId.toLowerCase().replace(/\s+/g, '-')}.md`;
+    a.download = `${currentAdr.adrId.toLowerCase().replace(/[^a-z0-9]/g, '-')}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -156,7 +159,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
     
     toast({
       title: "ADR Exported",
-      description: `${adr.adrId} has been exported as a markdown file.`,
+      description: `${currentAdr.adrId} has been exported as a markdown file.`,
     });
   };
 
@@ -261,18 +264,22 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
     }
   };
 
-  // Memoize the Section component to prevent unnecessary re-renders
-  const Section = useMemo(() => ({ title, content, field }: { title: string; content?: string; field?: keyof Adr }) => {
+  // Create a stable Section component to prevent focus loss
+  const Section = ({ title, content, field }: { title: string; content?: string; field?: keyof Adr }) => {
     if (!isEditing && (!content || content.trim() === '')) return null;
+    
+    const currentAdr = isEditing ? editedAdr : adr;
+    const currentValue = (currentAdr?.[field] as string) || '';
     
     return (
       <div className="space-y-3">
         <h4 className="font-semibold text-base text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-1">
           {title}
         </h4>
-        {isEditing && field && editedAdr ? (
+        {isEditing && field ? (
           <Textarea
-            value={(editedAdr[field] as string) || ''}
+            key={`${field}-editing`}
+            value={currentValue}
             onChange={(e) => updateField(field, e.target.value)}
             className="min-h-[120px] text-sm leading-relaxed resize-vertical border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 rounded-lg p-4"
             placeholder={`Enter ${title.toLowerCase()}...
@@ -293,7 +300,7 @@ You can use markdown formatting:
         )}
       </div>
     );
-  }, [isEditing, editedAdr, updateField]);
+  };
 
   if (!adr) return null;
 
