@@ -65,13 +65,15 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Creating diagram with data:", data);
       return await apiRequest({
         url: "/api/diagrams",
         method: "POST",
         body: data,
       });
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      console.log("Diagram created successfully:", result);
       queryClient.invalidateQueries({ queryKey: ["/api/diagrams"] });
       toast({
         title: "Success",
@@ -162,6 +164,8 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
   };
 
   const handleSave = () => {
+    console.log("handleSave called with formData:", formData);
+    
     if (!formData.name.trim()) {
       toast({
         title: "Error",
@@ -171,10 +175,29 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
       return;
     }
 
+    if (!formData.diagramType.trim()) {
+      toast({
+        title: "Error", 
+        description: "Diagram type is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const diagramData = {
-      ...formData,
+      name: formData.name,
+      description: formData.description,
+      diagramType: formData.diagramType,
+      mermaidCode: formData.mermaidCode,
+      resourceType: formData.resourceType,
+      resourceUrl: formData.resourceUrl,
       applicationIds: JSON.stringify(linkedApplications),
+      tags: formData.tags,
+      isPublic: formData.isPublic,
+      createdBy: formData.createdBy,
     };
+
+    console.log("Submitting diagram data:", diagramData);
 
     if (diagram?.id) {
       updateMutation.mutate(diagramData);
