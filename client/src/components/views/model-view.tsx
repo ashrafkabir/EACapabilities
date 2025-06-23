@@ -88,7 +88,9 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
       try {
         const appIds = JSON.parse(diagram.applicationIds);
         const isLinked = Array.isArray(appIds) && appIds.includes(applicationId);
-        console.log(`Checking diagram ${diagram.name} for app ${applicationId}:`, { appIds, isLinked });
+        if (applicationId === 'f25f6606-22a4-4c5f-a34b-f6fb915231c2') {
+          console.log(`🔍 Checking diagram ${diagram.name} for CT.gov Portal:`, { appIds, isLinked });
+        }
         return isLinked;
       } catch (error) {
         console.log(`Error parsing applicationIds for diagram ${diagram.name}:`, error);
@@ -582,7 +584,8 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                     
                     // Log to help debug which apps are being checked
                     if (app.name === 'CT.gov Portal') {
-                      console.log(`🎯 CT.gov Portal found! Has ${appDiagrams.length} diagrams:`, appDiagrams);
+                      console.log(`🎯 CT.gov Portal found! ID: ${app.id}, Has ${appDiagrams.length} diagrams:`, appDiagrams);
+                      console.log(`Expected ID: d95e4493-cd14-4a8c-a9ed-2b1cd30574e6, Match: ${app.id === 'd95e4493-cd14-4a8c-a9ed-2b1cd30574e6'}`);
                     }
                     
                     return (
