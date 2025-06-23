@@ -320,6 +320,10 @@ export default function StackedMap({
 
   // Filter columns based on search term
   const filteredColumnarCapabilities = useMemo(() => {
+    if (!columnarCapabilities || !Array.isArray(columnarCapabilities)) {
+      return [];
+    }
+    
     let filtered = columnarCapabilities;
     
     // Apply search term filtering if present
@@ -335,26 +339,26 @@ export default function StackedMap({
           cap.level === 1 && cap.name === column.level1Name
         );
         
-        const hasMatchingL2 = column.level2Groups.some(group =>
+        const hasMatchingL2 = column.level2Groups?.some(group =>
           matchingCapabilities.some(cap => 
             cap.level === 2 && cap.name === group.level2Name
           )
-        );
+        ) || false;
         
-        const hasMatchingL3 = column.level2Groups.some(group =>
-          group.level3Items.some(item =>
+        const hasMatchingL3 = column.level2Groups?.some(group =>
+          group.level3Items?.some(item =>
             matchingIds.has(item.id)
           )
-        );
+        ) || false;
         
         return hasMatchingL1 || hasMatchingL2 || hasMatchingL3;
       }).map(column => ({
         ...column,
-        level2Groups: column.level2Groups.filter(group => {
+        level2Groups: (column.level2Groups || []).filter(group => {
           const hasMatchingL2 = matchingCapabilities.some(cap => 
             cap.level === 2 && cap.name === group.level2Name
           );
-          const hasMatchingL3 = group.level3Items.some(item => matchingIds.has(item.id));
+          const hasMatchingL3 = (group.level3Items || []).some(item => matchingIds.has(item.id));
           const hasMatchingL1 = matchingCapabilities.some(cap => 
             cap.level === 1 && cap.name === column.level1Name
           );
@@ -362,7 +366,7 @@ export default function StackedMap({
           return hasMatchingL1 || hasMatchingL2 || hasMatchingL3;
         }).map(group => ({
           ...group,
-          level3Items: group.level3Items.filter(item => {
+          level3Items: (group.level3Items || []).filter(item => {
             const hasMatchingL3 = matchingIds.has(item.id);
             const hasMatchingL2 = matchingCapabilities.some(cap => 
               cap.level === 2 && cap.name === group.level2Name
@@ -414,7 +418,7 @@ export default function StackedMap({
     }).filter(Boolean) as CapabilityColumn[];
   };
 
-  const filteredColumns = filteredColumnarCapabilities;
+  const filteredColumns = filteredColumnarCapabilities || [];
 
   const getAllApplicationsForCapability = (capability: BusinessCapability): { application: Application; paths: string[] }[] => {
     const results: { application: Application; paths: string[] }[] = [];
