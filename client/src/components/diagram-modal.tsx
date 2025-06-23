@@ -75,6 +75,7 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
     onSuccess: (result) => {
       console.log("Diagram created successfully:", result);
       queryClient.invalidateQueries({ queryKey: ["/api/diagrams"] });
+      queryClient.refetchQueries({ queryKey: ["/api/diagrams"] });
       toast({
         title: "Success",
         description: "Diagram created successfully",
@@ -102,6 +103,7 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/diagrams"] });
+      queryClient.refetchQueries({ queryKey: ["/api/diagrams"] });
       toast({
         title: "Success",
         description: "Diagram updated successfully",
