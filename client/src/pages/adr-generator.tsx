@@ -12,8 +12,11 @@ import { Copy, Download, FileText, Loader2, ArrowLeft, Plus, Search, Filter, Eye
 import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import type { Application } from "@shared/schema";
+import type { Application, BusinessCapability } from "@shared/schema";
+import type { ViewType } from "@/pages/dashboard";
 import AdrDetailModal from "@/components/adr-detail-modal";
+import Sidebar from "@/components/layout/sidebar";
+import TopBar from "@/components/layout/topbar";
 
 interface Adr {
   id: number;
@@ -39,6 +42,16 @@ export default function AdrGenerator() {
   const [selectedAdr, setSelectedAdr] = useState<Adr | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Dashboard-like state for sidebar integration
+  const [sidebarSearchTerm, setSidebarSearchTerm] = useState('');
+  const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
+  const [searchScope, setSearchScope] = useState<string | null>(null);
+
+  // Fetch capabilities for sidebar
+  const { data: allCapabilities = [] } = useQuery<BusinessCapability[]>({
+    queryKey: ['/api/business-capabilities'],
+  });
 
   const { data: applications = [] } = useQuery<Application[]>({
     queryKey: ['/api/applications'],
