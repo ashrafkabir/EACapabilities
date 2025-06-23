@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,61 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
   const [isLoading, setIsLoading] = useState(false);
   
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest({
+        url: "/api/diagrams",
+        method: "POST",
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/diagrams"] });
+      toast({
+        title: "Success",
+        description: "Diagram created successfully",
+      });
+      onSave?.();
+      onClose();
+    },
+    onError: (error) => {
+      console.error("Error creating diagram:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create diagram",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await apiRequest({
+        url: `/api/diagrams/${diagram?.id}`,
+        method: "PATCH",
+        body: data,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/diagrams"] });
+      toast({
+        title: "Success",
+        description: "Diagram updated successfully",
+      });
+      onSave?.();
+      onClose();
+    },
+    onError: (error) => {
+      console.error("Error updating diagram:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update diagram",
+        variant: "destructive",
+      });
+    },
+  });
 
   useEffect(() => {
     if (diagram) {
