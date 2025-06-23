@@ -42,29 +42,27 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
         </div>
         
         <div className="flex items-center space-x-2">
+          <Link href="/adr-generator">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center space-x-2"
+            >
+              <FileText className="w-4 h-4" />
+              <span>Decide</span>
+            </Button>
+          </Link>
           {currentView === 'model' && (
-            <>
-              <Link href="/diagram-generator">
-                <Button 
-                  variant="default" 
-                  size="sm" 
-                  className="flex items-center space-x-2"
-                >
-                  <Wand2 className="w-4 h-4" />
-                  <span>AI Diagrams</span>
-                </Button>
-              </Link>
-              <Link href="/adr-generator">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="flex items-center space-x-2"
-                >
-                  <FileText className="w-4 h-4" />
-                  <span>Decide</span>
-                </Button>
-              </Link>
-            </>
+            <Link href="/diagram-generator">
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="flex items-center space-x-2"
+              >
+                <Wand2 className="w-4 h-4" />
+                <span>AI Diagrams</span>
+              </Button>
+            </Link>
           )}
           <Button 
             variant="ghost" 

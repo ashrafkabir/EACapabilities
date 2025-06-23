@@ -48,7 +48,8 @@ export default function AdrGenerator() {
 
   const generateAdrMutation = useMutation({
     mutationFn: async ({ inputText, applicationId }: { inputText: string; applicationId?: string }) => {
-      const response = await apiRequest('/api/generate-adr', 'POST', { inputText, applicationId });
+      const appId = applicationId === "none" ? undefined : applicationId;
+      const response = await apiRequest('/api/generate-adr', 'POST', { inputText, applicationId: appId });
       return response.json();
     },
     onSuccess: (data) => {
@@ -207,7 +208,7 @@ export default function AdrGenerator() {
                           <SelectValue placeholder="Select application" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">No specific application</SelectItem>
+                          <SelectItem value="none">No specific application</SelectItem>
                           {applications.map((app) => (
                             <SelectItem key={app.id} value={app.id}>
                               {app.name}

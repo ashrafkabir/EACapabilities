@@ -5,7 +5,8 @@ import {
   dataObjects, type DataObject,
   interfaces, type Interface,
   initiatives, type Initiative,
-  itComponents, type ITComponent
+  itComponents, type ITComponent,
+  adrs, type Adr, type InsertAdr
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, or, sql } from "drizzle-orm";
@@ -296,6 +297,39 @@ export class DatabaseStorage implements IStorage {
     await db.update(applications)
       .set({ businessCapabilities: updatedCapabilities })
       .where(eq(applications.id, applicationId));
+  }
+
+  async getAllAdrs(): Promise<Adr[]> {
+    const adrList = await db.select().from(adrs).orderBy(desc(adrs.date));
+    return adrList;
+  }
+
+  async getAdrById(id: string): Promise<Adr | undefined> {
+    const [adr] = await db.select().from(adrs).where(eq(adrs.id, parseInt(id)));
+    return adr || undefined;
+  }
+
+  async createAdr(insertAdr: InsertAdr): Promise<Adr> {
+    const [adr] = await db
+      .insert(adrs)
+      .values({
+        ...insertAdr,
+        updatedAt: new Date(),
+      })
+      .returning();
+    return adr;
+  }
+
+  async updateAdr(id: string, updateData: Partial<InsertAdr>): Promise<Adr | undefined> {
+    const [adr] = await db
+      .update(adrs)
+      .set({
+        ...updateData,
+        updatedAt: new Date(),
+      })
+      .where(eq(adrs.id, parseInt(id)))
+      .returning();
+    return adr || undefined;
   }
 }
 
