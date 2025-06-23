@@ -66,26 +66,31 @@ interface AuditEntry {
 }
 
 export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDetailModalProps) {
+  // Early return if no ADR data - BEFORE any hooks
+  if (!adr) {
+    return null;
+  }
+
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [editedAdr, setEditedAdr] = useState<Adr | null>(null);
-  const [selectedVersion, setSelectedVersion] = useState<number>(adr?.version || 1);
-  const [currentAdrData, setCurrentAdrData] = useState<Adr | null>(adr || null);
+  const [selectedVersion, setSelectedVersion] = useState<number>(adr.version || 1);
+  const [currentAdrData, setCurrentAdrData] = useState<Adr>(adr);
 
-  // Fetch specific version data
+  // Memoize the field update function to prevent re-renders
+  const updateField = useCallback((field: keyof Adr, value: string) => {
+    setEditedAdr(prev => prev ? { ...prev, [field]: value } : null);
+  }, []);
+
+  // Fetch specific version data - simplified to only use current ADR for now
   const { data: versionData } = useQuery({
-    queryKey: ['/api/adrs', adr?.adrId, 'versions', selectedVersion],
+    queryKey: ['/api/adrs', adr.adrId, 'versions', selectedVersion],
     queryFn: async () => {
-      if (!adr?.adrId) return adr;
-      if (selectedVersion === adr.version) {
-        return adr; // Use current ADR data for latest version
-      }
-      const response = await fetch(`/api/adrs/${adr.adrId}/versions/${selectedVersion}`);
-      if (!response.ok) return adr;
-      return await response.json();
+      // For now, just return the current ADR since versions table doesn't exist yet
+      return adr;
     },
-    enabled: !!adr?.adrId
+    enabled: false // Disable until database is ready
   });
 
   // Update current ADR data when version changes
@@ -94,16 +99,6 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
       setCurrentAdrData(versionData);
     }
   }, [versionData]);
-
-  // Early return if no ADR data
-  if (!adr || !currentAdrData) {
-    return null;
-  }
-
-  // Memoize the field update function to prevent re-renders
-  const updateField = useCallback((field: keyof Adr, value: string) => {
-    setEditedAdr(prev => prev ? { ...prev, [field]: value } : null);
-  }, []);
 
   // Initialize edited ADR when switching to edit mode
   const startEditing = () => {
@@ -420,7 +415,7 @@ You can use markdown formatting:
 
   if (!adr) return null;
 
-  const auditTrail: AuditEntry[] = adr?.auditTrail ? JSON.parse(adr.auditTrail) : [];
+  const auditTrail: AuditEntry[] = adr.auditTrail ? JSON.parse(adr.auditTrail) : [];
 
   return (
     <Dialog open={!!adr} onOpenChange={onClose}>
@@ -522,12 +517,12 @@ You can use markdown formatting:
         )}
 
         <div className="space-y-8 mt-6">
-          <Section title="Problem Statement" content={currentAdrData?.problemStatement} field="problemStatement" />
-          <Section title="Business Drivers" content={currentAdrData?.businessDrivers} field="businessDrivers" />
-          <Section title="Current State" content={currentAdrData?.currentState} field="currentState" />
-          <Section title="Constraints" content={currentAdrData?.constraints} field="constraints" />
-          <Section title="Decision Criteria" content={currentAdrData?.decisionCriteria} field="decisionCriteria" />
-          <Section title="Options Considered" content={currentAdrData?.optionsConsidered} field="optionsConsidered" />
+          <Section title="Problem Statement" content={currentAdrData.problemStatement} field="problemStatement" />
+          <Section title="Business Drivers" content={currentAdrData.businessDrivers} field="businessDrivers" />
+          <Section title="Current State" content={currentAdrData.currentState} field="currentState" />
+          <Section title="Constraints" content={currentAdrData.constraints} field="constraints" />
+          <Section title="Decision Criteria" content={currentAdrData.decisionCriteria} field="decisionCriteria" />
+          <Section title="Options Considered" content={currentAdrData.optionsConsidered} field="optionsConsidered" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -539,8 +534,8 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Selected Option" content={currentAdrData?.selectedOption} field="selectedOption" />
-          <Section title="Justification" content={currentAdrData?.justification} field="justification" />
+          <Section title="Selected Option" content={currentAdrData.selectedOption} field="selectedOption" />
+          <Section title="Justification" content={currentAdrData.justification} field="justification" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -552,9 +547,9 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Action Items" content={currentAdrData?.actionItems} field="actionItems" />
-          <Section title="Impact Assessment" content={currentAdrData?.impactAssessment} field="impactAssessment" />
-          <Section title="Verification Method" content={currentAdrData?.verificationMethod} field="verificationMethod" />
+          <Section title="Action Items" content={currentAdrData.actionItems} field="actionItems" />
+          <Section title="Impact Assessment" content={currentAdrData.impactAssessment} field="impactAssessment" />
+          <Section title="Verification Method" content={currentAdrData.verificationMethod} field="verificationMethod" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -566,9 +561,9 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Positive Consequences" content={currentAdrData?.positiveConsequences} field="positiveConsequences" />
-          <Section title="Negative Consequences" content={currentAdrData?.negativeConsequences} field="negativeConsequences" />
-          <Section title="Risks and Mitigations" content={currentAdrData?.risksAndMitigations} field="risksAndMitigations" />
+          <Section title="Positive Consequences" content={currentAdrData.positiveConsequences} field="positiveConsequences" />
+          <Section title="Negative Consequences" content={currentAdrData.negativeConsequences} field="negativeConsequences" />
+          <Section title="Risks and Mitigations" content={currentAdrData.risksAndMitigations} field="risksAndMitigations" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -580,8 +575,8 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Notes" content={currentAdrData?.notes} field="notes" />
-          <Section title="References" content={currentAdrData?.references} field="references" />
+          <Section title="Notes" content={currentAdrData.notes} field="notes" />
+          <Section title="References" content={currentAdrData.references} field="references" />
 
           {auditTrail.length > 0 && (
             <>
