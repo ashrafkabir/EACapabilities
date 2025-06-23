@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Network, List, Grid3x3, BarChart3, Download, Settings, Wand2 } from "lucide-react";
+import { Network, List, Grid3x3, BarChart3, Download, Settings, Wand2, FileText } from "lucide-react";
 import { Link } from "wouter";
 import type { ViewType } from "@/pages/dashboard";
 
@@ -43,16 +43,28 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
         
         <div className="flex items-center space-x-2">
           {currentView === 'model' && (
-            <Link href="/diagram-generator">
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="flex items-center space-x-2"
-              >
-                <Wand2 className="w-4 h-4" />
-                <span>AI Diagrams</span>
-              </Button>
-            </Link>
+            <>
+              <Link href="/diagram-generator">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="flex items-center space-x-2"
+                >
+                  <Wand2 className="w-4 h-4" />
+                  <span>AI Diagrams</span>
+                </Button>
+              </Link>
+              <Link href="/adr-generator">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex items-center space-x-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  <span>Decide</span>
+                </Button>
+              </Link>
+            </>
           )}
           <Button 
             variant="ghost" 

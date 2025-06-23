@@ -291,6 +291,129 @@ Return ONLY the Mermaid code without any explanation or markdown formatting.`;
     }
   });
 
+  // ADR Generation endpoint using Claude
+  app.post("/api/generate-adr", async (req, res) => {
+    try {
+      const { inputText, applicationId } = req.body;
+      
+      if (!inputText) {
+        return res.status(400).json({ error: "Input text is required" });
+      }
+
+      if (!process.env.ANTHROPIC_API_KEY) {
+        return res.status(500).json({ error: "Anthropic API key not configured" });
+      }
+
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
+
+      const currentYear = new Date().getFullYear();
+      const adrId = `ADR-${currentYear}-${String(Math.floor(Math.random() * 999) + 1).padStart(3, '0')}`;
+
+      const prompt = `You are an expert enterprise architect specializing in Architecture Decision Records (ADRs). 
+
+Extract architectural decisions from the following unstructured text and generate a complete ADR following enterprise standards:
+
+"${inputText}"
+
+EXTRACTION CAPABILITIES:
+- Extract architectural decisions from unstructured text
+- Identify stakeholders, systems, and technologies mentioned
+- Recognize decision criteria and evaluation factors
+- Detect options considered and trade-offs discussed
+- Understand regulatory and compliance requirements
+- Map decisions to enterprise patterns and standards
+
+PROCESSING REQUIREMENTS:
+- Handle meeting transcripts, chat logs, or informal notes
+- Extract key decisions even from tangential discussions
+- Identify implicit assumptions and constraints
+- Recognize technical and business drivers
+
+Generate a JSON object with the following structure:
+{
+  "adrId": "${adrId}",
+  "title": "[Extracted title of the architectural decision]",
+  "status": "Proposed",
+  "decisionMakers": "[Extracted names and roles of decision makers]",
+  "relatedStandard": "[Any standards mentioned or applicable]",
+  "impactedSystems": "[Systems/applications mentioned or affected]",
+  "classification": "[Strategic/Tactical/Operational based on scope]",
+  "problemStatement": "[Extracted problem description]",
+  "businessDrivers": "[Business needs and objectives identified]",
+  "currentState": "[Current situation if mentioned]",
+  "constraints": "[Limitations and restrictions identified]",
+  "decisionCriteria": "[Evaluation criteria as JSON array]",
+  "optionsConsidered": "[Options discussed as JSON array]",
+  "selectedOption": "[Chosen solution if clear]",
+  "justification": "[Reasoning for the decision]",
+  "actionItems": "[Implementation steps as JSON array]",
+  "impactAssessment": "[Impacts on systems, processes, people]",
+  "positiveConsequences": "[Benefits and positive outcomes]",
+  "negativeConsequences": "[Risks and negative impacts]",
+  "notes": "[Additional discussion points]",
+  "applicationId": "${applicationId || ''}"
+}
+
+SPECIAL INSTRUCTIONS:
+- If information is missing, use "[TO BE DETERMINED]"
+- Mark areas requiring human review with "[REVIEW NEEDED]"
+- Extract dates, names, and system references accurately
+- Maintain consistency with enterprise architecture standards
+- Generate realistic and professional content based on the input
+
+Return ONLY the JSON object without any explanation or markdown formatting.`;
+
+      const message = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 3000,
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const adrContent = message.content[0].text.trim();
+      
+      res.json({ adr: adrContent });
+    } catch (error) {
+      console.error("Error generating ADR:", error);
+      res.status(500).json({ error: "Failed to generate ADR" });
+    }
+  });
+
+  // ADR CRUD endpoints
+  app.get("/api/adrs", async (req, res) => {
+    try {
+      const adrs = await storage.getAllAdrs();
+      res.json(adrs);
+    } catch (error) {
+      console.error("Error fetching ADRs:", error);
+      res.status(500).json({ error: "Failed to fetch ADRs" });
+    }
+  });
+
+  app.post("/api/adrs", async (req, res) => {
+    try {
+      const adr = await storage.createAdr(req.body);
+      res.json(adr);
+    } catch (error) {
+      console.error("Error creating ADR:", error);
+      res.status(500).json({ error: "Failed to create ADR" });
+    }
+  });
+
+  app.get("/api/adrs/:id", async (req, res) => {
+    try {
+      const adr = await storage.getAdrById(req.params.id);
+      if (!adr) {
+        return res.status(404).json({ error: "ADR not found" });
+      }
+      res.json(adr);
+    } catch (error) {
+      console.error("Error fetching ADR:", error);
+      res.status(500).json({ error: "Failed to fetch ADR" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

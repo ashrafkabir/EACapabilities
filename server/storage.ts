@@ -50,6 +50,12 @@ interface IStorage {
   // Application-Capability relationship methods
   addApplicationCapabilityRelationship(applicationId: string, capabilityName: string): Promise<void>;
   removeApplicationCapabilityRelationship(applicationId: string, capabilityName: string): Promise<void>;
+  
+  // ADR methods
+  getAllAdrs(): Promise<Adr[]>;
+  getAdrById(id: string): Promise<Adr | undefined>;
+  createAdr(insertAdr: InsertAdr): Promise<Adr>;
+  updateAdr(id: string, updateData: Partial<InsertAdr>): Promise<Adr | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
