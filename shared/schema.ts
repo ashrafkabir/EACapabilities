@@ -157,6 +157,56 @@ export type Initiative = typeof initiatives.$inferSelect;
 export type InsertITComponent = z.infer<typeof insertITComponentSchema>;
 export type ITComponent = typeof itComponents.$inferSelect;
 
+export const adrs = pgTable("adrs", {
+  id: serial("id").primaryKey(),
+  adrId: text("adr_id").unique().notNull(),
+  title: text("title").notNull(),
+  status: text("status").notNull(),
+  date: timestamp("date").defaultNow().notNull(),
+  decisionMakers: text("decision_makers"),
+  relatedStandard: text("related_standard"),
+  impactedSystems: text("impacted_systems"),
+  classification: text("classification"),
+  
+  problemStatement: text("problem_statement"),
+  businessDrivers: text("business_drivers"),
+  currentState: text("current_state"),
+  constraints: text("constraints"),
+  decisionCriteria: text("decision_criteria"),
+  optionsConsidered: text("options_considered"),
+  selectedOption: text("selected_option"),
+  justification: text("justification"),
+  
+  actionItems: text("action_items"),
+  impactAssessment: text("impact_assessment"),
+  verificationMethod: text("verification_method"),
+  
+  positiveConsequences: text("positive_consequences"),
+  negativeConsequences: text("negative_consequences"),
+  risksAndMitigations: text("risks_and_mitigations"),
+  
+  applicationId: text("application_id"),
+  capabilityIds: text("capability_ids"),
+  relatedAdrIds: text("related_adr_ids"),
+  notes: text("notes"),
+  references: text("references"),
+  
+  approvals: text("approvals"),
+  revisionHistory: text("revision_history"),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertAdrSchema = createInsertSchema(adrs).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAdr = z.infer<typeof insertAdrSchema>;
+export type Adr = typeof adrs.$inferSelect;
+
 // Legacy user table for authentication (keeping for compatibility)
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
