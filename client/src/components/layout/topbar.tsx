@@ -43,17 +43,26 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
               );
             }
             
+            // Map each view to its proper route
+            const routes = {
+              network: '/',
+              hierarchy: '/map',
+              model: '/model',
+              monitor: '/monitor',
+              dashboard: '/admin'
+            };
+
             return (
-              <Button
-                key={viewKey}
-                variant={isActive ? "default" : "ghost"}
-                size="sm"
-                onClick={() => onViewChange(viewKey as ViewType)}
-                className="flex items-center space-x-2"
-              >
-                <Icon className="w-4 h-4" />
-                <span>{config.label}</span>
-              </Button>
+              <Link key={viewKey} href={routes[viewKey as keyof typeof routes] || '/'}>
+                <Button
+                  variant={isActive ? "default" : "ghost"}
+                  size="sm"
+                  className="flex items-center space-x-2"
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{config.label}</span>
+                </Button>
+              </Link>
             );
           })}
         </div>
