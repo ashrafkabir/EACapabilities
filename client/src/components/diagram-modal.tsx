@@ -66,11 +66,13 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
   const createMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("Creating diagram with data:", data);
-      return await apiRequest({
+      const response = await apiRequest({
         url: "/api/diagrams",
         method: "POST",
         body: data,
       });
+      console.log("API response received:", response);
+      return response;
     },
     onSuccess: (result) => {
       console.log("Diagram created successfully:", result);
