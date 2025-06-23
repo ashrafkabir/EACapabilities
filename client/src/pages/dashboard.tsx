@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import Sidebar from "@/components/layout/sidebar";
 import TopBar from "@/components/layout/topbar";
 import MetisMap from "@/components/views/metis-map";
@@ -20,7 +21,20 @@ export interface EntityReference {
 }
 
 export default function Dashboard() {
-  const [currentView, setCurrentView] = useState<ViewType>('network');
+  const [location] = useLocation();
+  
+  // Determine current view based on URL
+  const getCurrentView = (): ViewType => {
+    switch (location) {
+      case '/map': return 'hierarchy';
+      case '/model': return 'model';
+      case '/monitor': return 'monitor';
+      case '/admin': return 'dashboard';
+      default: return 'network'; // for '/'
+    }
+  };
+  
+  const [currentView, setCurrentView] = useState<ViewType>(getCurrentView());
   const [selectedEntity, setSelectedEntity] = useState<EntityReference | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
