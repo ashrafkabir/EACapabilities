@@ -20,75 +20,110 @@ const viewConfig = {
 
 export default function TopBar({ currentView, onViewChange, onExport }: TopBarProps) {
   return (
-    <div className="bg-card border-b border-border px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex space-x-2">
-          {Object.entries(viewConfig).map(([viewKey, config]) => {
-            const Icon = config.icon;
-            const isActive = currentView === viewKey;
+    <div className="bg-gradient-to-r from-white via-slate-50 to-white dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 border-b border-slate-200/60 dark:border-slate-700/60 backdrop-blur-sm">
+      <div className="px-8 py-4">
+        <div className="flex items-center justify-between max-w-8xl mx-auto">
+          {/* Left Section - Brand and Navigation */}
+          <div className="flex items-center space-x-8">
+            {/* Brand */}
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-sm">R</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
+                  REA Toolkit
+                </h1>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium -mt-0.5">
+                  Business Architecture
+                </p>
+              </div>
+            </div>
             
-            // Special handling for "decide" to navigate to ADR page
-            if (viewKey === 'decide') {
-              return (
-                <Link key={viewKey} href="/adr-generator">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center space-x-2"
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span>{config.label}</span>
-                  </Button>
-                </Link>
-              );
-            }
-            
-            // Map each view to its proper route
-            const routes = {
-              network: '/',
-              hierarchy: '/map',
-              model: '/model',
-              monitor: '/monitor',
-              dashboard: '/admin'
-            };
+            {/* Navigation */}
+            <nav className="flex items-center space-x-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-xl p-1.5 shadow-lg border border-slate-200/50 dark:border-slate-700/50">
+              {Object.entries(viewConfig).map(([viewKey, config]) => {
+                const Icon = config.icon;
+                const isActive = currentView === viewKey;
+                
+                // Special handling for "decide" to navigate to ADR page
+                if (viewKey === 'decide') {
+                  return (
+                    <Link key={viewKey} href="/adr-generator">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`relative rounded-lg px-4 py-2.5 font-medium transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md hover:shadow-lg transform hover:scale-105' 
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-slate-100'
+                        }`}
+                      >
+                        <Icon className="w-4 h-4 mr-2" />
+                        <span>{config.label}</span>
+                        {isActive && (
+                          <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-600/20 -z-10" />
+                        )}
+                      </Button>
+                    </Link>
+                  );
+                }
+                
+                // Map each view to its proper route
+                const routes = {
+                  network: '/',
+                  hierarchy: '/map',
+                  model: '/model',
+                  monitor: '/monitor',
+                  dashboard: '/admin'
+                };
 
-            return (
-              <Link key={viewKey} href={routes[viewKey as keyof typeof routes] || '/'}>
-                <Button
-                  variant={isActive ? "default" : "ghost"}
-                  size="sm"
-                  className="flex items-center space-x-2"
+                return (
+                  <Link key={viewKey} href={routes[viewKey as keyof typeof routes] || '/'}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={`relative rounded-lg px-4 py-2.5 font-medium transition-all duration-200 ${
+                        isActive 
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-md hover:shadow-lg transform hover:scale-105' 
+                          : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-slate-100'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 mr-2" />
+                      <span>{config.label}</span>
+                      {isActive && (
+                        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-600/20 -z-10" />
+                      )}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+          
+          {/* Right Section - Actions */}
+          <div className="flex items-center space-x-3">
+            {currentView === 'model' && (
+              <Link href="/diagram-generator">
+                <Button 
+                  className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-lg px-4 py-2 font-medium transform hover:scale-105"
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{config.label}</span>
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  AI Diagrams
                 </Button>
               </Link>
-            );
-          })}
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          {currentView === 'model' && (
-            <Link href="/diagram-generator">
+            )}
+            {onExport && (
               <Button 
-                variant="default" 
-                size="sm" 
-                className="flex items-center space-x-2"
+                variant="outline"
+                onClick={onExport}
+                className="border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 shadow-md hover:shadow-lg transition-all duration-200 rounded-lg px-4 py-2 font-medium"
               >
-                <Wand2 className="w-4 h-4" />
-                <span>AI Diagrams</span>
+                <Download className="w-4 h-4 mr-2" />
+                Export
               </Button>
-            </Link>
-          )}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="flex items-center space-x-2"
-            onClick={onExport}
-          >
-            <Download className="w-4 h-4" />
-            <span>Export</span>
-          </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
