@@ -6,7 +6,8 @@ import {
   interfaces, type Interface,
   initiatives, type Initiative,
   itComponents, type ITComponent,
-  adrs, type Adr, type InsertAdr
+  adrs, type Adr, type InsertAdr,
+  adrVersions, type AdrVersion, type InsertAdrVersion
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, or, sql, desc } from "drizzle-orm";

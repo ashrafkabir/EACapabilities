@@ -452,14 +452,41 @@ You can use markdown formatting:
               </>
             ) : (
               <>
-                <Button variant="outline" size="sm" onClick={startEditing}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={startEditing}
+                  disabled={selectedVersion !== adr.version}
+                >
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </Button>
-                <Button variant="outline" size="sm" onClick={exportToMarkdown}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    onClick={() => exportToFormat('md')}
+                    className="flex items-center gap-2 text-xs px-2 py-1 h-8"
+                  >
+                    <Download className="h-3 w-3" />
+                    MD
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => exportToFormat('html')}
+                    className="flex items-center gap-2 text-xs px-2 py-1 h-8"
+                  >
+                    <Download className="h-3 w-3" />
+                    HTML
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => exportToFormat('docx')}
+                    className="flex items-center gap-2 text-xs px-2 py-1 h-8"
+                  >
+                    <Download className="h-3 w-3" />
+                    DOCX
+                  </Button>
+                </div>
               </>
             )}
             <Button variant="ghost" size="sm" onClick={onClose}>
