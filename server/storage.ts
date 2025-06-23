@@ -7,7 +7,8 @@ import {
   initiatives, type Initiative,
   itComponents, type ITComponent,
   adrs, type Adr, type InsertAdr,
-  adrVersions, type AdrVersion, type InsertAdrVersion
+  adrVersions, type AdrVersion, type InsertAdrVersion,
+  diagrams, type Diagram, type InsertDiagram
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, or, sql, desc } from "drizzle-orm";
@@ -62,6 +63,16 @@ interface IStorage {
   // ADR Version methods
   getAdrVersions(adrId: string): Promise<any[]>;
   getAdrVersion(adrId: string, version: number): Promise<any | undefined>;
+  
+  // Diagram methods
+  getAllDiagrams(): Promise<Diagram[]>;
+  getDiagramById(id: string): Promise<Diagram | undefined>;
+  createDiagram(insertDiagram: InsertDiagram): Promise<Diagram>;
+  updateDiagram(id: string, updateData: Partial<InsertDiagram>): Promise<Diagram | undefined>;
+  deleteDiagram(id: string): Promise<void>;
+  getDiagramsByApplicationId(applicationId: string): Promise<Diagram[]>;
+  linkDiagramToApplication(diagramId: string, applicationId: string): Promise<void>;
+  unlinkDiagramFromApplication(diagramId: string, applicationId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -483,6 +494,91 @@ export class DatabaseStorage implements IStorage {
     } catch (e) {
       return undefined;
     }
+  }
+
+  // Diagram methods
+  async getAllDiagrams(): Promise<Diagram[]> {
+    return await db.select().from(diagrams).orderBy(desc(diagrams.updatedAt));
+  }
+
+  async getDiagramById(id: string): Promise<Diagram | undefined> {
+    const [diagram] = await db.select().from(diagrams).where(eq(diagrams.id, id));
+    return diagram || undefined;
+  }
+
+  async createDiagram(insertDiagram: InsertDiagram): Promise<Diagram> {
+    const [diagram] = await db
+      .insert(diagrams)
+      .values({
+        ...insertDiagram,
+        updatedAt: sql`now()`
+      })
+      .returning();
+    return diagram;
+  }
+
+  async updateDiagram(id: string, updateData: Partial<InsertDiagram>): Promise<Diagram | undefined> {
+    const [diagram] = await db
+      .update(diagrams)
+      .set({
+        ...updateData,
+        updatedAt: sql`now()`
+      })
+      .where(eq(diagrams.id, id))
+      .returning();
+    return diagram || undefined;
+  }
+
+  async deleteDiagram(id: string): Promise<void> {
+    await db.delete(diagrams).where(eq(diagrams.id, id));
+  }
+
+  async getDiagramsByApplicationId(applicationId: string): Promise<Diagram[]> {
+    return await db
+      .select()
+      .from(diagrams)
+      .where(like(diagrams.applicationIds, `%"${applicationId}"%`))
+      .orderBy(desc(diagrams.updatedAt));
+  }
+
+  async linkDiagramToApplication(diagramId: string, applicationId: string): Promise<void> {
+    const diagram = await this.getDiagramById(diagramId);
+    if (!diagram) return;
+
+    let applicationIds: string[] = [];
+    if (diagram.applicationIds) {
+      try {
+        applicationIds = JSON.parse(diagram.applicationIds);
+      } catch {
+        applicationIds = [];
+      }
+    }
+
+    if (!applicationIds.includes(applicationId)) {
+      applicationIds.push(applicationId);
+      await this.updateDiagram(diagramId, {
+        applicationIds: JSON.stringify(applicationIds)
+      });
+    }
+  }
+
+  async unlinkDiagramFromApplication(diagramId: string, applicationId: string): Promise<void> {
+    const diagram = await this.getDiagramById(diagramId);
+    if (!diagram) return;
+
+    let applicationIds: string[] = [];
+    if (diagram.applicationIds) {
+      try {
+        applicationIds = JSON.parse(diagram.applicationIds);
+      } catch {
+        applicationIds = [];
+      }
+    }
+
+    const filteredIds = applicationIds.filter(id => id !== applicationId);
+    await this.updateDiagram(diagramId, {
+      applicationIds: JSON.stringify(filteredIds)
+    });
   }
 }
 

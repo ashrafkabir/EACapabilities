@@ -7,7 +7,7 @@ export const businessCapabilities = pgTable("business_capabilities", {
   name: text("name").notNull(),
   displayName: text("display_name"),
   hierarchy: text("hierarchy"),
-  parentId: uuid("parent_id").references(() => businessCapabilities.id),
+  parentId: uuid("parent_id"),
   level: integer("level").default(1),
   level1Capability: text("level1_capability"),
   level2Capability: text("level2_capability"),
@@ -107,6 +107,24 @@ export const itComponents = pgTable("it_components", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const diagrams = pgTable("diagrams", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  description: text("description"),
+  diagramType: text("diagram_type").notNull(), // e.g., "architecture", "sequence", "flowchart", "network"
+  mermaidCode: text("mermaid_code"), // The mermaid diagram code
+  version: integer("version").default(1).notNull(),
+  resourceType: text("resource_type"), // e.g., "lucidchart", "leanix", "image", "mermaid"
+  resourceUrl: text("resource_url"), // Link to external resource (LucidChart, LeanIX, etc.)
+  applicationIds: text("application_ids"), // JSON array of linked application IDs
+  tags: text("tags"), // Comma-separated tags for categorization
+  isPublic: boolean("is_public").default(true),
+  createdBy: text("created_by"),
+  lastModifiedBy: text("last_modified_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertBusinessCapabilitySchema = createInsertSchema(businessCapabilities).omit({
   id: true,
@@ -138,6 +156,12 @@ export const insertITComponentSchema = createInsertSchema(itComponents).omit({
   createdAt: true,
 });
 
+export const insertDiagramSchema = createInsertSchema(diagrams).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type InsertBusinessCapability = z.infer<typeof insertBusinessCapabilitySchema>;
 export type BusinessCapability = typeof businessCapabilities.$inferSelect;
@@ -156,6 +180,9 @@ export type Initiative = typeof initiatives.$inferSelect;
 
 export type InsertITComponent = z.infer<typeof insertITComponentSchema>;
 export type ITComponent = typeof itComponents.$inferSelect;
+
+export type InsertDiagram = z.infer<typeof insertDiagramSchema>;
+export type Diagram = typeof diagrams.$inferSelect;
 
 // ADR Versions table - stores each version as a separate record
 export const adrVersions = pgTable("adr_versions", {
