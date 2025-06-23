@@ -6,7 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Copy, Download, ExternalLink, Wand2, FileText, Loader2 } from "lucide-react";
+import { Copy, Download, ExternalLink, Wand2, FileText, Loader2, ArrowLeft } from "lucide-react";
+import { Link } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -106,17 +107,33 @@ export default function DiagramGenerator() {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          AI Diagram Generator
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400">
-          Convert natural language descriptions into professional diagrams using AI and ArchiMate templates
-        </p>
+    <div className="h-screen flex flex-col">
+      {/* Navigation Header */}
+      <div className="bg-card border-b border-border px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Link href="/">
+              <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to Dashboard</span>
+              </Button>
+            </Link>
+            <div className="h-6 w-px bg-border"></div>
+            <h1 className="text-xl font-semibold text-foreground">AI Diagram Generator</h1>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        <div className="container mx-auto p-6 max-w-6xl">
+          <div className="mb-8">
+            <p className="text-gray-600 dark:text-gray-400">
+              Convert natural language descriptions into professional diagrams using AI and ArchiMate templates
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Input Section */}
         <Card>
           <CardHeader>
@@ -296,6 +313,8 @@ export default function DiagramGenerator() {
           </div>
         </CardContent>
       </Card>
+        </div>
+      </div>
     </div>
   );
 }
