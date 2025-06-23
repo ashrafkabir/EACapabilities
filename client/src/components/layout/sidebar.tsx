@@ -149,7 +149,7 @@ export default function Sidebar({
       {/* Header */}
       <div className="p-6 border-b border-border">
         <h1 className="text-xl font-medium text-foreground">
-          REA Landscape Navigator
+          REA Toolkit
         </h1>
         <p className="text-sm text-muted-foreground">
           Explore business capabilities and their relationships
