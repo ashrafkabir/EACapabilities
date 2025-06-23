@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, X, Edit, Save, Undo } from "lucide-react";
+import { Download, X, Edit, Save, Undo, AlertCircle, CheckCircle, XCircle, Archive } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useCallback, useMemo, useEffect } from "react";
 import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
@@ -106,7 +106,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
 
   // Initialize edited ADR when switching to edit mode
   const startEditing = () => {
-    setEditedAdr({ ...adr });
+    setEditedAdr({ ...currentAdrData });
     setIsEditing(true);
   };
 
