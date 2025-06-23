@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Plus, Minus, Search, Check, ChevronsUpDown, X } from "lucide-react";
+import { Plus, Minus, Search, Check, ChevronsUpDown, X, FileText } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
+import DiagramModal from "@/components/diagram-modal";
 
-import type { BusinessCapability, Application } from "@shared/schema";
+import type { BusinessCapability, Application, Diagram } from "@shared/schema";
 import { filterCapabilitiesBySearch } from "@/lib/unified-search";
 
 interface ModelViewProps {
@@ -46,6 +47,8 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
   const [selectedApplications, setSelectedApplications] = useState<Set<string>>(new Set());
   const [expandedColumns, setExpandedColumns] = useState<Set<string>>(new Set());
   const [expandedLevel2Groups, setExpandedLevel2Groups] = useState<Set<string>>(new Set());
+  const [selectedDiagram, setSelectedDiagram] = useState<Diagram | null>(null);
+  const [isDiagramModalOpen, setIsDiagramModalOpen] = useState(false);
 
   const MAX_ITEMS_PER_LEVEL = 3;
 
@@ -70,9 +73,41 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
     queryKey: ['/api/data-objects'],
   });
 
+  const { data: diagrams = [] } = useQuery<Diagram[]>({
+    queryKey: ['/api/diagrams'],
+  });
+
   const { data: initiatives = [] } = useQuery<any[]>({
     queryKey: ['/api/initiatives'],
   });
+
+  // Helper function to get diagrams for a specific application
+  const getApplicationDiagrams = (applicationId: string): Diagram[] => {
+    return diagrams.filter((diagram: Diagram) => {
+      if (!diagram.applicationIds) return false;
+      try {
+        const appIds = JSON.parse(diagram.applicationIds);
+        return Array.isArray(appIds) && appIds.includes(applicationId);
+      } catch {
+        return false;
+      }
+    });
+  };
+
+  // Helper function to check if application has diagrams
+  const hasApplicationDiagrams = (applicationId: string): boolean => {
+    return getApplicationDiagrams(applicationId).length > 0;
+  };
+
+  const handleDiagramClick = (applicationId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const appDiagrams = getApplicationDiagrams(applicationId);
+    if (appDiagrams.length > 0) {
+      // If multiple diagrams, show the first one (could be enhanced to show a selection dialog)
+      setSelectedDiagram(appDiagrams[0]);
+      setIsDiagramModalOpen(true);
+    }
+  };
 
   const { data: applicationsForSelectedCapability = [] } = useQuery({
     queryKey: ['/api/capabilities', selectedCapability, 'applications'],
@@ -540,17 +575,30 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                   {applications.map((app: Application) => (
                     <div key={app.id} className="flex items-center justify-between bg-white/10 rounded px-2 py-1.5 text-gray-800 dark:text-white">
                       <span className="text-xs truncate flex-1 font-medium">{app.name}</span>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-5 w-5 p-0 text-red-600 hover:text-red-800 hover:bg-red-100/30 ml-2"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveApplication(app.id);
-                        }}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
+                      <div className="flex items-center gap-1 ml-2">
+                        {hasApplicationDiagrams(app.id) && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-5 w-5 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100/30"
+                            onClick={(e) => handleDiagramClick(app.id, e)}
+                            title={`View diagrams for ${app.name}`}
+                          >
+                            <FileText className="h-3 w-3" />
+                          </Button>
+                        )}
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-5 w-5 p-0 text-red-600 hover:text-red-800 hover:bg-red-100/30"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveApplication(app.id);
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -635,6 +683,19 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
           </div>
         )}
       </div>
+
+      {/* Diagram Modal */}
+      {selectedDiagram && (
+        <DiagramModal
+          diagram={selectedDiagram}
+          onClose={() => {
+            setSelectedDiagram(null);
+            setIsDiagramModalOpen(false);
+          }}
+          applications={allApplications}
+          isEditing={false}
+        />
+      )}
     </div>
   );
 }
