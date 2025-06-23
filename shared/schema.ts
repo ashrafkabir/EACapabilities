@@ -194,6 +194,12 @@ export const adrs = pgTable("adrs", {
   approvals: text("approvals"),
   revisionHistory: text("revision_history"),
   
+  // Audit trail
+  auditTrail: text("audit_trail"),
+  lastModifiedBy: text("last_modified_by"),
+  lastModifiedAt: timestamp("last_modified_at"),
+  version: integer("version").default(1).notNull(),
+  
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

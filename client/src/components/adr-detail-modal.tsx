@@ -69,8 +69,6 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
   const [isEditing, setIsEditing] = useState(false);
   const [editedAdr, setEditedAdr] = useState<Adr | null>(null);
 
-  if (!adr) return null;
-
   // Initialize edited ADR when switching to edit mode
   const startEditing = () => {
     setEditedAdr({ ...adr });
@@ -270,6 +268,8 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
       </div>
     );
   };
+
+  if (!adr) return null;
 
   const auditTrail: AuditEntry[] = adr.auditTrail ? JSON.parse(adr.auditTrail) : [];
 
