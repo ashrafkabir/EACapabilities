@@ -577,9 +577,9 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                     const appDiagrams = getApplicationDiagrams(app.id);
                     const hasDiagrams = appDiagrams.length > 0;
                     
-                    // Only log for debugging specific issues
-                    if (hasDiagrams) {
-                      console.log(`App ${app.name} has ${appDiagrams.length} diagrams:`, appDiagrams);
+                    // Log to help debug which apps are being checked
+                    if (app.name === 'CT.gov Portal') {
+                      console.log(`🎯 CT.gov Portal found! Has ${appDiagrams.length} diagrams:`, appDiagrams);
                     }
                     
                     return (
