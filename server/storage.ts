@@ -330,18 +330,27 @@ export class DatabaseStorage implements IStorage {
     const currentAdr = await this.getAdrById(id);
     if (!currentAdr) return undefined;
 
-    // Save current state as a version record in JSON format
+    // Save current state as a version record in JSON format (store minimal data)
     const versionData = {
       version: currentAdr.version,
-      data: currentAdr,
+      data: {
+        ...currentAdr,
+        // Remove heavy fields to reduce payload size
+        auditTrail: null,
+        revisionHistory: null
+      },
       timestamp: new Date().toISOString(),
       user: "Current User"
     };
 
-    // Store version in auditTrail
+    // Store version in auditTrail - limit to last 10 versions to prevent payload issues
     let existingAuditTrail = [];
     try {
       existingAuditTrail = currentAdr.auditTrail ? JSON.parse(currentAdr.auditTrail) : [];
+      // Keep only the last 9 versions, so with the new one we have max 10
+      if (existingAuditTrail.length >= 10) {
+        existingAuditTrail = existingAuditTrail.slice(-9);
+      }
     } catch (e) {
       existingAuditTrail = [];
     }
