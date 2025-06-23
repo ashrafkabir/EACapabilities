@@ -327,34 +327,54 @@ export default function AdrGenerator() {
 
             <TabsContent value="manage" className="space-y-6 mt-6">
               {/* Application Selection - Prominent */}
-              <Card className="border-2 border-primary/20 bg-primary/5">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <FileText className="h-5 w-5" />
-                    Architecture Decision Records
+              <Card className="border-2 border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-3 text-xl font-bold text-blue-900 dark:text-blue-100">
+                    <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+                      <FileText className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    Architecture Decision Records Management
                   </CardTitle>
+                  <p className="text-blue-700 dark:text-blue-300 text-sm">
+                    Select an application to view and manage its architectural decisions
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-4">
-                    <label className="text-sm font-medium min-w-fit">Application Context:</label>
-                    <Select value={filterApplication} onValueChange={setFilterApplication}>
-                      <SelectTrigger className="w-full max-w-md">
-                        <SelectValue placeholder="Select application to view ADRs" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Applications</SelectItem>
-                        <SelectItem value="">Unassigned ADRs</SelectItem>
-                        {applications.map((app) => (
-                          <SelectItem key={app.id} value={app.id}>
-                            {app.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <label className="text-base font-semibold text-blue-900 dark:text-blue-100 min-w-fit">
+                        Application Context:
+                      </label>
+                      <Select value={filterApplication} onValueChange={setFilterApplication}>
+                        <SelectTrigger className="w-full max-w-lg border-2 border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-900">
+                          <SelectValue placeholder="🎯 Select application to view ADRs" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">📋 All Applications</SelectItem>
+                          <SelectItem value="">❓ Unassigned ADRs</SelectItem>
+                          {applications.map((app) => (
+                            <SelectItem key={app.id} value={app.id}>
+                              🏢 {app.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     {selectedApp && (
-                      <Badge variant="outline" className="text-sm">
-                        {selectedApp.name}
-                      </Badge>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Currently viewing:</span>
+                        <Badge variant="default" className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1">
+                          🏢 {selectedApp.name}
+                        </Badge>
+                      </div>
+                    )}
+                    {filterApplication === "all" && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Currently viewing:</span>
+                        <Badge variant="outline" className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300 px-3 py-1">
+                          📋 All Applications
+                        </Badge>
+                      </div>
                     )}
                   </div>
                 </CardContent>
