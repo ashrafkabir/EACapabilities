@@ -279,6 +279,66 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
 </w:document>`;
   };
 
+  // Status Progression Component
+  const StatusProgression = ({ currentStatus, isEditing, onStatusChange }: { 
+    currentStatus: string, 
+    isEditing: boolean, 
+    onStatusChange: (status: string) => void 
+  }) => {
+    const statuses = [
+      { name: 'Proposed', icon: AlertCircle, color: 'text-blue-500', bgColor: 'bg-blue-100 dark:bg-blue-900' },
+      { name: 'Accepted', icon: CheckCircle, color: 'text-green-500', bgColor: 'bg-green-100 dark:bg-green-900' },
+      { name: 'Rejected', icon: XCircle, color: 'text-red-500', bgColor: 'bg-red-100 dark:bg-red-900' },
+      { name: 'Deprecated', icon: Archive, color: 'text-gray-500', bgColor: 'bg-gray-100 dark:bg-gray-900' },
+    ];
+
+    if (isEditing) {
+      return (
+        <Select value={editedAdr?.status || currentStatus} onValueChange={onStatusChange}>
+          <SelectTrigger className="w-[140px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {statuses.map(status => (
+              <SelectItem key={status.name} value={status.name}>
+                <div className="flex items-center gap-2">
+                  <status.icon className={`w-4 h-4 ${status.color}`} />
+                  {status.name}
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-1">
+        {statuses.map((status, index) => {
+          const isActive = status.name === currentStatus;
+          const isPast = statuses.findIndex(s => s.name === currentStatus) > index;
+          const StatusIcon = status.icon;
+          
+          return (
+            <div key={status.name} className="flex items-center">
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-full transition-all ${
+                isActive ? `${status.bgColor} ${status.color}` : 
+                isPast ? 'bg-gray-200 dark:bg-gray-700 text-gray-400' : 
+                'bg-gray-100 dark:bg-gray-800 text-gray-300'
+              }`}>
+                <StatusIcon className="w-4 h-4" />
+                <span className="text-sm font-medium">{status.name}</span>
+              </div>
+              {index < statuses.length - 1 && (
+                <div className={`w-8 h-0.5 mx-1 ${isPast || isActive ? 'bg-gray-300' : 'bg-gray-200'}`} />
+              )}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const generateMarkdown = (adr: Adr, appName?: string): string => {
     return `# ${adr.adrId}: ${adr.title}
 
