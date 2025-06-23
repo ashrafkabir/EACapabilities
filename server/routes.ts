@@ -477,20 +477,13 @@ Return ONLY the JSON object without any explanation or markdown formatting.`;
 
   app.post("/api/diagrams", async (req, res) => {
     try {
-      console.log("POST /api/diagrams - Request body:", JSON.stringify(req.body, null, 2));
-      
       const validatedData = insertDiagramSchema.parse(req.body);
-      console.log("POST /api/diagrams - Validated data:", JSON.stringify(validatedData, null, 2));
-      
       const diagram = await storage.createDiagram(validatedData);
-      console.log("POST /api/diagrams - Created diagram:", JSON.stringify(diagram, null, 2));
-      
       res.status(201).json(diagram);
     } catch (error) {
       console.error("Error creating diagram:", error);
       if (error instanceof Error) {
         console.error("Error details:", error.message);
-        console.error("Error stack:", error.stack);
       }
       res.status(500).json({ error: "Failed to create diagram", details: error.message });
     }

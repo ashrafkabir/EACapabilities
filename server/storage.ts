@@ -507,23 +507,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createDiagram(insertDiagram: InsertDiagram): Promise<Diagram> {
-    console.log("DatabaseStorage.createDiagram - Input data:", JSON.stringify(insertDiagram, null, 2));
-    
-    try {
-      const [diagram] = await db
-        .insert(diagrams)
-        .values({
-          ...insertDiagram,
-          updatedAt: sql`now()`
-        })
-        .returning();
-      
-      console.log("DatabaseStorage.createDiagram - Inserted diagram:", JSON.stringify(diagram, null, 2));
-      return diagram;
-    } catch (error) {
-      console.error("DatabaseStorage.createDiagram - Database error:", error);
-      throw error;
-    }
+    const [diagram] = await db
+      .insert(diagrams)
+      .values({
+        ...insertDiagram,
+        updatedAt: sql`now()`
+      })
+      .returning();
+    return diagram;
   }
 
   async updateDiagram(id: string, updateData: Partial<InsertDiagram>): Promise<Diagram | undefined> {

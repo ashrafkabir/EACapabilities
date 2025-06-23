@@ -169,6 +169,7 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
 
   const handleSave = () => {
     console.log("handleSave called with formData:", formData);
+    console.log("linkedApplications:", linkedApplications);
     
     if (!formData.name.trim()) {
       toast({
@@ -202,6 +203,7 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
     };
 
     console.log("Submitting diagram data:", diagramData);
+    console.log("applicationIds being sent:", JSON.stringify(linkedApplications));
 
     if (diagram?.id) {
       updateMutation.mutate(diagramData);
