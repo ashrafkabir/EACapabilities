@@ -83,14 +83,18 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
     setEditedAdr(prev => prev ? { ...prev, [field]: value } : null);
   }, []);
 
-  // Fetch specific version data - simplified to only use current ADR for now
+  // Fetch specific version data
   const { data: versionData } = useQuery({
     queryKey: ['/api/adrs', adr.adrId, 'versions', selectedVersion],
     queryFn: async () => {
-      // For now, just return the current ADR since versions table doesn't exist yet
-      return adr;
+      if (selectedVersion === adr.version) {
+        return adr; // Use current ADR data for latest version
+      }
+      const response = await fetch(`/api/adrs/${adr.adrId}/versions/${selectedVersion}`);
+      if (!response.ok) return adr;
+      return await response.json();
     },
-    enabled: false // Disable until database is ready
+    enabled: !!adr.adrId
   });
 
   // Update current ADR data when version changes

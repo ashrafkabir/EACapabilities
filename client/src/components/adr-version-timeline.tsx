@@ -40,20 +40,34 @@ export default function AdrVersionTimeline({ adr, onVersionSelect, selectedVersi
     try {
       const auditEntries = JSON.parse(adr.auditTrail);
       auditEntries.forEach((entry: any) => {
-        if (entry.version > 1) {
+        if (entry.version && entry.version >= 1) {
+          // Don't duplicate version 1
+          if (entry.version === 1) return;
+          
           versionHistory.push({
-            version: entry.version,
+            version: entry.version + 1, // The version after this change
             timestamp: entry.timestamp,
             user: entry.user,
-            action: entry.action,
-            changes: entry.changes || [],
-            isLatest: entry.version === adr.version
+            action: "Updated",
+            changes: [],
+            isLatest: false
           });
         }
       });
     } catch (e) {
       console.error("Failed to parse audit trail:", e);
     }
+  }
+
+  // Add current version
+  if (adr.version > 1) {
+    versionHistory.push({
+      version: adr.version,
+      timestamp: adr.lastModifiedAt || adr.updatedAt,
+      user: adr.lastModifiedBy || "Current User",
+      action: "Current",
+      isLatest: true
+    });
   }
 
   // Mark the latest version

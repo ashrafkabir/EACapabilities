@@ -59,10 +59,9 @@ interface IStorage {
   createAdr(insertAdr: InsertAdr): Promise<Adr>;
   updateAdr(id: string, updateData: Partial<InsertAdr>): Promise<Adr | undefined>;
   
-  // ADR Version methods (disabled until database table is created)
-  // getAdrVersions(adrId: string): Promise<AdrVersion[]>;
-  // getAdrVersion(adrId: string, version: number): Promise<AdrVersion | undefined>;
-  // createAdrVersion(insertAdrVersion: InsertAdrVersion): Promise<AdrVersion>;
+  // ADR Version methods
+  getAdrVersions(adrId: string): Promise<any[]>;
+  getAdrVersion(adrId: string, version: number): Promise<any | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -327,6 +326,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAdr(id: string, updateData: any): Promise<Adr | undefined> {
+    // Get the current ADR to save as previous version
+    const currentAdr = await this.getAdrById(id);
+    if (!currentAdr) return undefined;
+
+    // Save current state as a version record in JSON format
+    const versionData = {
+      version: currentAdr.version,
+      data: currentAdr,
+      timestamp: new Date().toISOString(),
+      user: "Current User"
+    };
+
+    // Store version in auditTrail
+    let existingAuditTrail = [];
+    try {
+      existingAuditTrail = currentAdr.auditTrail ? JSON.parse(currentAdr.auditTrail) : [];
+    } catch (e) {
+      existingAuditTrail = [];
+    }
+
     // Remove any problematic fields that shouldn't be updated directly
     const { 
       id: _id, 
@@ -336,43 +355,70 @@ export class DatabaseStorage implements IStorage {
       lastModifiedAt,
       ...cleanData 
     } = updateData;
+
+    // Increment version number
+    const newVersion = currentAdr.version + 1;
     
     const [adr] = await db
       .update(adrs)
       .set({
         ...cleanData,
+        version: newVersion,
         lastModifiedAt: new Date(),
         updatedAt: new Date(),
+        // Store version history in auditTrail
+        auditTrail: JSON.stringify([
+          ...existingAuditTrail,
+          versionData
+        ])
       })
       .where(eq(adrs.id, parseInt(id)))
       .returning();
     return adr || undefined;
   }
 
-  // Version methods disabled until database table is created
-  // async getAdrVersions(adrId: string): Promise<AdrVersion[]> {
-  //   return await db
-  //     .select()
-  //     .from(adrVersions)
-  //     .where(eq(adrVersions.adrId, adrId))
-  //     .orderBy(adrVersions.version);
-  // }
+  async getAdrVersions(adrId: string): Promise<any[]> {
+    const [adr] = await db
+      .select()
+      .from(adrs)
+      .where(eq(adrs.adrId, adrId));
+    
+    if (!adr || !adr.auditTrail) return [];
+    
+    try {
+      const auditTrail = JSON.parse(adr.auditTrail);
+      return auditTrail.filter((entry: any) => entry.data && entry.version);
+    } catch (e) {
+      return [];
+    }
+  }
 
-  // async getAdrVersion(adrId: string, version: number): Promise<AdrVersion | undefined> {
-  //   const [adrVersion] = await db
-  //     .select()
-  //     .from(adrVersions)
-  //     .where(eq(adrVersions.adrId, adrId) && eq(adrVersions.version, version));
-  //   return adrVersion || undefined;
-  // }
-
-  // async createAdrVersion(insertAdrVersion: InsertAdrVersion): Promise<AdrVersion> {
-  //   const [adrVersion] = await db
-  //     .insert(adrVersions)
-  //     .values(insertAdrVersion)
-  //     .returning();
-  //   return adrVersion;
-  // }
+  async getAdrVersion(adrId: string, version: number): Promise<any | undefined> {
+    const [adr] = await db
+      .select()
+      .from(adrs)
+      .where(eq(adrs.adrId, adrId));
+    
+    if (!adr) return undefined;
+    
+    // If requesting current version, return current ADR
+    if (version === adr.version) {
+      return adr;
+    }
+    
+    // Look for specific version in audit trail
+    if (!adr.auditTrail) return undefined;
+    
+    try {
+      const auditTrail = JSON.parse(adr.auditTrail);
+      const versionEntry = auditTrail.find((entry: any) => 
+        entry.data && entry.version === version
+      );
+      return versionEntry ? versionEntry.data : undefined;
+    } catch (e) {
+      return undefined;
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
