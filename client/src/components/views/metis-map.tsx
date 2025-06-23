@@ -1422,7 +1422,12 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
       {/* Columnar grid layout */}
       {!selectedITComponent && !selectedInterface && !selectedDataObject && (
         <div className="grid grid-cols-3 gap-6 auto-rows-min">
-          {filteredCapabilities.map((capability) => {
+          {filteredCapabilities.length === 0 && searchTerm ? (
+            <div className="col-span-3 text-center py-8 text-gray-500 dark:text-gray-400">
+              No capabilities found matching "{searchTerm}"
+            </div>
+          ) : (
+            filteredCapabilities.map((capability) => {
           // Get related applications for heatmap calculation
           const relatedApps = applications.filter(app => {
             if (!app.businessCapabilities) return false;
@@ -1606,7 +1611,8 @@ export default function MetisMap({ selectedCapability, selectedITComponent: pare
               </div>
             </div>
           );
-        })}
+        })
+          )}
         </div>
       )}
 
