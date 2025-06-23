@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Network, List, Grid3x3, BarChart3, Download, Settings, Wand2, FileText } from "lucide-react";
+import { Network, List, Grid3x3, BarChart3, Download, Settings, Wand2, FileText, Activity } from "lucide-react";
 import { Link } from "wouter";
 import type { ViewType } from "@/pages/dashboard";
 
@@ -12,9 +12,10 @@ interface TopBarProps {
 const viewConfig = {
   network: { icon: Network, label: 'Business Capabilities' },
   hierarchy: { icon: List, label: 'Map' },
-  heatmap: { icon: Grid3x3, label: 'Heatmap' },
-  dashboard: { icon: BarChart3, label: 'Dashboard' },
   model: { icon: Settings, label: 'Model' },
+  decide: { icon: FileText, label: 'Decide' },
+  monitor: { icon: BarChart3, label: 'Monitor' },
+  dashboard: { icon: Grid3x3, label: 'Admin Dashboard' },
 };
 
 export default function TopBar({ currentView, onViewChange, onExport }: TopBarProps) {
@@ -25,6 +26,22 @@ export default function TopBar({ currentView, onViewChange, onExport }: TopBarPr
           {Object.entries(viewConfig).map(([viewKey, config]) => {
             const Icon = config.icon;
             const isActive = currentView === viewKey;
+            
+            // Special handling for "decide" to navigate to ADR page
+            if (viewKey === 'decide') {
+              return (
+                <Link key={viewKey} href="/adr-generator">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{config.label}</span>
+                  </Button>
+                </Link>
+              );
+            }
             
             return (
               <Button

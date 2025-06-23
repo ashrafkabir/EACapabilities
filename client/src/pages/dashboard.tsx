@@ -11,7 +11,7 @@ import DetailModal from "@/components/modals/detail-modal";
 import type { BusinessCapability } from "@shared/schema";
 import { filterCapabilitiesByName } from "@/lib/unified-search";
 
-export type ViewType = 'network' | 'hierarchy' | 'heatmap' | 'dashboard' | 'model';
+export type ViewType = 'network' | 'hierarchy' | 'model' | 'decide' | 'monitor' | 'dashboard';
 
 export interface EntityReference {
   type: 'capability' | 'application' | 'component' | 'dataObject' | 'interface';
@@ -127,7 +127,29 @@ export default function Dashboard() {
             searchTerm={searchTerm}
           />
         );
-      case 'heatmap':
+      case 'model':
+        return (
+          <ModelView 
+            onEntitySelect={handleEntitySelect}
+            searchTerm={searchTerm}
+            filteredCapabilities={filteredCapabilities}
+            selectedITComponent={selectedITComponent}
+            searchScope={searchScope}
+          />
+        );
+      case 'decide':
+        return (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center p-8">
+              <h2 className="text-2xl font-bold mb-4">Architecture Decision Records</h2>
+              <p className="text-gray-600 mb-6">Manage and track architectural decisions with AI-powered assistance.</p>
+              <a href="/adr-generator" className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Go to ADR Generator
+              </a>
+            </div>
+          </div>
+        );
+      case 'monitor':
         return (
           <HeatmapView
             onEntitySelect={handleEntitySelect}
@@ -142,16 +164,6 @@ export default function Dashboard() {
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
             filteredCapabilities={filteredCapabilities}
-          />
-        );
-      case 'model':
-        return (
-          <ModelView 
-            onEntitySelect={handleEntitySelect}
-            searchTerm={searchTerm}
-            filteredCapabilities={filteredCapabilities}
-            selectedITComponent={selectedITComponent}
-            searchScope={searchScope}
           />
         );
       default:
