@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, X, Edit, Save, Undo } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useCallback, useMemo } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useCallback, useMemo, useEffect } from "react";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import AdrVersionTimeline from "./adr-version-timeline";
 
@@ -71,6 +71,28 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
   const [isEditing, setIsEditing] = useState(false);
   const [editedAdr, setEditedAdr] = useState<Adr | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<number>(adr?.version || 1);
+  const [currentAdrData, setCurrentAdrData] = useState<Adr>(adr);
+
+  // Fetch specific version data
+  const { data: versionData } = useQuery({
+    queryKey: ['/api/adrs', adr.adrId, 'versions', selectedVersion],
+    queryFn: async () => {
+      if (selectedVersion === adr.version) {
+        return adr; // Use current ADR data for latest version
+      }
+      const response = await fetch(`/api/adrs/${adr.adrId}/versions/${selectedVersion}`);
+      if (!response.ok) return adr;
+      return await response.json();
+    },
+    enabled: !!adr.adrId
+  });
+
+  // Update current ADR data when version changes
+  useEffect(() => {
+    if (versionData) {
+      setCurrentAdrData(versionData);
+    }
+  }, [versionData]);
 
   // Memoize the field update function to prevent re-renders
   const updateField = useCallback((field: keyof Adr, value: string) => {
@@ -159,14 +181,37 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
     updateAdrMutation.mutate(updatedData);
   };
 
-  const exportToMarkdown = () => {
-    const currentAdr = isEditing ? editedAdr || adr : adr;
-    const markdown = generateMarkdown(currentAdr, applicationName);
-    const blob = new Blob([markdown], { type: 'text/markdown' });
+  const exportToFormat = (format: 'md' | 'docx' | 'html') => {
+    const exportAdr = isEditing ? editedAdr || currentAdrData : currentAdrData;
+    let content: string;
+    let mimeType: string;
+    let fileExtension: string;
+
+    switch (format) {
+      case 'md':
+        content = generateMarkdown(exportAdr, applicationName);
+        mimeType = 'text/markdown';
+        fileExtension = 'md';
+        break;
+      case 'html':
+        content = generateHTML(exportAdr, applicationName);
+        mimeType = 'text/html';
+        fileExtension = 'html';
+        break;
+      case 'docx':
+        content = generateDocx(exportAdr, applicationName);
+        mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        fileExtension = 'docx';
+        break;
+      default:
+        return;
+    }
+
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${currentAdr.adrId.toLowerCase().replace(/[^a-z0-9]/g, '-')}.md`;
+    a.download = `${exportAdr.adrId.toLowerCase().replace(/[^a-z0-9]/g, '-')}-v${selectedVersion}.${fileExtension}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -174,8 +219,58 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
     
     toast({
       title: "ADR Exported",
-      description: `${currentAdr.adrId} has been exported as a markdown file.`,
+      description: `${exportAdr.adrId} v${selectedVersion} exported as ${format.toUpperCase()}.`,
     });
+  };
+
+  const generateHTML = (adr: Adr, appName?: string): string => {
+    const markdown = generateMarkdown(adr, appName);
+    
+    // Simple markdown to HTML conversion
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${adr.adrId} - ${adr.title}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1, h2, h3 { color: #333; }
+        .header { border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+        .section { margin: 20px 0; }
+        .badge { background: #007cba; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; }
+        code { background: #f0f0f0; padding: 2px 4px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+    ${markdown
+      .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+      .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+      .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/\`(.*?)\`/g, '<code>$1</code>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^/, '<p>')
+      .replace(/$/, '</p>')
+    }
+</body>
+</html>`;
+  };
+
+  const generateDocx = (adr: Adr, appName?: string): string => {
+    // Simple DOCX-style XML content (basic format)
+    const content = generateMarkdown(adr, appName);
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p>
+      <w:r>
+        <w:t>${content.replace(/\n/g, '</w:t></w:r></w:p><w:p><w:r><w:t>')}</w:t>
+      </w:r>
+    </w:p>
+  </w:body>
+</w:document>`;
   };
 
   const generateMarkdown = (adr: Adr, appName?: string): string => {
@@ -283,7 +378,7 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
   const Section = ({ title, content, field }: { title: string; content?: string; field?: keyof Adr }) => {
     if (!isEditing && (!content || content.trim() === '')) return null;
     
-    const currentAdr = isEditing ? editedAdr : adr;
+    const currentAdr = isEditing ? editedAdr : currentAdrData;
     const currentValue = (currentAdr?.[field] as string) || '';
     
     return (
@@ -291,7 +386,7 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
         <h4 className="font-semibold text-base text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-1">
           {title}
         </h4>
-        {isEditing && field ? (
+        {isEditing && field && selectedVersion === adr.version ? (
           <Textarea
             key={`${field}-editing`}
             value={currentValue}
@@ -379,13 +474,27 @@ You can use markdown formatting:
           onVersionSelect={setSelectedVersion}
         />
 
+        {/* Version Notice */}
+        {selectedVersion !== adr.version && (
+          <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <div className="flex items-center gap-2 text-amber-800 dark:text-amber-200">
+              <span className="text-sm font-medium">
+                📜 Viewing Version {selectedVersion} (Historical)
+              </span>
+            </div>
+            <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+              This is a read-only view of a previous version. Switch to the latest version to make edits.
+            </p>
+          </div>
+        )}
+
         <div className="space-y-8 mt-6">
-          <Section title="Problem Statement" content={adr.problemStatement} field="problemStatement" />
-          <Section title="Business Drivers" content={adr.businessDrivers} field="businessDrivers" />
-          <Section title="Current State" content={adr.currentState} field="currentState" />
-          <Section title="Constraints" content={adr.constraints} field="constraints" />
-          <Section title="Decision Criteria" content={adr.decisionCriteria} field="decisionCriteria" />
-          <Section title="Options Considered" content={adr.optionsConsidered} field="optionsConsidered" />
+          <Section title="Problem Statement" content={currentAdrData.problemStatement} field="problemStatement" />
+          <Section title="Business Drivers" content={currentAdrData.businessDrivers} field="businessDrivers" />
+          <Section title="Current State" content={currentAdrData.currentState} field="currentState" />
+          <Section title="Constraints" content={currentAdrData.constraints} field="constraints" />
+          <Section title="Decision Criteria" content={currentAdrData.decisionCriteria} field="decisionCriteria" />
+          <Section title="Options Considered" content={currentAdrData.optionsConsidered} field="optionsConsidered" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -397,8 +506,8 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Selected Option" content={adr.selectedOption} field="selectedOption" />
-          <Section title="Justification" content={adr.justification} field="justification" />
+          <Section title="Selected Option" content={currentAdrData.selectedOption} field="selectedOption" />
+          <Section title="Justification" content={currentAdrData.justification} field="justification" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -410,9 +519,9 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Action Items" content={adr.actionItems} field="actionItems" />
-          <Section title="Impact Assessment" content={adr.impactAssessment} field="impactAssessment" />
-          <Section title="Verification Method" content={adr.verificationMethod} field="verificationMethod" />
+          <Section title="Action Items" content={currentAdrData.actionItems} field="actionItems" />
+          <Section title="Impact Assessment" content={currentAdrData.impactAssessment} field="impactAssessment" />
+          <Section title="Verification Method" content={currentAdrData.verificationMethod} field="verificationMethod" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -424,9 +533,9 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Positive Consequences" content={adr.positiveConsequences} field="positiveConsequences" />
-          <Section title="Negative Consequences" content={adr.negativeConsequences} field="negativeConsequences" />
-          <Section title="Risks and Mitigations" content={adr.risksAndMitigations} field="risksAndMitigations" />
+          <Section title="Positive Consequences" content={currentAdrData.positiveConsequences} field="positiveConsequences" />
+          <Section title="Negative Consequences" content={currentAdrData.negativeConsequences} field="negativeConsequences" />
+          <Section title="Risks and Mitigations" content={currentAdrData.risksAndMitigations} field="risksAndMitigations" />
           
           <div className="my-8">
             <div className="flex items-center gap-4 mb-6">
@@ -438,8 +547,8 @@ You can use markdown formatting:
             </div>
           </div>
           
-          <Section title="Notes" content={adr.notes} field="notes" />
-          <Section title="References" content={adr.references} field="references" />
+          <Section title="Notes" content={currentAdrData.notes} field="notes" />
+          <Section title="References" content={currentAdrData.references} field="references" />
 
           {auditTrail.length > 0 && (
             <>

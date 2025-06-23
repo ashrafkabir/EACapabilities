@@ -157,6 +157,59 @@ export type Initiative = typeof initiatives.$inferSelect;
 export type InsertITComponent = z.infer<typeof insertITComponentSchema>;
 export type ITComponent = typeof itComponents.$inferSelect;
 
+// ADR Versions table - stores each version as a separate record
+export const adrVersions = pgTable("adr_versions", {
+  id: serial("id").primaryKey(),
+  adrId: text("adr_id").notNull(),
+  version: integer("version").default(1).notNull(),
+  title: text("title").notNull(),
+  status: text("status").notNull(),
+  date: timestamp("date"),
+  
+  applicationId: text("application_id"),
+  capabilityIds: text("capability_ids"),
+  
+  // Content fields
+  problemStatement: text("problem_statement"),
+  businessDrivers: text("business_drivers"),
+  currentState: text("current_state"),
+  constraints: text("constraints"),
+  decisionCriteria: text("decision_criteria"),
+  optionsConsidered: text("options_considered"),
+  
+  selectedOption: text("selected_option"),
+  justification: text("justification"),
+  
+  actionItems: text("action_items"),
+  impactAssessment: text("impact_assessment"),
+  verificationMethod: text("verification_method"),
+  
+  positiveConsequences: text("positive_consequences"),
+  negativeConsequences: text("negative_consequences"),
+  risksAndMitigations: text("risks_and_mitigations"),
+  
+  notes: text("notes"),
+  references: text("references"),
+  
+  approvals: text("approvals"),
+  revisionHistory: text("revision_history"),
+  
+  decisionMakers: text("decision_makers"),
+  relatedStandard: text("related_standard"),
+  impactedSystems: text("impacted_systems"),
+  classification: text("classification"),
+  
+  auditTrail: text("audit_trail"),
+  lastModifiedBy: text("last_modified_by"),
+  lastModifiedAt: timestamp("last_modified_at"),
+  
+  parentVersionId: integer("parent_version_id"),
+  isLatest: boolean("is_latest").default(false).notNull(),
+  
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const adrs = pgTable("adrs", {
   id: serial("id").primaryKey(),
   adrId: text("adr_id").unique().notNull(),
@@ -200,8 +253,7 @@ export const adrs = pgTable("adrs", {
   lastModifiedAt: timestamp("last_modified_at"),
   version: integer("version").default(1).notNull(),
   
-  // Version history
-  versionHistory: text("version_history"), // JSON array of version snapshots
+  // Version tracking
   parentVersion: integer("parent_version"), // Reference to previous version
   isLatest: boolean("is_latest").default(true).notNull(),
   
@@ -217,6 +269,15 @@ export const insertAdrSchema = createInsertSchema(adrs).omit({
 
 export type InsertAdr = z.infer<typeof insertAdrSchema>;
 export type Adr = typeof adrs.$inferSelect;
+
+export const insertAdrVersionSchema = createInsertSchema(adrVersions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertAdrVersion = z.infer<typeof insertAdrVersionSchema>;
+export type AdrVersion = typeof adrVersions.$inferSelect;
 
 // Legacy user table for authentication (keeping for compatibility)
 export const users = pgTable("users", {

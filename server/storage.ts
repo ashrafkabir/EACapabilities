@@ -57,6 +57,11 @@ interface IStorage {
   getAdrById(id: string): Promise<Adr | undefined>;
   createAdr(insertAdr: InsertAdr): Promise<Adr>;
   updateAdr(id: string, updateData: Partial<InsertAdr>): Promise<Adr | undefined>;
+  
+  // ADR Version methods
+  getAdrVersions(adrId: string): Promise<AdrVersion[]>;
+  getAdrVersion(adrId: string, version: number): Promise<AdrVersion | undefined>;
+  createAdrVersion(insertAdrVersion: InsertAdrVersion): Promise<AdrVersion>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -321,6 +326,26 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAdr(id: string, updateData: any): Promise<Adr | undefined> {
+    // Get the current ADR
+    const currentAdr = await this.getAdrById(id);
+    if (!currentAdr) return undefined;
+
+    // Create a new version record
+    const newVersion = currentAdr.version + 1;
+    await this.createAdrVersion({
+      ...currentAdr,
+      ...updateData,
+      version: newVersion,
+      parentVersionId: currentAdr.id,
+      isLatest: true,
+    });
+
+    // Mark previous versions as not latest
+    await db
+      .update(adrVersions)
+      .set({ isLatest: false })
+      .where(eq(adrVersions.adrId, currentAdr.adrId));
+
     // Remove any problematic fields that shouldn't be updated directly
     const { 
       id: _id, 
@@ -335,12 +360,37 @@ export class DatabaseStorage implements IStorage {
       .update(adrs)
       .set({
         ...cleanData,
+        version: newVersion,
         lastModifiedAt: new Date(),
         updatedAt: new Date(),
       })
       .where(eq(adrs.id, parseInt(id)))
       .returning();
     return adr || undefined;
+  }
+
+  async getAdrVersions(adrId: string): Promise<AdrVersion[]> {
+    return await db
+      .select()
+      .from(adrVersions)
+      .where(eq(adrVersions.adrId, adrId))
+      .orderBy(adrVersions.version);
+  }
+
+  async getAdrVersion(adrId: string, version: number): Promise<AdrVersion | undefined> {
+    const [adrVersion] = await db
+      .select()
+      .from(adrVersions)
+      .where(eq(adrVersions.adrId, adrId) && eq(adrVersions.version, version));
+    return adrVersion || undefined;
+  }
+
+  async createAdrVersion(insertAdrVersion: InsertAdrVersion): Promise<AdrVersion> {
+    const [adrVersion] = await db
+      .insert(adrVersions)
+      .values(insertAdrVersion)
+      .returning();
+    return adrVersion;
   }
 }
 
