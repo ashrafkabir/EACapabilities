@@ -486,15 +486,24 @@ You can use markdown formatting:
     <Dialog open={!!adr} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-start justify-between space-y-0">
-          <div className="space-y-2 flex-1">
-            <DialogTitle className="text-xl font-bold">{adr.adrId}</DialogTitle>
-            <h2 className="text-lg text-gray-700 dark:text-gray-300">{adr.title}</h2>
+          <div className="space-y-4 flex-1">
+            <div className="space-y-2">
+              <DialogTitle className="text-xl font-bold">{adr.adrId}</DialogTitle>
+              <h2 className="text-lg text-gray-700 dark:text-gray-300">{currentAdrData.title}</h2>
+            </div>
+            
+            {/* Status Progression */}
+            <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <StatusProgression 
+                currentStatus={currentAdrData.status} 
+                isEditing={isEditing && selectedVersion === adr.version} 
+                onStatusChange={(status) => updateField('status', status)} 
+              />
+            </div>
+            
             <div className="flex items-center gap-4">
-              <Badge className={`${getStatusColor(adr.status)} border`}>
-                {adr.status}
-              </Badge>
               <span className="text-sm text-gray-500">
-                {formatDate(adr.date)}
+                {formatDate(currentAdrData.date)}
               </span>
               {applicationName && (
                 <Badge variant="outline" className="text-xs">
