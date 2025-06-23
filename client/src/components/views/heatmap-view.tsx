@@ -22,6 +22,7 @@ interface HeatmapViewProps {
   onEntitySelect: (entity: EntityReference) => void;
   searchTerm: string;
   selectedCapability: string | null;
+  filteredCapabilities: any[];
   filters: {
     capabilities: boolean;
     applications: boolean;

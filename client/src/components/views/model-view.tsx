@@ -13,10 +13,9 @@ import type { BusinessCapability, Application } from "@shared/schema";
 import { filterCapabilitiesBySearch } from "@/lib/unified-search";
 
 interface ModelViewProps {
+  onEntitySelect: (entity: any) => void;
   searchTerm: string;
-  selectedCapability: string | null;
-  selectedITComponent?: string | null;
-  searchScope: string | null;
+  filteredCapabilities: any[];
   filters: {
     capabilities: boolean;
     applications: boolean;

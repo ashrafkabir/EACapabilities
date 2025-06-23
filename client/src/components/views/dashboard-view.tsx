@@ -25,6 +25,7 @@ interface DashboardMetrics {
 interface DashboardViewProps {
   onEntitySelect: (entity: EntityReference) => void;
   searchTerm: string;
+  filteredCapabilities: any[];
   selectedCapability: string | null;
   filters: {
     capabilities: boolean;

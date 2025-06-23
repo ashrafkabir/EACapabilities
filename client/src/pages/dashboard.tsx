@@ -133,6 +133,7 @@ export default function Dashboard() {
             onEntitySelect={handleEntitySelect}
             searchTerm={searchTerm}
             selectedCapability={selectedCapability}
+            filteredCapabilities={filteredCapabilities}
           />
         );
       case 'dashboard':
