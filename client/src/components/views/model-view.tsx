@@ -574,28 +574,35 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
             <div className="bg-white/5 border-t border-white/20 rounded-b-lg">
               <div className="px-3 py-2">
                 <div className="space-y-1 max-h-40 overflow-y-auto">
-                  {applications.map((app: Application) => (
-                    <div key={app.id} className="flex items-center justify-between bg-white/10 rounded px-2 py-1.5 text-gray-800 dark:text-white">
-                      <span className="text-xs truncate flex-1 font-medium">{app.name}</span>
-                      <div className="flex items-center gap-1 ml-2">
-                        {hasApplicationDiagrams(app.id) && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-5 w-5 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100/30"
-                            onClick={(e) => handleDiagramClick(app.id, e)}
-                            title={`View diagrams for ${app.name}`}
-                          >
-                            <FileText className="h-3 w-3" />
-                          </Button>
-                        )}
-                        {/* Debug indicator - shows for all apps when diagrams exist */}
-                        {diagrams.length > 0 && (
-                          <span className="text-xs text-yellow-500" title={`App ID: ${app.id}, Total diagrams: ${diagrams.length}, App diagrams: ${getApplicationDiagrams(app.id).length}`}>
-                            🔍
+                  {applications.map((app: Application) => {
+                    const appDiagrams = getApplicationDiagrams(app.id);
+                    const hasDiagrams = appDiagrams.length > 0;
+                    
+                    // Debug: Check if this is the CT.gov Portal app
+                    if (app.id === 'd95e4493-cd14-4a8c-a9ed-2b1cd30574e6') {
+                      console.log(`🎯 Found CT.gov Portal! Diagrams:`, appDiagrams);
+                    }
+                    
+                    return (
+                      <div key={app.id} className="flex items-center justify-between bg-white/10 rounded px-2 py-1.5 text-gray-800 dark:text-white">
+                        <span className="text-xs truncate flex-1 font-medium">{app.name}</span>
+                        <div className="flex items-center gap-1 ml-2">
+                          {hasDiagrams && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-5 w-5 p-0 text-blue-600 hover:text-blue-800 hover:bg-blue-100/30"
+                              onClick={(e) => handleDiagramClick(app.id, e)}
+                              title={`View diagrams for ${app.name}`}
+                            >
+                              <FileText className="h-3 w-3" />
+                            </Button>
+                          )}
+                          {/* Show all apps have debug indicator for now */}
+                          <span className="text-xs text-gray-400" title={`${app.name} (${app.id}): ${appDiagrams.length} diagrams`}>
+                            {app.id === 'd95e4493-cd14-4a8c-a9ed-2b1cd30574e6' ? '🎯' : (appDiagrams.length > 0 ? '📊' : '⚪')}
                           </span>
-                        )}
-                        <Button
+                          <Button
                           size="sm"
                           variant="ghost"
                           className="h-5 w-5 p-0 text-red-600 hover:text-red-800 hover:bg-red-100/30"
@@ -605,10 +612,11 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                           }}
                         >
                           <X className="h-3 w-3" />
-                        </Button>
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
