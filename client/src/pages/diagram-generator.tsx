@@ -29,7 +29,8 @@ export default function DiagramGenerator() {
 
   const generateDiagramMutation = useMutation({
     mutationFn: async ({ description, type }: { description: string; type: string }) => {
-      return apiRequest('/api/generate-diagram', 'POST', { description, type });
+      const response = await apiRequest('/api/generate-diagram', 'POST', { description, type });
+      return response.json();
     },
     onSuccess: (data) => {
       setGeneratedCode(data.mermaidCode);
