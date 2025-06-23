@@ -31,7 +31,7 @@ export default function AdrGenerator() {
   const [activeTab, setActiveTab] = useState("generate");
   const [inputText, setInputText] = useState("");
   const [selectedApplication, setSelectedApplication] = useState("");
-  const [filterApplication, setFilterApplication] = useState("");
+  const [filterApplication, setFilterApplication] = useState("all");
   const [generatedAdr, setGeneratedAdr] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -155,7 +155,8 @@ export default function AdrGenerator() {
     
     const matchesStatus = statusFilter === "all" || adr.status.toLowerCase() === statusFilter.toLowerCase();
     
-    const matchesApplication = filterApplication === "" || filterApplication === "all" || 
+    const matchesApplication = filterApplication === "all" || 
+      filterApplication === "unassigned" ? !adr.applicationId || adr.applicationId === "" :
       adr.applicationId === filterApplication;
     
     return matchesSearch && matchesStatus && matchesApplication;
@@ -351,7 +352,7 @@ export default function AdrGenerator() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">📋 All Applications</SelectItem>
-                          <SelectItem value="">❓ Unassigned ADRs</SelectItem>
+                          <SelectItem value="unassigned">❓ Unassigned ADRs</SelectItem>
                           {applications.map((app) => (
                             <SelectItem key={app.id} value={app.id}>
                               🏢 {app.name}
@@ -373,6 +374,14 @@ export default function AdrGenerator() {
                         <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Currently viewing:</span>
                         <Badge variant="outline" className="border-blue-300 text-blue-700 dark:border-blue-600 dark:text-blue-300 px-3 py-1">
                           📋 All Applications
+                        </Badge>
+                      </div>
+                    )}
+                    {filterApplication === "unassigned" && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Currently viewing:</span>
+                        <Badge variant="outline" className="border-orange-300 text-orange-700 dark:border-orange-600 dark:text-orange-300 px-3 py-1">
+                          ❓ Unassigned ADRs
                         </Badge>
                       </div>
                     )}
@@ -420,14 +429,20 @@ export default function AdrGenerator() {
                       <div className="text-center py-8">
                         <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                         <p className="text-gray-500">
-                          {filterApplication && filterApplication !== "all" && selectedApp 
+                          {filterApplication === "all" 
+                            ? "No ADRs found" 
+                            : filterApplication === "unassigned"
+                            ? "No unassigned ADRs found"
+                            : selectedApp 
                             ? `No ADRs found for ${selectedApp.name}` 
                             : "No ADRs found"}
                         </p>
                         <p className="text-sm text-gray-400">
-                          {filterApplication && filterApplication !== "all" 
-                            ? "Generate ADRs for this application or select a different application"
-                            : "Generate your first ADR to get started"}
+                          {filterApplication === "all" 
+                            ? "Generate your first ADR to get started"
+                            : filterApplication === "unassigned"
+                            ? "All ADRs are assigned to applications"
+                            : "Generate ADRs for this application or select a different application"}
                         </p>
                       </div>
                     </CardContent>
