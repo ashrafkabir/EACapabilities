@@ -121,7 +121,7 @@ export default function AdrDetailModal({ adr, onClose, applicationName }: AdrDet
         auditEntry
       ]),
       lastModifiedBy: "Current User", // TODO: Get from auth context
-      lastModifiedAt: new Date().toISOString(),
+      lastModifiedAt: new Date(),
       version: (adr.version || 1) + 1
     };
 
@@ -251,18 +251,33 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
     if (!isEditing && (!content || content.trim() === '')) return null;
     
     return (
-      <div className="space-y-2">
-        <h4 className="font-semibold text-sm text-gray-700 dark:text-gray-300">{title}</h4>
+      <div className="space-y-3">
+        <h4 className="font-semibold text-base text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-1">
+          {title}
+        </h4>
         {isEditing && field && editedAdr ? (
           <Textarea
-            value={editedAdr[field] as string || ''}
-            onChange={(e) => setEditedAdr({ ...editedAdr, [field]: e.target.value })}
-            className="min-h-[80px]"
-            placeholder={`Enter ${title.toLowerCase()}...`}
+            key={`${field}-${adr.id}`} // Add key to prevent React from reusing components
+            value={(editedAdr[field] as string) || ''}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              setEditedAdr(prev => prev ? { ...prev, [field]: newValue } : null);
+            }}
+            className="min-h-[120px] text-sm leading-relaxed resize-vertical border-2 border-gray-200 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 rounded-lg p-4"
+            placeholder={`Enter ${title.toLowerCase()}...
+
+You can use markdown formatting:
+- **bold text**
+- *italic text*  
+- \`code\`
+- Lists with - or 1.
+- Links: [text](url)`}
           />
         ) : (
-          <div className="text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-3 rounded border">
-            {content || '[TO BE DETERMINED]'}
+          <div className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 leading-relaxed">
+            {content || (
+              <span className="text-gray-400 italic">[TO BE DETERMINED]</span>
+            )}
           </div>
         )}
       </div>
@@ -275,7 +290,7 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
 
   return (
     <Dialog open={!!adr} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[95vh] overflow-y-auto">
         <DialogHeader className="flex flex-row items-start justify-between space-y-0">
           <div className="space-y-2 flex-1">
             <DialogTitle className="text-xl font-bold">{adr.adrId}</DialogTitle>
@@ -324,7 +339,7 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
           </div>
         </DialogHeader>
 
-        <div className="space-y-6 mt-6">
+        <div className="space-y-8 mt-6">
           <Section title="Problem Statement" content={adr.problemStatement} field="problemStatement" />
           <Section title="Business Drivers" content={adr.businessDrivers} field="businessDrivers" />
           <Section title="Current State" content={adr.currentState} field="currentState" />
@@ -332,24 +347,57 @@ ${adr.revisionHistory || '[TO BE DETERMINED]'}
           <Section title="Decision Criteria" content={adr.decisionCriteria} field="decisionCriteria" />
           <Section title="Options Considered" content={adr.optionsConsidered} field="optionsConsidered" />
           
-          <Separator />
+          <div className="my-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent"></div>
+              <span className="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full">
+                Decision
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-blue-200 to-transparent"></div>
+            </div>
+          </div>
           
           <Section title="Selected Option" content={adr.selectedOption} field="selectedOption" />
           <Section title="Justification" content={adr.justification} field="justification" />
           
-          <Separator />
+          <div className="my-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent"></div>
+              <span className="text-sm font-medium text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950 px-3 py-1 rounded-full">
+                Implementation
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-green-200 to-transparent"></div>
+            </div>
+          </div>
           
           <Section title="Action Items" content={adr.actionItems} field="actionItems" />
           <Section title="Impact Assessment" content={adr.impactAssessment} field="impactAssessment" />
           <Section title="Verification Method" content={adr.verificationMethod} field="verificationMethod" />
           
-          <Separator />
+          <div className="my-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent"></div>
+              <span className="text-sm font-medium text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-950 px-3 py-1 rounded-full">
+                Consequences
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent"></div>
+            </div>
+          </div>
           
           <Section title="Positive Consequences" content={adr.positiveConsequences} field="positiveConsequences" />
           <Section title="Negative Consequences" content={adr.negativeConsequences} field="negativeConsequences" />
           <Section title="Risks and Mitigations" content={adr.risksAndMitigations} field="risksAndMitigations" />
           
-          <Separator />
+          <div className="my-8">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-950 px-3 py-1 rounded-full">
+                Additional Information
+              </span>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent"></div>
+            </div>
+          </div>
+          
           <Section title="Notes" content={adr.notes} field="notes" />
           <Section title="References" content={adr.references} field="references" />
 
