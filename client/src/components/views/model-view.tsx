@@ -96,7 +96,9 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
 
   // Helper function to check if application has diagrams
   const hasApplicationDiagrams = (applicationId: string): boolean => {
-    return getApplicationDiagrams(applicationId).length > 0;
+    const appDiagrams = getApplicationDiagrams(applicationId);
+    console.log(`ModelView: Checking diagrams for app ${applicationId}:`, appDiagrams);
+    return appDiagrams.length > 0;
   };
 
   const handleDiagramClick = (applicationId: string, event: React.MouseEvent) => {
@@ -586,6 +588,12 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                           >
                             <FileText className="h-3 w-3" />
                           </Button>
+                        )}
+                        {/* Debug indicator - shows for all apps when diagrams exist */}
+                        {diagrams.length > 0 && (
+                          <span className="text-xs text-yellow-500" title={`App ID: ${app.id}, Total diagrams: ${diagrams.length}, App diagrams: ${getApplicationDiagrams(app.id).length}`}>
+                            🔍
+                          </span>
                         )}
                         <Button
                           size="sm"
