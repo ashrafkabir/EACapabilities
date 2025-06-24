@@ -588,11 +588,6 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                     const appDiagrams = getApplicationDiagrams(app.id);
                     const hasDiagrams = appDiagrams.length > 0;
                     
-                    // Debug CT.gov Portal specifically
-                    if (app.name === 'CT.gov Portal') {
-                      console.log(`CT.gov Portal: ID=${app.id}, Diagrams=${appDiagrams.length}`);
-                    }
-                    
 
                     
                     return (
