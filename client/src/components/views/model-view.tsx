@@ -166,10 +166,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
         return false;
       });
       
-      // Debug Enterprise Strategy specifically
-      if (capabilityName.toLowerCase().includes('enterprise strategy') || app.businessCapabilities.toLowerCase().includes('enterprise strategy')) {
-        console.log(`Checking ${app.name} (${app.businessCapabilities}) against ${capabilityName}: ${isMatch}`);
-      }
+
       
       return isMatch;
     });
@@ -487,10 +484,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
   ) => {
     const applications = capability ? getApplicationsForCapability(capability.name) : [];
     
-    // Debug Enterprise Strategy specifically
-    if (capability?.name?.toLowerCase().includes('enterprise strategy')) {
-      console.log(`🎯 Enterprise Strategy capability selected! Found ${applications.length} applications:`, applications.map(app => app.name));
-    }
+
     const isSelected = selectedCapability === id;
     const appCount = getRollupCount(capability || { name, level } as BusinessCapability);
     
@@ -594,10 +588,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                     const appDiagrams = getApplicationDiagrams(app.id);
                     const hasDiagrams = appDiagrams.length > 0;
                     
-                    // Debug logging for Enterprise Strategy apps
-                    if (capability?.name?.toLowerCase().includes('enterprise strategy')) {
-                      console.log(`App in Enterprise Strategy: ${app.name} (ID: ${app.id}) - Diagrams: ${appDiagrams.length}`);
-                    }
+
                     
                     return (
                       <div key={app.id} className="flex items-center justify-between bg-white/10 rounded px-2 py-1.5 text-gray-800 dark:text-white">
@@ -614,10 +605,7 @@ export default function ModelView({ onEntitySelect, searchTerm, filteredCapabili
                               <FileText className="h-3 w-3" />
                             </Button>
                           )}
-                          {/* Temporary debug indicator */}
-                          <span className="text-xs text-gray-400" title={`${app.name}: ${appDiagrams.length} diagrams`}>
-                            {hasDiagrams ? '📊' : '⭕'}
-                          </span>
+
 
                           <Button
                           size="sm"
