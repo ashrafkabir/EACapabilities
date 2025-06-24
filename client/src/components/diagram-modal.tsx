@@ -214,7 +214,13 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
 
   const handleLinkApplication = () => {
     if (selectedApplicationId && !linkedApplications.includes(selectedApplicationId)) {
-      setLinkedApplications([...linkedApplications, selectedApplicationId]);
+      // Find all applications with the same name as the selected one
+      const selectedApp = availableApplications.find(app => app.id === selectedApplicationId);
+      if (selectedApp) {
+        const appsWithSameName = availableApplications.filter(app => app.name === selectedApp.name);
+        const newAppIds = appsWithSameName.map(app => app.id).filter(id => !linkedApplications.includes(id));
+        setLinkedApplications([...linkedApplications, ...newAppIds]);
+      }
       setSelectedApplicationId("");
     }
   };
@@ -418,13 +424,20 @@ export default function DiagramModal({ diagram, onClose, onSave, applications = 
                         <SelectValue placeholder="Select application to link" />
                       </SelectTrigger>
                       <SelectContent>
-                        {availableApplications
-                          .filter(app => !linkedApplications.includes(app.id))
-                          .map((app) => (
-                            <SelectItem key={app.id} value={app.id}>
-                              {app.displayName || app.name}
-                            </SelectItem>
-                          ))}
+                        {Array.from(new Map(availableApplications.map(app => [app.name, app])).values())
+                          .filter(app => {
+                            // Check if any application with this name is already linked
+                            const appsWithSameName = availableApplications.filter(a => a.name === app.name);
+                            return !appsWithSameName.some(a => linkedApplications.includes(a.id));
+                          })
+                          .map((app) => {
+                            const appsWithSameName = availableApplications.filter(a => a.name === app.name);
+                            return (
+                              <SelectItem key={app.id} value={app.id}>
+                                {app.displayName || app.name} {appsWithSameName.length > 1 && `(${appsWithSameName.length} instances)`}
+                              </SelectItem>
+                            );
+                          })}
                       </SelectContent>
                     </Select>
                     <Button

@@ -545,6 +545,14 @@ export class DatabaseStorage implements IStorage {
     const diagram = await this.getDiagramById(diagramId);
     if (!diagram) return;
 
+    // Get the application to find its name
+    const [application] = await db.select().from(applications).where(eq(applications.id, applicationId));
+    if (!application) return;
+
+    // Find all applications with the same name
+    const matchingApps = await db.select().from(applications).where(eq(applications.name, application.name));
+    const matchingAppIds = matchingApps.map(app => app.id);
+
     let applicationIds: string[] = [];
     if (diagram.applicationIds) {
       try {
@@ -554,8 +562,10 @@ export class DatabaseStorage implements IStorage {
       }
     }
 
-    if (!applicationIds.includes(applicationId)) {
-      applicationIds.push(applicationId);
+    // Add all matching application IDs that aren't already linked
+    const newAppIds = matchingAppIds.filter(id => !applicationIds.includes(id));
+    if (newAppIds.length > 0) {
+      applicationIds.push(...newAppIds);
       await this.updateDiagram(diagramId, {
         applicationIds: JSON.stringify(applicationIds)
       });
